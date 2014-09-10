@@ -1,7 +1,7 @@
-简洁XMPP
+XMPP
 ===========
 
-# **简洁XMPP Android 客户端项目简析** #
+# **XMPP Android 客户端项目简析** #
 
 *注：本文假设你已经有Android开发环境*
 
@@ -9,9 +9,8 @@
 如果编译出错，请修改项目根目录下的 project.properties 文件。<br>
 推荐使用Android 4.0 以上版本的SDK,请使用JDK1.6编译：
 
-> target=android-18
+> target=android-19
 
-**本项目采用 GPL 授权协议，欢迎大家在这个基础上进行改进，并与大家分享。**
 
 下面将简单的解析下项目：
 
@@ -30,27 +29,27 @@ src目录用于存放项目的包及java源码文件。
 
 下面是src目录的子目录：
 > src<br>
-> ├ com.way.activity<br>
-> ├ com.way.adapter<br>
-> ├ com.way.app<br>
-> ├ com.way.db<br>
-> ├ com.way.exception<br>
-> ├ com.way.fragment<br>
-> ├ com.way.service<br>
-> ├ com.way.smack<br>
-> ├ com.way.ui.xx<br>
-> └ com.way.util<br>
+> ├ com.zxq.activity<br>
+> ├ com.zxq.adapter<br>
+> ├ com.zxq.app<br>
+> ├ com.zxq.db<br>
+> ├ com.zxq.exception<br>
+> ├ com.zxq.fragment<br>
+> ├ com.zxq.service<br>
+> ├ com.zxq.smack<br>
+> ├ com.zxq.ui.xx<br>
+> └ com.zxq.util<br>
 
-- com.way.activity — APP所有的Activity包
-- com.way.adapter — APP所有的适配器包
-- com.way.app — APP启动及管理包
-- com.way.db — APP数据库包
-- com.way.exception — APP所有自定义异常包
-- com.way.fragment — APP所有Fragment包
-- com.way.service — APP关键服务包
-- com.way.smack — APP对asmack.jar部分功能重新抽取封装包
-- com.way.ui.xx — APP第三方控件包，“xx”代表所有控件
-- com.way.util — APP通用工具包
+- com.zxq.activity — APP所有的Activity包
+- com.zxq.adapter — APP所有的适配器包
+- com.zxq.app — APP启动及管理包
+- com.zxq.db — APP数据库包
+- com.zxq.exception — APP所有自定义异常包
+- com.zxq.fragment — APP所有Fragment包
+- com.zxq.service — APP关键服务包
+- com.zxq.smack — APP对asmack.jar部分功能重新抽取封装包
+- com.zxq.ui.xx — APP第三方控件包，“xx”代表所有控件
+- com.zxq.util — APP通用工具包
 
 
 **2、libs目录**<br>
@@ -97,24 +96,3 @@ res目录用于存放项目的图片、布局、样式等资源文件。
 AndroidManifest.xml用于设置应用程序的版本、主题、用户权限及注册Activity等。
 
 
-## 联系我
-
-way:
-  * [邮箱](mailto:way.ping.li@gmail.com "给我发邮件")
-  * [博客](http://blog.csdn.net/way_ping_li/article/details/17385379 "CSDN博客")
-
-
-## 测试截图
-![Screenshot 13](http://git.oschina.net/way/XMPP/raw/master/Screenshot/13.png "Screenshot 13")
-![Screenshot 1](http://git.oschina.net/way/XMPP/raw/master/Screenshot/1.jpg "Screenshot 1")
-![Screenshot 2](http://git.oschina.net/way/XMPP/raw/master/Screenshot/2.jpg "Screenshot 2")
-![Screenshot 3](http://git.oschina.net/way/XMPP/raw/master/Screenshot/3.jpg "Screenshot 3")
-![Screenshot 4](http://git.oschina.net/way/XMPP/raw/master/Screenshot/4.jpg "Screenshot 4")
-![Screenshot 5](http://git.oschina.net/way/XMPP/raw/master/Screenshot/5.jpg "Screenshot 5")
-![Screenshot 6](http://git.oschina.net/way/XMPP/raw/master/Screenshot/6.jpg "Screenshot 6")
-![Screenshot 7](http://git.oschina.net/way/XMPP/raw/master/Screenshot/7.jpg "Screenshot 7")
-![Screenshot 8](http://git.oschina.net/way/XMPP/raw/master/Screenshot/8.jpg "Screenshot 8")
-![Screenshot 9](http://git.oschina.net/way/XMPP/raw/master/Screenshot/9.jpg "Screenshot 9")
-![Screenshot 10](http://git.oschina.net/way/XMPP/raw/master/Screenshot/10.jpg "Screenshot 10")
-![Screenshot 11](http://git.oschina.net/way/XMPP/raw/master/Screenshot/11.jpg "Screenshot 11")
-![Screenshot 12](http://git.oschina.net/way/XMPP/raw/master/Screenshot/12.jpg "Screenshot 12")
