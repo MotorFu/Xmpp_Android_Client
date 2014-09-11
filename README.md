@@ -1,7 +1,7 @@
-简洁XMPP
+XMPP
 ===========
 
-# **简洁XMPP Android 客户端项目简析** #
+# **XMPP Android 客户端项目简析** #
 
 *注：本文假设你已经有Android开发环境*
 
@@ -9,9 +9,8 @@
 如果编译出错，请修改项目根目录下的 project.properties 文件。<br>
 推荐使用Android 4.0 以上版本的SDK,请使用JDK1.6编译：
 
-> target=android-18
+> target=android-19
 
-**本项目采用 GPL 授权协议，欢迎大家在这个基础上进行改进，并与大家分享。**
 
 下面将简单的解析下项目：
 
@@ -97,24 +96,3 @@ res目录用于存放项目的图片、布局、样式等资源文件。
 AndroidManifest.xml用于设置应用程序的版本、主题、用户权限及注册Activity等。
 
 
-## 联系我
-
-way:
-  * [邮箱](mailto:way.ping.li@gmail.com "给我发邮件")
-  * [博客](http://blog.csdn.net/way_ping_li/article/details/17385379 "CSDN博客")
-
-
-## 测试截图
-![Screenshot 13](http://git.oschina.net/way/XMPP/raw/master/Screenshot/13.png "Screenshot 13")
-![Screenshot 1](http://git.oschina.net/way/XMPP/raw/master/Screenshot/1.jpg "Screenshot 1")
-![Screenshot 2](http://git.oschina.net/way/XMPP/raw/master/Screenshot/2.jpg "Screenshot 2")
-![Screenshot 3](http://git.oschina.net/way/XMPP/raw/master/Screenshot/3.jpg "Screenshot 3")
-![Screenshot 4](http://git.oschina.net/way/XMPP/raw/master/Screenshot/4.jpg "Screenshot 4")
-![Screenshot 5](http://git.oschina.net/way/XMPP/raw/master/Screenshot/5.jpg "Screenshot 5")
-![Screenshot 6](http://git.oschina.net/way/XMPP/raw/master/Screenshot/6.jpg "Screenshot 6")
-![Screenshot 7](http://git.oschina.net/way/XMPP/raw/master/Screenshot/7.jpg "Screenshot 7")
-![Screenshot 8](http://git.oschina.net/way/XMPP/raw/master/Screenshot/8.jpg "Screenshot 8")
-![Screenshot 9](http://git.oschina.net/way/XMPP/raw/master/Screenshot/9.jpg "Screenshot 9")
-![Screenshot 10](http://git.oschina.net/way/XMPP/raw/master/Screenshot/10.jpg "Screenshot 10")
-![Screenshot 11](http://git.oschina.net/way/XMPP/raw/master/Screenshot/11.jpg "Screenshot 11")
-![Screenshot 12](http://git.oschina.net/way/XMPP/raw/master/Screenshot/12.jpg "Screenshot 12")
