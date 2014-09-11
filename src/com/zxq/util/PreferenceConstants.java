@@ -1,6 +1,9 @@
 package com.zxq.util;
 
 public class PreferenceConstants {
+    //测试用本机openfire服务器
+    public final static String DEFAULT_SERVER  = "192.168.87.1";
+
 	public static final String GMAIL_SERVER = "talk.google.com";
 	public final static String ISNEEDLOG = "isneedlog";
 	public final static String REPORT_CRASH = "reportcrash";

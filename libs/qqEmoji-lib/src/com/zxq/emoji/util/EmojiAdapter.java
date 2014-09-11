@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
-import com.way.gifface.R;
+import com.zxq.gifface.R;
 
 public class EmojiAdapter extends BaseAdapter {
 

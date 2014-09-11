@@ -54,7 +54,7 @@ public class XXService extends BaseService implements EventHandler,
 	// 自动重连 start
 	private static final int RECONNECT_AFTER = 5;
 	private static final int RECONNECT_MAXIMUM = 10 * 60;// 最大重连时间间隔
-	private static final String RECONNECT_ALARM = "com.way.xx.RECONNECT_ALARM";
+	private static final String RECONNECT_ALARM = "com.zxq.xx.RECONNECT_ALARM";
 	// private boolean mIsNeedReConnection = false; // 是否需要重连
 	private int mConnectedState = DISCONNECTED; // 是否已经连接
 	private int mReconnectTimeout = RECONNECT_AFTER;

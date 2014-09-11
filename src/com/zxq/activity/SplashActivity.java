@@ -20,6 +20,11 @@ public class SplashActivity extends FragmentActivity {
 		mHandler = new Handler();
 		String password = PreferenceUtils.getPrefString(this,
 				PreferenceConstants.PASSWORD, "");
+        String server = PreferenceUtils.getPrefString(this,PreferenceConstants.Server,"");
+        if (TextUtils.isEmpty(server)) {
+            PreferenceUtils.setPrefString(this, PreferenceConstants.Server,  PreferenceConstants.DEFAULT_SERVER);
+        }
+
 		if (!TextUtils.isEmpty(password)) {
 			mHandler.postDelayed(gotoMainAct, 3000);
 		} else {

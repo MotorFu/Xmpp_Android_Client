@@ -27,7 +27,7 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
-import com.way.gifface.R;
+import com.zxq.gifface.R;
 import com.zxq.emoji.util.EmojiUtil;
 import com.zxq.ui.emoji.EmojiLinearLayout.OnEmojiClickedListener;
 

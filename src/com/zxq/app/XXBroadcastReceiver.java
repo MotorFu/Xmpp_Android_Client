@@ -14,7 +14,7 @@ import com.zxq.util.PreferenceConstants;
 import com.zxq.util.PreferenceUtils;
 
 public class XXBroadcastReceiver extends BroadcastReceiver {
-	public static final String BOOT_COMPLETED_ACTION = "com.way.action.BOOT_COMPLETED";
+	public static final String BOOT_COMPLETED_ACTION = "com.zxq.action.BOOT_COMPLETED";
 	public static ArrayList<EventHandler> mListeners = new ArrayList<EventHandler>();
 
 	@Override

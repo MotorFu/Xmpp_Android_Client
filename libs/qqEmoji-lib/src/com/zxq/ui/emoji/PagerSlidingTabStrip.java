@@ -25,7 +25,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.way.gifface.R;
+import com.zxq.gifface.R;
 
 /**
  * 

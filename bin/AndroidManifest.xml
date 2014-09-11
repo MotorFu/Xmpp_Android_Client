@@ -39,7 +39,7 @@
             android:theme="@style/Default.NoTitleBar"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" >
             <intent-filter>
-                <action android:name="com.way.xx.action.LOGIN" />
+                <action android:name="com.zxq.xx.action.LOGIN" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -61,7 +61,7 @@
             android:theme="@style/Default.SwipeBack.NoTitleBar"
             android:windowSoftInputMode="stateHidden|adjustResize" >
             <intent-filter>
-                <action android:name="com.way.xx.action.CHAT" />
+                <action android:name="com.zxq.xx.action.CHAT" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -103,10 +103,10 @@
 
         <provider
             android:name="com.zxq.db.ChatProvider"
-            android:authorities="com.way.xx.provider.Chats" />
+            android:authorities="com.zxq.xx.provider.Chats" />
         <provider
             android:name="com.zxq.db.RosterProvider"
-            android:authorities="com.way.xx.provider.Roster" />
+            android:authorities="com.zxq.xx.provider.Roster" />
     </application>
 
 </manifest>

@@ -20,7 +20,7 @@ import com.zxq.util.L;
 
 public class ChatProvider extends ContentProvider {
 
-	public static final String AUTHORITY = "com.way.xx.provider.Chats";
+	public static final String AUTHORITY = "com.zxq.xx.provider.Chats";
 	public static final String TABLE_NAME = "chats";
 	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY
 			+ "/" + TABLE_NAME);

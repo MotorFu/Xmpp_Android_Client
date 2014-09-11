@@ -16,7 +16,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 
-import com.way.gifface.R;
+import com.zxq.gifface.R;
 import com.zxq.emoji.util.EmojiAdapter;
 import com.zxq.emoji.util.EmojiUtil;
 import com.zxq.emoji.util.EmojiViewPageAdapter;

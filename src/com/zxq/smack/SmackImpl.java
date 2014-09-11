@@ -127,8 +127,8 @@ public class SmackImpl implements Smack {
 	private long mPingTimestamp;// 时间戳
 	private PendingIntent mPingAlarmPendIntent;// 是通过闹钟来控制ping服务器的时间间隔
 	private PendingIntent mPongTimeoutAlarmPendIntent;// 判断服务器连接超时的闹钟
-	private static final String PING_ALARM = "com.way.xx.PING_ALARM";// ping服务器闹钟BroadcastReceiver的Action
-	private static final String PONG_TIMEOUT_ALARM = "com.way.xx.PONG_TIMEOUT_ALARM";// 判断连接超时的闹钟BroadcastReceiver的Action
+	private static final String PING_ALARM = "com.zxq.xx.PING_ALARM";// ping服务器闹钟BroadcastReceiver的Action
+	private static final String PONG_TIMEOUT_ALARM = "com.zxq.xx.PONG_TIMEOUT_ALARM";// 判断连接超时的闹钟BroadcastReceiver的Action
 	private Intent mPingAlarmIntent = new Intent(PING_ALARM);
 	private Intent mPongTimeoutAlarmIntent = new Intent(PONG_TIMEOUT_ALARM);
 	private PongTimeoutAlarmReceiver mPongTimeoutAlarmReceiver = new PongTimeoutAlarmReceiver();

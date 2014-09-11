@@ -1,5 +1,8 @@
 package com.zxq.util;
 
+import android.content.DialogInterface;
+import android.widget.Button;
+import android.widget.EditText;
 import com.zxq.xmpp.R;
 import com.zxq.xmpp.R.id;
 import com.zxq.xmpp.R.layout;
@@ -46,6 +49,13 @@ public class DialogUtil {
 		titleTxtv.setText(R.string.login_prompt);
 		return dialog;
 	}
+
+    public static Dialog getInputDialog(Activity context) {
+
+        final Dialog dialog = new Dialog(context, R.style.DialogStyle);
+        dialog.setContentView(R.layout.input_dialog);
+        return dialog;
+    }
 
 	public static int getScreenWidth(Activity context) {
 		DisplayMetrics dm = new DisplayMetrics();

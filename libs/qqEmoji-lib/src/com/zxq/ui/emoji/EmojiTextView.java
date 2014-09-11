@@ -11,7 +11,7 @@ import android.text.style.ImageSpan;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
-import com.way.gifface.R;
+import com.zxq.gifface.R;
 import com.zxq.emoji.util.AnimatedGifDrawable;
 import com.zxq.emoji.util.AnimatedImageSpan;
 import com.zxq.emoji.util.EmojiUtil;

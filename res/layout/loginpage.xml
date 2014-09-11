@@ -46,7 +46,7 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:background="@null"
-                        android:hint="jid@example.com"
+                        android:hint="请输入账号"
                         android:imeActionLabel="@string/next"
                         android:maxLength="50"
                         android:paddingBottom="6.0dip"
@@ -54,8 +54,8 @@
                         android:paddingTop="6.0dip"
                         android:singleLine="true"
                         android:textColor="#ff333333"
-                        android:textSize="17.829987dip" />
-                    android:imeOptions="actionNext|flagNoExtractUi"
+                        android:textSize="17.829987dip"
+                    android:imeOptions="actionNext|flagNoExtractUi" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -193,17 +193,12 @@
                 android:text="@string/silence_login"
                 android:textColor="@color/black" />
         </LinearLayout>
-
-        <View
+    <View
             android:layout_width="1.0dip"
             android:layout_height="fill_parent"
             android:layout_weight="1.0" />
     </LinearLayout>
 
-    <include
-        android:id="@+id/login_help_view"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        layout="@layout/login_help" />
+
 
 </FrameLayout>

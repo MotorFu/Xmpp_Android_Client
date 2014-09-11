@@ -30,27 +30,27 @@ src目录用于存放项目的包及java源码文件。
 
 下面是src目录的子目录：
 > src<br>
-> ├ com.way.activity<br>
-> ├ com.way.adapter<br>
-> ├ com.way.app<br>
-> ├ com.way.db<br>
-> ├ com.way.exception<br>
-> ├ com.way.fragment<br>
-> ├ com.way.service<br>
-> ├ com.way.smack<br>
-> ├ com.way.ui.xx<br>
-> └ com.way.util<br>
+> ├ com.zxq.activity<br>
+> ├ com.zxq.adapter<br>
+> ├ com.zxq.app<br>
+> ├ com.zxq.db<br>
+> ├ com.zxq.exception<br>
+> ├ com.zxq.fragment<br>
+> ├ com.zxq.service<br>
+> ├ com.zxq.smack<br>
+> ├ com.zxq.ui.xx<br>
+> └ com.zxq.util<br>
 
-- com.way.activity — APP所有的Activity包
-- com.way.adapter — APP所有的适配器包
-- com.way.app — APP启动及管理包
-- com.way.db — APP数据库包
-- com.way.exception — APP所有自定义异常包
-- com.way.fragment — APP所有Fragment包
-- com.way.service — APP关键服务包
-- com.way.smack — APP对asmack.jar部分功能重新抽取封装包
-- com.way.ui.xx — APP第三方控件包，“xx”代表所有控件
-- com.way.util — APP通用工具包
+- com.zxq.activity — APP所有的Activity包
+- com.zxq.adapter — APP所有的适配器包
+- com.zxq.app — APP启动及管理包
+- com.zxq.db — APP数据库包
+- com.zxq.exception — APP所有自定义异常包
+- com.zxq.fragment — APP所有Fragment包
+- com.zxq.service — APP关键服务包
+- com.zxq.smack — APP对asmack.jar部分功能重新抽取封装包
+- com.zxq.ui.xx — APP第三方控件包，“xx”代表所有控件
+- com.zxq.util — APP通用工具包
 
 
 **2、libs目录**<br>
