@@ -15,6 +15,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.zxq.util.LogUtil;
 import com.zxq.xmpp.R;
 import com.zxq.db.RosterProvider;
 import com.zxq.db.RosterProvider.RosterConstants;
@@ -22,7 +23,6 @@ import com.zxq.ui.iphonetreeview.IphoneTreeView;
 import com.zxq.ui.iphonetreeview.IphoneTreeView.IphoneTreeHeaderAdapter;
 import com.zxq.ui.pulltorefresh.PullToRefreshScrollView;
 import com.zxq.ui.pulltorefresh.PullToRefreshBase.Mode;
-import com.zxq.util.L;
 import com.zxq.util.PreferenceConstants;
 import com.zxq.util.PreferenceUtils;
 import com.zxq.util.StatusMode;
@@ -102,7 +102,7 @@ public class RosterAdapter extends BaseExpandableListAdapter implements
 			groupCursor.moveToNext();
 		}
 		groupCursor.close();
-		L.i("cursor size = " + mGroupList.size());
+		LogUtil.i("cursor size = " + mGroupList.size());
 		notifyDataSetChanged();
 	}
 
@@ -210,7 +210,7 @@ public class RosterAdapter extends BaseExpandableListAdapter implements
 		ViewHolder holder;
 		if (convertView == null
 				|| convertView.getTag(R.drawable.ic_launcher + presenceMode) == null) {
-			L.i("liweiping", "new  child ");
+			LogUtil.i("liweiping", "new  child ");
 			holder = new ViewHolder();
 			convertView = mInflater.inflate(
 					R.layout.contact_list_item_for_buddy, parent, false);
@@ -227,7 +227,7 @@ public class RosterAdapter extends BaseExpandableListAdapter implements
 			convertView.setTag(R.string.app_name, R.drawable.ic_launcher
 					+ presenceMode);
 		} else {
-			L.i("liweiping", "get child form case");
+			LogUtil.i("liweiping", "get child form case");
 			holder = (ViewHolder) convertView.getTag(R.drawable.ic_launcher
 					+ presenceMode);
 		}
@@ -289,8 +289,8 @@ public class RosterAdapter extends BaseExpandableListAdapter implements
 			mPullToRefreshScrollView.setMode(Mode.PULL_FROM_START);
 			return PINNED_HEADER_GONE;
 		} else {
-			L.i("liweiping", "groupPosition = " + groupPosition
-					+ ", childPosition = " + childPosition);
+			LogUtil.i("liweiping", "groupPosition = " + groupPosition
+                    + ", childPosition = " + childPosition);
 			// 第一组第一个,可以下拉刷新
 			if (groupPosition == 0 && childPosition == -1) {
 				mPullToRefreshScrollView.setMode(Mode.PULL_FROM_START);

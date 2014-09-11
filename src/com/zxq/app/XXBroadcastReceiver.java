@@ -9,7 +9,7 @@ import android.net.ConnectivityManager;
 import android.text.TextUtils;
 
 import com.zxq.service.XXService;
-import com.zxq.util.L;
+import com.zxq.util.LogUtil;
 import com.zxq.util.PreferenceConstants;
 import com.zxq.util.PreferenceUtils;
 
@@ -20,14 +20,14 @@ public class XXBroadcastReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		String action = intent.getAction();
-		L.i("action = " + action);
+		LogUtil.i("action = " + action);
 		if (TextUtils.equals(action, ConnectivityManager.CONNECTIVITY_ACTION)) {
 			if (mListeners.size() > 0)// 通知接口完成加载
 				for (EventHandler handler : mListeners) {
 					handler.onNetChange();
 				}
 		} else if (intent.getAction().equals(Intent.ACTION_SHUTDOWN)) {
-			L.d("System shutdown, stopping service.");
+			LogUtil.d("System shutdown, stopping service.");
 			Intent xmppServiceIntent = new Intent(context, XXService.class);
 			context.stopService(xmppServiceIntent);
 		} else {

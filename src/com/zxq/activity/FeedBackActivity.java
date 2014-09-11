@@ -9,9 +9,9 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.zxq.util.ToastUtil;
 import com.zxq.xmpp.R;
 import com.zxq.ui.swipeback.SwipeBackActivity;
-import com.zxq.util.T;
 
 public class FeedBackActivity extends SwipeBackActivity {
 	private EditText mFeedBackEt;
@@ -37,7 +37,7 @@ public class FeedBackActivity extends SwipeBackActivity {
 					intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					FeedBackActivity.this.startActivity(intent);
 				} else {
-					T.showShort(FeedBackActivity.this, "请输入一点点内容嘛！");
+					ToastUtil.showShort(FeedBackActivity.this, "请输入一点点内容嘛！");
 				}
 			}
 		});

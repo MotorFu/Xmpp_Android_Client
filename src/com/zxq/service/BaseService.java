@@ -16,9 +16,9 @@ import android.os.PowerManager;
 import android.os.Vibrator;
 import android.os.PowerManager.WakeLock;
 
+import com.zxq.util.LogUtil;
 import com.zxq.xmpp.R;
 import com.zxq.activity.ChatActivity;
-import com.zxq.util.L;
 import com.zxq.util.PreferenceConstants;
 import com.zxq.util.PreferenceUtils;
 
@@ -43,25 +43,25 @@ public abstract class BaseService extends Service {
 
 	@Override
 	public IBinder onBind(Intent arg0) {
-		L.i(TAG, "called onBind()");
+		LogUtil.i(TAG, "called onBind()");
 		return null;
 	}
 
 	@Override
 	public boolean onUnbind(Intent intent) {
-		L.i(TAG, "called onUnbind()");
+		LogUtil.i(TAG, "called onUnbind()");
 		return super.onUnbind(intent);
 	}
 
 	@Override
 	public void onRebind(Intent intent) {
-		L.i(TAG, "called onRebind()");
+		LogUtil.i(TAG, "called onRebind()");
 		super.onRebind(intent);
 	}
 
 	@Override
 	public void onCreate() {
-		L.i(TAG, "called onCreate()");
+		LogUtil.i(TAG, "called onCreate()");
 		super.onCreate();
 		mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 		mWakeLock = ((PowerManager) getSystemService(Context.POWER_SERVICE))
@@ -71,13 +71,13 @@ public abstract class BaseService extends Service {
 
 	@Override
 	public void onDestroy() {
-		L.i(TAG, "called onDestroy()");
+		LogUtil.i(TAG, "called onDestroy()");
 		super.onDestroy();
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		L.i(TAG, "called onStartCommand()");
+		LogUtil.i(TAG, "called onStartCommand()");
 		return START_STICKY;
 	}
 

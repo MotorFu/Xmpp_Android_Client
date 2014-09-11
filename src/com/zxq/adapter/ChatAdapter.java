@@ -12,14 +12,11 @@ import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import com.zxq.util.*;
 import com.zxq.xmpp.R;
 import com.zxq.db.ChatProvider;
 import com.zxq.db.ChatProvider.ChatConstants;
-import com.zxq.util.L;
-import com.zxq.util.PreferenceConstants;
-import com.zxq.util.PreferenceUtils;
-import com.zxq.util.TimeUtil;
-import com.zxq.util.XMPPHelper;
+import com.zxq.util.LogUtil;
 
 public class ChatAdapter extends SimpleCursorAdapter {
 
@@ -98,7 +95,7 @@ public class ChatAdapter extends SimpleCursorAdapter {
 	private void markAsRead(int id) {
 		Uri rowuri = Uri.parse("content://" + ChatProvider.AUTHORITY + "/"
 				+ ChatProvider.TABLE_NAME + "/" + id);
-		L.d("markAsRead: " + rowuri);
+		LogUtil.d("markAsRead: " + rowuri);
 		ContentValues values = new ContentValues();
 		values.put(ChatConstants.DELIVERY_STATUS, ChatConstants.DS_SENT_OR_READ);
 		mContext.getContentResolver().update(rowuri, values, null, null);

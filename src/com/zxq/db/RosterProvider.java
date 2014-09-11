@@ -18,7 +18,7 @@ import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.zxq.util.L;
+import com.zxq.util.LogUtil;
 
 public class RosterProvider extends ContentProvider {
 
@@ -241,7 +241,7 @@ public class RosterProvider extends ContentProvider {
 	}
 
 	private static void infoLog(String data) {
-		L.i(TAG, data);
+		LogUtil.i(TAG, data);
 	}
 
 	private static class RosterDatabaseHelper extends SQLiteOpenHelper {

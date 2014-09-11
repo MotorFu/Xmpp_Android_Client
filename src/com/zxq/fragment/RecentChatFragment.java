@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.zxq.util.LogUtil;
 import com.zxq.xmpp.R;
 import com.zxq.activity.ChatActivity;
 import com.zxq.activity.FragmentCallBack;
@@ -26,7 +27,6 @@ import com.zxq.service.XXService;
 import com.zxq.ui.swipelistview.BaseSwipeListViewListener;
 import com.zxq.ui.swipelistview.SwipeListView;
 import com.zxq.ui.view.AddRosterItemDialog;
-import com.zxq.util.L;
 import com.zxq.util.XMPPHelper;
 
 public class RecentChatFragment extends Fragment implements OnClickListener {
@@ -112,7 +112,7 @@ public class RecentChatFragment extends Fragment implements OnClickListener {
 
 		public void onChange(boolean selfChange) {
 			updateRoster();
-			L.i("liweiping", "selfChange" + selfChange);
+			LogUtil.i("liweiping", "selfChange" + selfChange);
 		}
 	}
 

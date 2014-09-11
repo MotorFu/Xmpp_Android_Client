@@ -43,12 +43,12 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.zxq.ui.emoji.EmojiKeyboard;
 import com.zxq.ui.emoji.EmojiKeyboard.EventListener;
+import com.zxq.util.*;
 import com.zxq.xmpp.R;
 import com.zxq.adapter.ChatAdapter;
 import com.zxq.adapter.FaceAdapter;
@@ -63,12 +63,7 @@ import com.zxq.ui.swipeback.SwipeBackActivity;
 import com.zxq.ui.view.CirclePageIndicator;
 import com.zxq.ui.xlistview.MsgListView;
 import com.zxq.ui.xlistview.MsgListView.IXListViewListener;
-import com.zxq.util.L;
-import com.zxq.util.PreferenceConstants;
-import com.zxq.util.PreferenceUtils;
-import com.zxq.util.StatusMode;
-import com.zxq.util.T;
-import com.zxq.util.XMPPHelper;
+import com.zxq.util.LogUtil;
 
 public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 		OnClickListener, IXListViewListener, IConnectionStatusCallback {
@@ -128,7 +123,7 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 		try {
 			unbindService(mServiceConnection);
 		} catch (IllegalArgumentException e) {
-			L.e("Service wasn't bound!");
+			LogUtil.e("Service wasn't bound!");
 		}
 	}
 
@@ -183,7 +178,7 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 			cursor.moveToFirst();
 			int status_mode = cursor.getInt(MODE_IDX);
 			String status_message = cursor.getString(MSG_IDX);
-			L.d("contact status changed: " + status_mode + " " + status_message);
+			LogUtil.d("contact status changed: " + status_mode + " " + status_message);
 			mTitleNameView.setText(XMPPHelper.splitJidAndServer(getIntent()
 					.getStringExtra(INTENT_EXTRA_USERNAME)));
 			int statusId = StatusMode.values()[status_mode].getDrawableId();
@@ -211,7 +206,7 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 		}
 
 		public void onChange(boolean selfChange) {
-			L.d("ContactObserver.onChange: " + selfChange);
+			LogUtil.d("ContactObserver.onChange: " + selfChange);
 			updateContactStatus();// 联系人状态变化时，刷新界面
 		}
 	}
@@ -393,7 +388,7 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 				mXxService.sendMessage(mWithJabberID, mChatEditText.getText()
 						.toString());
 				if (!mXxService.isAuthenticated())
-					T.showShort(this, "消息已经保存随后发送");
+					ToastUtil.showShort(this, "消息已经保存随后发送");
 			}
 			mChatEditText.setText("");
 			mSendMsgBtn.setEnabled(false);

@@ -35,6 +35,7 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.zxq.util.*;
 import com.zxq.xmpp.R;
 import com.zxq.adapter.RosterAdapter;
 import com.zxq.app.XXBroadcastReceiver;
@@ -58,13 +59,7 @@ import com.zxq.ui.slidingmenu.SlidingMenu;
 import com.zxq.ui.view.AddRosterItemDialog;
 import com.zxq.ui.view.ChangeLog;
 import com.zxq.ui.view.GroupNameView;
-import com.zxq.util.L;
-import com.zxq.util.NetUtil;
-import com.zxq.util.PreferenceConstants;
-import com.zxq.util.PreferenceUtils;
-import com.zxq.util.StatusMode;
-import com.zxq.util.T;
-import com.zxq.util.XMPPHelper;
+import com.zxq.util.LogUtil;
 
 public class MainActivity extends BaseSlidingFragmentActivity implements
 		OnClickListener, IConnectionStatusCallback, EventHandler,
@@ -153,7 +148,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 			finish();
 		} else {
 			firstTime = System.currentTimeMillis();
-			T.showShort(this, R.string.press_again_backrun);
+			ToastUtil.showShort(this, R.string.press_again_backrun);
 		}
 	}
 
@@ -202,14 +197,14 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 	private void unbindXMPPService() {
 		try {
 			unbindService(mServiceConnection);
-			L.i(LoginActivity.class, "[SERVICE] Unbind");
+			LogUtil.i(LoginActivity.class, "[SERVICE] Unbind");
 		} catch (IllegalArgumentException e) {
-			L.e(LoginActivity.class, "Service wasn't bound!");
+			LogUtil.e(LoginActivity.class, "Service wasn't bound!");
 		}
 	}
 
 	private void bindXMPPService() {
-		L.i(LoginActivity.class, "[SERVICE] Unbind");
+		LogUtil.i(LoginActivity.class, "[SERVICE] Unbind");
 		bindService(new Intent(MainActivity.this, XXService.class),
 				mServiceConnection, Context.BIND_AUTO_CREATE
 						+ Context.BIND_DEBUG_UNBIND);
@@ -323,8 +318,8 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 							int actionId) {
 						// 如果没有连接直接返回
 						if (!isConnected()) {
-							T.showShort(MainActivity.this,
-									R.string.conversation_net_error_label);
+							ToastUtil.showShort(MainActivity.this,
+                                    R.string.conversation_net_error_label);
 							return;
 						}
 						switch (actionId) {
@@ -332,8 +327,8 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 							String groupName = mRosterAdapter.getGroup(
 									mLongPressGroupId).getGroupName();
 							if (TextUtils.isEmpty(groupName)) {// 系统默认分组不允许重命名
-								T.showShort(MainActivity.this,
-										R.string.roster_group_rename_failed);
+								ToastUtil.showShort(MainActivity.this,
+                                        R.string.roster_group_rename_failed);
 								return;
 							}
 							renameRosterGroupDialog(mRosterAdapter.getGroup(
@@ -373,8 +368,8 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 								mLongPressGroupId, mLongPressChildId)
 								.getAlias();
 						if (!isConnected()) {
-							T.showShort(MainActivity.this,
-									R.string.conversation_net_error_label);
+							ToastUtil.showShort(MainActivity.this,
+                                    R.string.conversation_net_error_label);
 							return;
 						}
 						switch (actionId) {
@@ -516,8 +511,8 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 							int actionId) {
 						// TODO Auto-generated method stub
 						if (!isConnected()) {
-							T.showShort(MainActivity.this,
-									R.string.conversation_net_error_label);
+							ToastUtil.showShort(MainActivity.this,
+                                    R.string.conversation_net_error_label);
 							return;
 						}
 						switch (actionId) {
@@ -669,7 +664,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog,
 									int which) {
-								L.d("new group: " + gv.getGroupName());
+								LogUtil.d("new group: " + gv.getGroupName());
 								if (isConnected())
 									mXxService.moveRosterItemToGroup(jabberID,
 											gv.getGroupName());
@@ -681,7 +676,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 	@Override
 	public void onNetChange() {
 		if (NetUtil.getNetworkState(this) == NetUtil.NETWORN_NONE) {
-			T.showShort(this, R.string.net_error_tip);
+			ToastUtil.showShort(this, R.string.net_error_tip);
 			mNetErrorView.setVisibility(View.VISIBLE);
 		} else {
 			mNetErrorView.setVisibility(View.GONE);
@@ -724,7 +719,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 			mTitleNameView.setText(R.string.login_prompt_no);
 			mTitleProgressBar.setVisibility(View.GONE);
 			mTitleStatusView.setVisibility(View.GONE);
-			T.showLong(this, reason);
+			ToastUtil.showLong(this, reason);
 			break;
 
 		default:
@@ -752,7 +747,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 		}
 
 		public void onChange(boolean selfChange) {
-			L.d(MainActivity.class, "RosterObserver.onChange: " + selfChange);
+			LogUtil.d(MainActivity.class, "RosterObserver.onChange: " + selfChange);
 			if (mRosterAdapter != null)
 				mainHandler.postDelayed(new Runnable() {
 					public void run() {
@@ -795,7 +790,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 			mPullRefreshScrollView.onRefreshComplete();
 			// mPullRefreshScrollView.getLoadingLayoutProxy().setLastUpdatedLabel(
 			// "最近更新：刚刚");
-			T.showShort(MainActivity.this, "刷新成功!");
+			ToastUtil.showShort(MainActivity.this, "刷新成功!");
 			super.onPostExecute(result);
 		}
 	}

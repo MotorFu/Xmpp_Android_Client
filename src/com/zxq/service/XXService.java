@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.text.TextUtils;
 
+import com.zxq.util.*;
 import com.zxq.xmpp.R;
 import com.zxq.activity.BaseActivity;
 import com.zxq.activity.LoginActivity;
@@ -27,11 +28,7 @@ import com.zxq.app.XXBroadcastReceiver;
 import com.zxq.app.XXBroadcastReceiver.EventHandler;
 import com.zxq.exception.XXException;
 import com.zxq.smack.SmackImpl;
-import com.zxq.util.L;
-import com.zxq.util.NetUtil;
-import com.zxq.util.PreferenceConstants;
-import com.zxq.util.PreferenceUtils;
-import com.zxq.util.T;
+import com.zxq.util.LogUtil;
 
 public class XXService extends BaseService implements EventHandler,
 		BackPressHandler {
@@ -80,7 +77,7 @@ public class XXService extends BaseService implements EventHandler,
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		L.i(XXService.class, "[SERVICE] onBind");
+		LogUtil.i(XXService.class, "[SERVICE] onBind");
 		String chatPartner = intent.getDataString();
 		if ((chatPartner != null)) {
 			mIsBoundTo.add(chatPartner);
@@ -173,7 +170,7 @@ public class XXService extends BaseService implements EventHandler,
 			return;
 		}
 		if (mConnectingThread != null) {
-			L.i("a connection is still goign on!");
+			LogUtil.i("a connection is still goign on!");
 			return;
 		}
 		mConnectingThread = new Thread() {
@@ -195,7 +192,7 @@ public class XXService extends BaseService implements EventHandler,
 					if (e.getCause() != null)
 						message += "\n" + e.getCause().getLocalizedMessage();
 					postConnectionFailed(message);
-					L.i(XXService.class, "YaximXMPPException in doConnect():");
+					LogUtil.i(XXService.class, "YaximXMPPException in doConnect():");
 					e.printStackTrace();
 				} finally {
 					if (mConnectingThread != null)
@@ -219,7 +216,7 @@ public class XXService extends BaseService implements EventHandler,
 					mConnectingThread.interrupt();
 					mConnectingThread.join(50);
 				} catch (InterruptedException e) {
-					L.e("doDisconnect: failed catching connecting thread");
+					LogUtil.e("doDisconnect: failed catching connecting thread");
 				} finally {
 					mConnectingThread = null;
 				}
@@ -278,8 +275,8 @@ public class XXService extends BaseService implements EventHandler,
 		try {
 			mSmackable.addRosterItem(user, alias, group);
 		} catch (XXException e) {
-			T.showShort(this, e.getMessage());
-			L.e("exception in addRosterItem(): " + e.getMessage());
+			ToastUtil.showShort(this, e.getMessage());
+			LogUtil.e("exception in addRosterItem(): " + e.getMessage());
 		}
 	}
 
@@ -293,8 +290,8 @@ public class XXService extends BaseService implements EventHandler,
 		try {
 			mSmackable.removeRosterItem(user);
 		} catch (XXException e) {
-			T.showShort(this, e.getMessage());
-			L.e("exception in removeRosterItem(): " + e.getMessage());
+			ToastUtil.showShort(this, e.getMessage());
+			LogUtil.e("exception in removeRosterItem(): " + e.getMessage());
 		}
 	}
 
@@ -303,8 +300,8 @@ public class XXService extends BaseService implements EventHandler,
 		try {
 			mSmackable.moveRosterItemToGroup(user, group);
 		} catch (XXException e) {
-			T.showShort(this, e.getMessage());
-			L.e("exception in moveRosterItemToGroup(): " + e.getMessage());
+			ToastUtil.showShort(this, e.getMessage());
+			LogUtil.e("exception in moveRosterItemToGroup(): " + e.getMessage());
 		}
 	}
 
@@ -313,8 +310,8 @@ public class XXService extends BaseService implements EventHandler,
 		try {
 			mSmackable.renameRosterItem(user, newName);
 		} catch (XXException e) {
-			T.showShort(this, e.getMessage());
-			L.e("exception in renameRosterItem(): " + e.getMessage());
+			ToastUtil.showShort(this, e.getMessage());
+			LogUtil.e("exception in renameRosterItem(): " + e.getMessage());
 		}
 	}
 
@@ -333,7 +330,7 @@ public class XXService extends BaseService implements EventHandler,
 	 * @param reason
 	 */
 	private void connectionFailed(String reason) {
-		L.i(XXService.class, "connectionFailed: " + reason);
+		LogUtil.i(XXService.class, "connectionFailed: " + reason);
 		mConnectedState = DISCONNECTED;// 更新当前连接状态
 //		if (mSmackable != null)
 //			mSmackable.setStatusOffline();// 将所有联系人标记为离线
@@ -363,14 +360,14 @@ public class XXService extends BaseService implements EventHandler,
 				PreferenceConstants.PASSWORD, "");
 		// 无保存的帐号密码时，也直接返回
 		if (TextUtils.isEmpty(account) || TextUtils.isEmpty(password)) {
-			L.d("account = null || password = null");
+			LogUtil.d("account = null || password = null");
 			return;
 		}
 		// 如果不是手动退出并且需要重新连接，则开启重连闹钟
 		if (PreferenceUtils.getPrefBoolean(this,
 				PreferenceConstants.AUTO_RECONNECT, true)) {
-			L.d("connectionFailed(): registering reconnect in "
-					+ mReconnectTimeout + "s");
+			LogUtil.d("connectionFailed(): registering reconnect in "
+                    + mReconnectTimeout + "s");
 			((AlarmManager) getSystemService(Context.ALARM_SERVICE)).set(
 					AlarmManager.RTC_WAKEUP, System.currentTimeMillis()
 							+ mReconnectTimeout * 1000, mPAlarmIntent);
@@ -443,7 +440,7 @@ public class XXService extends BaseService implements EventHandler,
 		if (mSmackable == null)
 			return;
 		if (mSmackable != null && !mSmackable.isAuthenticated()) {
-			L.i("rosterChanged(): disconnected without warning");
+			LogUtil.i("rosterChanged(): disconnected without warning");
 			connectionFailed(DISCONNECTED_WITHOUT_WARNING);
 		}
 	}
@@ -476,11 +473,11 @@ public class XXService extends BaseService implements EventHandler,
 	Runnable monitorStatus = new Runnable() {
 		public void run() {
 			try {
-				L.i("monitorStatus is running... " + getPackageName());
+				LogUtil.i("monitorStatus is running... " + getPackageName());
 				mMainHandler.removeCallbacks(monitorStatus);
 				// 如果在后台运行并且连接上了
 				if (!isAppOnForeground()) {
-					L.i("app run in background...");
+					LogUtil.i("app run in background...");
 					// if (isAuthenticated())
 					updateServiceNotification(getString(R.string.run_bg_ticker));
 					return;
@@ -521,13 +518,13 @@ public class XXService extends BaseService implements EventHandler,
 	// 自动重连广播
 	private class ReconnectAlarmReceiver extends BroadcastReceiver {
 		public void onReceive(Context ctx, Intent i) {
-			L.d("Alarm received.");
+			LogUtil.d("Alarm received.");
 			if (!PreferenceUtils.getPrefBoolean(XXService.this,
 					PreferenceConstants.AUTO_RECONNECT, true)) {
 				return;
 			}
 			if (mConnectedState != DISCONNECTED) {
-				L.d("Reconnect attempt aborted: we are connected again!");
+				LogUtil.d("Reconnect attempt aborted: we are connected again!");
 				return;
 			}
 			String account = PreferenceUtils.getPrefString(XXService.this,
@@ -535,7 +532,7 @@ public class XXService extends BaseService implements EventHandler,
 			String password = PreferenceUtils.getPrefString(XXService.this,
 					PreferenceConstants.PASSWORD, "");
 			if (TextUtils.isEmpty(account) || TextUtils.isEmpty(password)) {
-				L.d("account = null || password = null");
+				LogUtil.d("account = null || password = null");
 				return;
 			}
 			Login(account, password);
@@ -564,13 +561,13 @@ public class XXService extends BaseService implements EventHandler,
 
 	@Override
 	public void activityOnResume() {
-		L.i("activity onResume ...");
+		LogUtil.i("activity onResume ...");
 		mMainHandler.post(monitorStatus);
 	}
 
 	@Override
 	public void activityOnPause() {
-		L.i("activity onPause ...");
+		LogUtil.i("activity onPause ...");
 		mMainHandler.postDelayed(monitorStatus, 1000L);
 	}
 }

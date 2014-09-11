@@ -5,9 +5,8 @@ import java.util.Map;
 
 import android.app.Application;
 
+import com.zxq.util.LogUtil;
 import com.zxq.xmpp.R;
-import com.zxq.util.CrashHandler;
-import com.zxq.util.L;
 import com.zxq.util.PreferenceConstants;
 import com.zxq.util.PreferenceUtils;
 
@@ -25,7 +24,7 @@ public class XXApp extends Application {
 	public void onCreate() {
 		super.onCreate();
 		mApplication = this;
-		L.isDebug = PreferenceUtils.getPrefBoolean(this,
+		LogUtil.isDebug = PreferenceUtils.getPrefBoolean(this,
 				PreferenceConstants.ISNEEDLOG, true);
 //		if (PreferenceUtils.getPrefBoolean(this,
 //				PreferenceConstants.REPORT_CRASH, true))

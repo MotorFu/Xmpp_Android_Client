@@ -5,7 +5,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -23,19 +22,12 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.TextView;
 
+import com.zxq.util.*;
 import com.zxq.xmpp.R;
-import com.zxq.exception.XXAdressMalformedException;
 import com.zxq.service.IConnectionStatusCallback;
 import com.zxq.service.XXService;
-import com.zxq.ui.view.ChangeLog;
-import com.zxq.util.DialogUtil;
-import com.zxq.util.L;
-import com.zxq.util.PreferenceConstants;
-import com.zxq.util.PreferenceUtils;
-import com.zxq.util.T;
-import com.zxq.util.XMPPHelper;
+import com.zxq.util.LogUtil;
 
 public class LoginActivity extends FragmentActivity implements
         IConnectionStatusCallback, TextWatcher {
@@ -69,7 +61,7 @@ public class LoginActivity extends FragmentActivity implements
                         mLoginOutTimeProcess.stop();
                     if (mLoginDialog != null && mLoginDialog.isShowing())
                         mLoginDialog.dismiss();
-                    T.showShort(LoginActivity.this, R.string.timeout_try_again);
+                    ToastUtil.showShort(LoginActivity.this, R.string.timeout_try_again);
                     break;
 
                 default:
@@ -212,11 +204,11 @@ public class LoginActivity extends FragmentActivity implements
         mAccount = splitAndSaveServer(mAccount);
         mPassword = mPasswordEt.getText().toString();
         if (TextUtils.isEmpty(mAccount)) {
-            T.showShort(this, R.string.null_account_prompt);
+            ToastUtil.showShort(this, R.string.null_account_prompt);
             return;
         }
         if (TextUtils.isEmpty(mPassword)) {
-            T.showShort(this, R.string.password_input_prompt);
+            ToastUtil.showShort(this, R.string.password_input_prompt);
             return;
         }
         if (mLoginOutTimeProcess != null && !mLoginOutTimeProcess.running)
@@ -251,14 +243,14 @@ public class LoginActivity extends FragmentActivity implements
     private void unbindXMPPService() {
         try {
             unbindService(mServiceConnection);
-            L.i(LoginActivity.class, "[SERVICE] Unbind");
+            LogUtil.i(LoginActivity.class, "[SERVICE] Unbind");
         } catch (IllegalArgumentException e) {
-            L.e(LoginActivity.class, "Service wasn't bound!");
+            LogUtil.e(LoginActivity.class, "Service wasn't bound!");
         }
     }
 
     private void bindXMPPService() {
-        L.i(LoginActivity.class, "[SERVICE] Unbind");
+        LogUtil.i(LoginActivity.class, "[SERVICE] Unbind");
         Intent mServiceIntent = new Intent(this, XXService.class);
         mServiceIntent.setAction(LOGIN_ACTION);
         bindService(mServiceIntent, mServiceConnection,
@@ -276,14 +268,15 @@ public class LoginActivity extends FragmentActivity implements
 
     @Override
     public void afterTextChanged(Editable s) {
-        try {
-            XMPPHelper.verifyJabberID(s);
-            mLoginBtn.setEnabled(true);
-            mAccountEt.setTextColor(Color.parseColor("#ff333333"));
-        } catch (XXAdressMalformedException e) {
-            mLoginBtn.setEnabled(false);
-            mAccountEt.setTextColor(Color.RED);
-        }
+        //文字监听
+//        try {
+//            XMPPHelper.verifyJabberID(s);
+//            mLoginBtn.setEnabled(true);
+//            mAccountEt.setTextColor(Color.parseColor("#ff333333"));
+//        } catch (XXAdressMalformedException e) {
+//            mLoginBtn.setEnabled(false);
+//            mAccountEt.setTextColor(Color.RED);
+//        }
     }
 
     private void save2Preferences() {
@@ -370,7 +363,7 @@ public class LoginActivity extends FragmentActivity implements
             startActivity(new Intent(this, MainActivity.class));
             finish();
         } else if (connectedState == XXService.DISCONNECTED)
-            T.showLong(LoginActivity.this, getString(R.string.request_failed)
+            ToastUtil.showLong(LoginActivity.this, getString(R.string.request_failed)
                     + reason);
     }
 }

@@ -16,7 +16,7 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 
-import com.zxq.util.L;
+import com.zxq.util.LogUtil;
 
 public class ChatProvider extends ContentProvider {
 
@@ -187,7 +187,7 @@ public class ChatProvider extends ContentProvider {
 	}
 
 	private static void infoLog(String data) {
-		L.i(TAG, data);
+		LogUtil.i(TAG, data);
 	}
 
 	private static class ChatDatabaseHelper extends SQLiteOpenHelper {
