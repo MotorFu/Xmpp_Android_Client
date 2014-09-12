@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -20,9 +21,7 @@ import com.zxq.app.XmppBroadcastReceiver.EventHandler;
 import com.zxq.db.ChatProvider;
 import com.zxq.db.RosterProvider;
 import com.zxq.db.RosterProvider.RosterConstants;
-import com.zxq.fragment.FriendChatFragment;
-import com.zxq.fragment.RecentChatFragment;
-import com.zxq.fragment.SettingsFragment;
+import com.zxq.fragment.*;
 import com.zxq.service.IConnectionStatusCallback;
 import com.zxq.service.XmppService;
 import com.zxq.ui.quickaction.ActionItem;
@@ -49,7 +48,9 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
     public static HashMap<String, Integer> mStatusMap;
 
     private FriendChatFragment friendChatFragment;
-
+    private GroupChatFragment groupChatFragment;
+    private OrgChatFragment orgChatFragment;
+    private  FragmentManager supportFragmentManager;
     private SlidingMenu mSlidingMenu;
     private View mNetErrorView;
     private TextView mTitleNameView;
@@ -58,8 +59,6 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
 
     private XmppService mXmppService;
     private Handler mainHandler = new Handler();
-    private RosterAdapter mRosterAdapter;
-
     private long firstTime;
 
     static {
@@ -70,6 +69,21 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         mStatusMap.put(PreferenceConstants.AWAY, R.drawable.status_leave);
         mStatusMap.put(PreferenceConstants.AVAILABLE, R.drawable.status_online);
         mStatusMap.put(PreferenceConstants.CHAT, R.drawable.status_qme);
+    }
+
+    public void onClickTabButtun(View view){
+        int id = view.getId();
+        FragmentTransaction mFragementTransaction = supportFragmentManager.beginTransaction();
+        if(id ==R.id.btn_friend_chat){
+            mFragementTransaction.replace(R.id.main_fragment_content, friendChatFragment);
+        }else if(id ==R.id.btn_group_chat){
+            groupChatFragment = new GroupChatFragment();
+            mFragementTransaction.replace(R.id.main_fragment_content, groupChatFragment);
+        }else if(id ==R.id.btn_org_chat){
+            orgChatFragment = new OrgChatFragment();
+            mFragementTransaction.replace(R.id.main_fragment_content, orgChatFragment);
+        }
+        mFragementTransaction.commit();
     }
 
     ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -99,10 +113,11 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         startService(new Intent(MainActivity.this, XmppService.class));
-        initSlidingMenu();
+        supportFragmentManager = getSupportFragmentManager();
         setContentView(R.layout.main_center_layout);
+        initSlidingMenu();
         initViews();
-       setupData();
+        setupFragmentData();
     }
 
 
@@ -145,8 +160,8 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         super.onDestroy();
     }
 
-    private void setupData() {
-        friendChatFragment = FriendChatFragment.getInstance(mXmppService,mRosterAdapter,mainHandler);
+    private void setupFragmentData() {
+        friendChatFragment = FriendChatFragment.getInstance(mXmppService,mainHandler);
         FragmentTransaction mFragementTransaction = getSupportFragmentManager().beginTransaction();
         mFragementTransaction.replace(R.id.main_fragment_content, friendChatFragment);
         mFragementTransaction.commit();
@@ -209,7 +224,8 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         int mScreenWidth = dm.widthPixels;// 获取屏幕分辨率宽度
         setBehindContentView(R.layout.main_left_layout);// 设置左菜单
-        FragmentTransaction mFragementTransaction = getSupportFragmentManager().beginTransaction();
+
+        FragmentTransaction mFragementTransaction = supportFragmentManager.beginTransaction();
         Fragment mFrag = new RecentChatFragment();
         mFragementTransaction.replace(R.id.main_left_fragment, mFrag);
         mFragementTransaction.commit();

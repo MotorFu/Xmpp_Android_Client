@@ -6,6 +6,12 @@
               android:clickable="true"
               android:orientation="vertical">
 
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="群聊天"
+            android:id="@+id/textView"/>
     <ListView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

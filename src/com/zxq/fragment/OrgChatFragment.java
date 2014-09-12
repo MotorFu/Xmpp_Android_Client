@@ -10,19 +10,21 @@ import com.zxq.xmpp.R;
 /**
  * Created by zxq on 2014/9/13.
  */
-public class GroupChatFragment extends Fragment {
+public class OrgChatFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View inflate = inflater.inflate(R.layout.fragment_group_chat_tree, container, false);
+        View inflate = inflater.inflate(R.layout.fragment_org_chat_tree, container, false);
         initView(inflate);
         setupData();
         return inflate;
     }
 
-    private void initView(View inflate) {
-    }
     private void setupData() {
+
+    }
+
+    private void initView(View inflate) {
     }
 
     @Override

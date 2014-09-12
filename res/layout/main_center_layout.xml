@@ -45,11 +45,12 @@
                 android:layout_weight="1" >
 
             <Button
-                    android:id="@+id/btn_conversation"
+                    android:id="@+id/btn_friend_chat"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/main_bottom_item_bg"
                     android:drawableTop="@drawable/tab_chat_bg"
+                    android:onClick="onClickTabButtun"
                     android:paddingBottom="2dip"
                     android:paddingTop="7dip"
                     android:scaleType="matrix"
@@ -58,7 +59,6 @@
                     android:textSize="12sp" />
 
             <TextView
-                    android:id="@+id/unread_msg_number"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
@@ -77,12 +77,13 @@
                 android:layout_weight="1" >
 
             <Button
-                    android:id="@+id/btn_address_list"
+                    android:id="@+id/btn_group_chat"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/main_bottom_item_bg"
                     android:drawableTop="@drawable/tab_contact_list_bg"
                     android:paddingBottom="2dip"
+                    android:onClick="onClickTabButtun"
                     android:paddingTop="7dip"
                     android:scaleType="matrix"
                     android:text="群聊"
@@ -108,12 +109,14 @@
                 android:layout_weight="1" >
 
             <Button
+                    android:id="@+id/btn_org_chat"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/main_bottom_item_bg"
                     android:drawableTop="@drawable/tab_contact_list_bg"
                     android:paddingBottom="2dip"
                     android:paddingTop="7dip"
+                    android:onClick="onClickTabButtun"
                     android:scaleType="matrix"
                     android:text="公司架构"
                     android:textColor="@color/main_botton_text_color"

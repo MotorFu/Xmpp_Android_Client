@@ -52,16 +52,15 @@ public class FriendChatFragment extends Fragment {
     private static final String[] ROSTER_QUERY = new String[]{RosterProvider.RosterConstants._ID, RosterProvider.RosterConstants.JID, RosterProvider.RosterConstants.ALIAS, RosterProvider.RosterConstants.STATUS_MODE, RosterProvider.RosterConstants.STATUS_MESSAGE,};
     private static FriendChatFragment friendChatFragment;
 
-    private FriendChatFragment(XmppService mXmppService, RosterAdapter mRosterAdapter,Handler mainHandler) {
+    private FriendChatFragment(XmppService mXmppService,Handler mainHandler) {
         this.mXmppService = mXmppService;
-        this.mRosterAdapter = mRosterAdapter;
         this.mainHandler =mainHandler;
 
     }
 
-    public static FriendChatFragment getInstance(XmppService mXmppService, RosterAdapter mRosterAdapter,Handler mainHandler) {
+    public static FriendChatFragment getInstance(XmppService mXmppService,Handler mainHandler) {
         if (friendChatFragment == null)
-            friendChatFragment = new FriendChatFragment(mXmppService, mRosterAdapter,mainHandler);
+            friendChatFragment = new FriendChatFragment(mXmppService, mainHandler);
         return friendChatFragment;
     }
 
