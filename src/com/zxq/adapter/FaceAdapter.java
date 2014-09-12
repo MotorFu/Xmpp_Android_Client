@@ -22,7 +22,6 @@ public class FaceAdapter extends BaseAdapter {
 	private List<Integer> faceList = new ArrayList<Integer>();
 
 	public FaceAdapter(Context context, int currentPage) {
-		// TODO Auto-generated constructor stub
 		this.inflater = LayoutInflater.from(context);
 		this.currentPage = currentPage;
 		mFaceMap = XmppApplication.getInstance().getFaceMap();
@@ -53,7 +52,6 @@ public class FaceAdapter extends BaseAdapter {
 	@SuppressWarnings("deprecation")
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		// TODO Auto-generated method stub
 		ViewHolder viewHolder;
 		if (convertView == null) {
 			viewHolder = new ViewHolder();

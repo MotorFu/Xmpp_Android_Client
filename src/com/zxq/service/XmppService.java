@@ -380,7 +380,6 @@ public class XmppService extends BaseService implements EventHandler, BackPressH
 
 	// 连接中，通知界面线程做一些处理
 	private void postConnecting() {
-		// TODO Auto-generated method stub
 		mMainHandler.post(new Runnable() {
 			public void run() {
 				connecting();
@@ -389,7 +388,6 @@ public class XmppService extends BaseService implements EventHandler, BackPressH
 	}
 
 	private void connecting() {
-		// TODO Auto-generated method stub
 		mConnectedState = CONNECTING;// 连接中
 		if (mConnectionStatusCallback != null)
 			mConnectionStatusCallback.connectionStatusChanged(mConnectedState, "");

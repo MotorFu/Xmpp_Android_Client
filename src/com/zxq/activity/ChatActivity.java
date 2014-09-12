@@ -266,13 +266,11 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener, 
 
 			@Override
 			public void onEmojiSelected(String res) {
-				// TODO Auto-generated method stub
 				EmojiKeyboard.input(mChatEditText, res);
 			}
 
 			@Override
 			public void onBackspace() {
-				// TODO Auto-generated method stub
 				EmojiKeyboard.backspace(mChatEditText);
 			}
 		});
@@ -284,7 +282,6 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener, 
 
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				// TODO Auto-generated method stub
 				if (keyCode == KeyEvent.KEYCODE_BACK) {
 					if (mWindowNanagerParams.softInputMode == WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE || mIsFaceShow) {
 						mFaceRoot.setVisibility(View.GONE);
@@ -300,18 +297,14 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener, 
 
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				// TODO Auto-generated method stub
 			}
 
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-				// TODO Auto-generated method stub
-
 			}
 
 			@Override
 			public void afterTextChanged(Editable s) {
-				// TODO Auto-generated method stub
 				if (s.length() > 0) {
 					mSendMsgBtn.setEnabled(true);
 				} else {
@@ -388,7 +381,6 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener, 
 	}
 
 	private void initFacePage() {
-		// TODO Auto-generated method stub
 		List<View> lv = new ArrayList<View>();
 		for (int i = 0; i < XmppApplication.NUM_PAGE; ++i)
 			lv.add(getGridView(i));
@@ -420,7 +412,6 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener, 
 	}
 
 	private GridView getGridView(int i) {
-		// TODO Auto-generated method stub
 		GridView gv = new GridView(this);
 		gv.setNumColumns(7);
 		gv.setSelector(new ColorDrawable(Color.TRANSPARENT));// 屏蔽GridView默认点击效果
@@ -436,7 +427,6 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener, 
 
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				// TODO Auto-generated method stub
 				if (arg2 == XmppApplication.NUM) {// 删除键的位置
 					int selection = mChatEditText.getSelectionStart();
 					String text = mChatEditText.getText().toString();
@@ -513,8 +503,6 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener, 
 
 	@Override
 	public void connectionStatusChanged(int connectedState, String reason) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

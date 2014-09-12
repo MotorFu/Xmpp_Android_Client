@@ -502,7 +502,6 @@ public class SmackImpl implements Smack {
 
 			@Override
 			public void entriesUpdated(Collection<String> entries) {// 更新数据库，第一次登陆
-				// TODO Auto-generated method stub
 				LogUtil.i("entriesUpdated(" + entries + ")");
 				for (String entry : entries) {
 					RosterEntry rosterEntry = mRoster.getEntry(entry);
@@ -718,7 +717,6 @@ public class SmackImpl implements Smack {
 
 	@Override
 	public void removeRosterItem(String user) throws XmppException {// 删除联系人，供外部服务调用
-		// TODO Auto-generated method stub
 		LogUtil.d("removeRosterItem(" + user + ")");
 
 		removeRosterEntry(user);
@@ -740,7 +738,6 @@ public class SmackImpl implements Smack {
 
 	@Override
 	public void renameRosterItem(String user, String newName) throws XmppException {// 重命名联系人，供外部服务调用
-		// TODO Auto-generated method stub
 		mRoster = mXMPPConnection.getRoster();
 		RosterEntry rosterEntry = mRoster.getEntry(user);
 
@@ -752,7 +749,6 @@ public class SmackImpl implements Smack {
 
 	@Override
 	public void moveRosterItemToGroup(String user, String group) throws XmppException {// 移动好友到其他分组，供外部服务调用
-		// TODO Auto-generated method stub
 		tryToMoveRosterEntryToGroup(user, group);
 	}
 
@@ -804,7 +800,6 @@ public class SmackImpl implements Smack {
 
 	@Override
 	public void renameRosterGroup(String group, String newGroup) {// 重命名分组
-		// TODO Auto-generated method stub
 		LogUtil.i("oldgroup=" + group + ", newgroup=" + newGroup);
 		mRoster = mXMPPConnection.getRoster();
 		RosterGroup groupToRename = mRoster.getGroup(group);
@@ -816,7 +811,6 @@ public class SmackImpl implements Smack {
 
 	@Override
 	public void requestAuthorizationForRosterItem(String user) {// 重新向对方发出添加好友申请
-		// TODO Auto-generated method stub
 		Presence response = new Presence(Presence.Type.subscribe);
 		response.setTo(user);
 		mXMPPConnection.sendPacket(response);
@@ -824,14 +818,12 @@ public class SmackImpl implements Smack {
 
 	@Override
 	public void addRosterGroup(String group) {// 增加联系人组
-		// TODO Auto-generated method stub
 		mRoster = mXMPPConnection.getRoster();
 		mRoster.createGroup(group);
 	}
 
 	@Override
 	public void sendMessage(String toJID, String message) {// 发送消息
-		// TODO Auto-generated method stub
 		final Message newMessage = new Message(toJID, Message.Type.chat);
 		newMessage.setBody(message);
 		newMessage.addExtension(new DeliveryReceiptRequest());
