@@ -1,9 +1,9 @@
 package com.zxq.activity;
 
-import com.zxq.service.XXService;
+import com.zxq.service.XmppService;
 
 public interface FragmentCallBack {
-	public XXService getService();
+	public XmppService getService();
 
 	public MainActivity getMainActivity();
 }

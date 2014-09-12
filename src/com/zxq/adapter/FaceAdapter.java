@@ -11,8 +11,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
+import com.zxq.app.XmppApplication;
 import com.zxq.xmpp.R;
-import com.zxq.app.XXApp;
 
 public class FaceAdapter extends BaseAdapter {
 	
@@ -25,7 +25,7 @@ public class FaceAdapter extends BaseAdapter {
 		// TODO Auto-generated constructor stub
 		this.inflater = LayoutInflater.from(context);
 		this.currentPage = currentPage;
-		mFaceMap = XXApp.getInstance().getFaceMap();
+		mFaceMap = XmppApplication.getInstance().getFaceMap();
 		initData();
 	}
 
@@ -37,7 +37,7 @@ public class FaceAdapter extends BaseAdapter {
 
 	@Override
 	public int getCount() {
-		return XXApp.NUM + 1;
+		return XmppApplication.NUM + 1;
 	}
 
 	@Override
@@ -64,11 +64,11 @@ public class FaceAdapter extends BaseAdapter {
 		} else {
 			viewHolder = (ViewHolder) convertView.getTag();
 		}
-		if (position == XXApp.NUM) {
+		if (position == XmppApplication.NUM) {
 			viewHolder.faceIV.setImageResource(R.drawable.emotion_del_selector);
 			viewHolder.faceIV.setBackgroundDrawable(null);
 		} else {
-			int count = XXApp.NUM * currentPage + position;
+			int count = XmppApplication.NUM * currentPage + position;
 			if (count < 107) {
 				viewHolder.faceIV.setImageResource(faceList.get(count));
 			} else {

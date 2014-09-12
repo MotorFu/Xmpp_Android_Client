@@ -12,17 +12,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.zxq.exception.XmppAdressMalformedException;
 import com.zxq.xmpp.R;
 import com.zxq.activity.MainActivity;
-import com.zxq.exception.XXAdressMalformedException;
-import com.zxq.service.XXService;
+import com.zxq.service.XmppService;
 import com.zxq.util.XMPPHelper;
 
 public class AddRosterItemDialog extends AlertDialog implements
 		DialogInterface.OnClickListener, TextWatcher {
 
 	private MainActivity mMainActivity;
-	private XXService mXxService;
+	private XmppService mXmppService;
 
 	private Button okButton;
 	private EditText userInputField;
@@ -30,10 +30,10 @@ public class AddRosterItemDialog extends AlertDialog implements
 	private GroupNameView mGroupNameView;
 
 	public AddRosterItemDialog(MainActivity mainActivity,
-			XXService service) {
+			XmppService service) {
 		super(mainActivity);
 		mMainActivity = mainActivity;
-		mXxService = service;
+		mXmppService = service;
 
 		setTitle(R.string.addFriend_Title);
 
@@ -54,7 +54,7 @@ public class AddRosterItemDialog extends AlertDialog implements
 
 	}
 	public AddRosterItemDialog(MainActivity mainActivity,
-			XXService service, String jid) {
+			XmppService service, String jid) {
 		this(mainActivity, service);
 		userInputField.setText(jid);
 	}
@@ -69,7 +69,7 @@ public class AddRosterItemDialog extends AlertDialog implements
 	}
 
 	public void onClick(DialogInterface dialog, int which) {
-		mXxService.addRosterItem(userInputField.getText()
+		mXmppService.addRosterItem(userInputField.getText()
 				.toString(), aliasInputField.getText().toString(),
 				mGroupNameView.getGroupName());
 	}
@@ -79,7 +79,7 @@ public class AddRosterItemDialog extends AlertDialog implements
 			XMPPHelper.verifyJabberID(s);
 			okButton.setEnabled(true);
 			userInputField.setTextColor(XMPPHelper.getEditTextColor(mMainActivity));
-		} catch (XXAdressMalformedException e) {
+		} catch (XmppAdressMalformedException e) {
 			okButton.setEnabled(false);
 			userInputField.setTextColor(Color.RED);
 		}

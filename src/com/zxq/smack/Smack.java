@@ -1,6 +1,6 @@
 package com.zxq.smack;
 
-import com.zxq.exception.XXException;
+import com.zxq.exception.XmppException;
 
 /**
  * 首先定义一些接口，需要实现一些什么样的功能，
@@ -17,10 +17,10 @@ public interface Smack {
 	 * @param password
 	 *            密码
 	 * @return 是否登陆成功
-	 * @throws XXException
+	 * @throws com.zxq.exception.XmppException
 	 *             抛出自定义异常，以便统一处理登陆失败的问题
 	 */
-	public boolean login(String account, String password) throws XXException;
+	public boolean login(String account, String password) throws XmppException;
 
 	/**
 	 * 注销登陆
@@ -45,19 +45,19 @@ public interface Smack {
 	 *            昵称
 	 * @param group
 	 *            所在的分组
-	 * @throws XXException
+	 * @throws com.zxq.exception.XmppException
 	 */
 	public void addRosterItem(String user, String alias, String group)
-			throws XXException;
+			throws XmppException;
 
 	/**
 	 * 删除好友
 	 * 
 	 * @param user
 	 *            好友id
-	 * @throws XXException
+	 * @throws com.zxq.exception.XmppException
 	 */
-	public void removeRosterItem(String user) throws XXException;
+	public void removeRosterItem(String user) throws XmppException;
 
 	/**
 	 * 修改好友昵称
@@ -66,10 +66,10 @@ public interface Smack {
 	 *            好友id
 	 * @param newName
 	 *            新昵称
-	 * @throws XXException
+	 * @throws com.zxq.exception.XmppException
 	 */
 	public void renameRosterItem(String user, String newName)
-			throws XXException;
+			throws XmppException;
 
 	/**
 	 * 移动好友到新分组
@@ -78,10 +78,10 @@ public interface Smack {
 	 *            好友id
 	 * @param group
 	 *            新组名
-	 * @throws XXException
+	 * @throws com.zxq.exception.XmppException
 	 */
 	public void moveRosterItemToGroup(String user, String group)
-			throws XXException;
+			throws XmppException;
 
 	/**
 	 * 重命名分组

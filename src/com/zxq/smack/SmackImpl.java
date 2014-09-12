@@ -3,6 +3,7 @@ package com.zxq.smack;
 import java.util.Collection;
 import java.util.Date;
 
+import com.zxq.exception.XmppException;
 import com.zxq.util.LogUtil;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
@@ -55,8 +56,7 @@ import com.zxq.db.ChatProvider;
 import com.zxq.db.RosterProvider;
 import com.zxq.db.ChatProvider.ChatConstants;
 import com.zxq.db.RosterProvider.RosterConstants;
-import com.zxq.exception.XXException;
-import com.zxq.service.XXService;
+import com.zxq.service.XmppService;
 import com.zxq.util.PreferenceConstants;
 import com.zxq.util.PreferenceUtils;
 import com.zxq.util.StatusMode;
@@ -113,7 +113,7 @@ public class SmackImpl implements Smack {
 
 	private ConnectionConfiguration mXMPPConfig;// 连接配置
 	private XMPPConnection mXMPPConnection;// 连接对象
-	private XXService mService;// 主服务
+	private XmppService mService;// 主服务
 	private Roster mRoster;// 联系人对象
 	private final ContentResolver mContentResolver;// 数据库操作对象
 
@@ -136,7 +136,7 @@ public class SmackImpl implements Smack {
 
 	// ping-pong服务器
 
-	public SmackImpl(XXService service) {
+	public SmackImpl(XmppService service) {
 		String customServer = PreferenceUtils.getPrefString(service,
 				PreferenceConstants.CUSTOM_SERVER, "");// 用户手动设置的服务器名称，本来打算给用户指定服务器的
 		int port = PreferenceUtils.getPrefInt(service,
@@ -168,7 +168,7 @@ public class SmackImpl implements Smack {
 	}
 
 	@Override
-	public boolean login(String account, String password) throws XXException {// 登陆实现
+	public boolean login(String account, String password) throws XmppException {// 登陆实现
 		try {
 			if (mXMPPConnection.isConnected()) {// 首先判断是否还连接着服务器，需要先断开
 				try {
@@ -183,7 +183,7 @@ public class SmackImpl implements Smack {
 			registerRosterListener();// 监听联系人动态变化
 			mXMPPConnection.connect();
 			if (!mXMPPConnection.isConnected()) {
-				throw new XXException("SMACK connect failed without exception!");
+				throw new XmppException("SMACK connect failed without exception!");
 			}
 			mXMPPConnection.addConnectionListener(new ConnectionListener() {
 				public void connectionClosedOnError(Exception e) {
@@ -212,12 +212,12 @@ public class SmackImpl implements Smack {
 			setStatusFromConfig();// 更新在线状态
 
 		} catch (XMPPException e) {
-			throw new XXException(e.getLocalizedMessage(),
+			throw new XmppException(e.getLocalizedMessage(),
 					e.getWrappedThrowable());
 		} catch (Exception e) {
 			// actually we just care for IllegalState or NullPointer or XMPPEx.
 			LogUtil.e(SmackImpl.class, "login(): " + Log.getStackTraceString(e));
-			throw new XXException(e.getLocalizedMessage(), e.getCause());
+			throw new XmppException(e.getLocalizedMessage(), e.getCause());
 		}
 		registerAllListener();// 注册监听其他的事件，比如新消息
 		return mXMPPConnection.isAuthenticated();
@@ -468,7 +468,7 @@ public class SmackImpl implements Smack {
 	private class PongTimeoutAlarmReceiver extends BroadcastReceiver {
 		public void onReceive(Context ctx, Intent i) {
 			LogUtil.d("Ping: timeout for " + mPingID);
-			mService.postConnectionFailed(XXService.PONG_TIMEOUT);
+			mService.postConnectionFailed(XmppService.PONG_TIMEOUT);
 			logout();// 超时就断开连接
 		}
 	}
@@ -783,22 +783,22 @@ public class SmackImpl implements Smack {
 
 	@Override
 	public void addRosterItem(String user, String alias, String group)
-			throws XXException {// 添加联系人，供外部服务调用
+			throws XmppException {// 添加联系人，供外部服务调用
 		addRosterEntry(user, alias, group);
 	}
 
 	private void addRosterEntry(String user, String alias, String group)
-			throws XXException {
+			throws XmppException {
 		mRoster = mXMPPConnection.getRoster();
 		try {
 			mRoster.createEntry(user, alias, new String[] { group });
 		} catch (XMPPException e) {
-			throw new XXException(e.getLocalizedMessage());
+			throw new XmppException(e.getLocalizedMessage());
 		}
 	}
 
 	@Override
-	public void removeRosterItem(String user) throws XXException {// 删除联系人，供外部服务调用
+	public void removeRosterItem(String user) throws XmppException {// 删除联系人，供外部服务调用
 		// TODO Auto-generated method stub
 		LogUtil.d("removeRosterItem(" + user + ")");
 
@@ -806,7 +806,7 @@ public class SmackImpl implements Smack {
 		mService.rosterChanged();
 	}
 
-	private void removeRosterEntry(String user) throws XXException {
+	private void removeRosterEntry(String user) throws XmppException {
 		mRoster = mXMPPConnection.getRoster();
 		try {
 			RosterEntry rosterEntry = mRoster.getEntry(user);
@@ -815,32 +815,32 @@ public class SmackImpl implements Smack {
 				mRoster.removeEntry(rosterEntry);
 			}
 		} catch (XMPPException e) {
-			throw new XXException(e.getLocalizedMessage());
+			throw new XmppException(e.getLocalizedMessage());
 		}
 	}
 
 	@Override
 	public void renameRosterItem(String user, String newName)
-			throws XXException {// 重命名联系人，供外部服务调用
+			throws XmppException {// 重命名联系人，供外部服务调用
 		// TODO Auto-generated method stub
 		mRoster = mXMPPConnection.getRoster();
 		RosterEntry rosterEntry = mRoster.getEntry(user);
 
 		if (!(newName.length() > 0) || (rosterEntry == null)) {
-			throw new XXException("JabberID to rename is invalid!");
+			throw new XmppException("JabberID to rename is invalid!");
 		}
 		rosterEntry.setName(newName);
 	}
 
 	@Override
 	public void moveRosterItemToGroup(String user, String group)
-			throws XXException {// 移动好友到其他分组，供外部服务调用
+			throws XmppException {// 移动好友到其他分组，供外部服务调用
 		// TODO Auto-generated method stub
 		tryToMoveRosterEntryToGroup(user, group);
 	}
 
 	private void tryToMoveRosterEntryToGroup(String userName, String groupName)
-			throws XXException {
+			throws XmppException {
 
 		mRoster = mXMPPConnection.getRoster();
 		RosterGroup rosterGroup = getRosterGroup(groupName);
@@ -854,13 +854,13 @@ public class SmackImpl implements Smack {
 			try {
 				rosterGroup.addEntry(rosterEntry);
 			} catch (XMPPException e) {
-				throw new XXException(e.getLocalizedMessage());
+				throw new XmppException(e.getLocalizedMessage());
 			}
 		}
 	}
 
 	private void removeRosterEntryFromGroups(RosterEntry rosterEntry)
-			throws XXException {// 从对应组中删除联系人，供外部服务调用
+			throws XmppException {// 从对应组中删除联系人，供外部服务调用
 		Collection<RosterGroup> oldGroups = rosterEntry.getGroups();
 
 		for (RosterGroup group : oldGroups) {
@@ -869,11 +869,11 @@ public class SmackImpl implements Smack {
 	}
 
 	private void tryToRemoveUserFromGroup(RosterGroup group,
-			RosterEntry rosterEntry) throws XXException {
+			RosterEntry rosterEntry) throws XmppException {
 		try {
 			group.removeEntry(rosterEntry);
 		} catch (XMPPException e) {
-			throw new XXException(e.getLocalizedMessage());
+			throw new XmppException(e.getLocalizedMessage());
 		}
 	}
 

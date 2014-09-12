@@ -35,18 +35,18 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.zxq.app.XmppBroadcastReceiver;
 import com.zxq.util.*;
 import com.zxq.xmpp.R;
 import com.zxq.adapter.RosterAdapter;
-import com.zxq.app.XXBroadcastReceiver;
-import com.zxq.app.XXBroadcastReceiver.EventHandler;
+import com.zxq.app.XmppBroadcastReceiver.EventHandler;
 import com.zxq.db.ChatProvider;
 import com.zxq.db.RosterProvider;
 import com.zxq.db.RosterProvider.RosterConstants;
 import com.zxq.fragment.RecentChatFragment;
 import com.zxq.fragment.SettingsFragment;
 import com.zxq.service.IConnectionStatusCallback;
-import com.zxq.service.XXService;
+import com.zxq.service.XmppService;
 import com.zxq.ui.iphonetreeview.IphoneTreeView;
 import com.zxq.ui.pulltorefresh.PullToRefreshBase;
 import com.zxq.ui.pulltorefresh.PullToRefreshScrollView;
@@ -80,7 +80,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 		mStatusMap.put(PreferenceConstants.CHAT, R.drawable.status_qme);
 	}
 	private Handler mainHandler = new Handler();
-	private XXService mXxService;
+	private XmppService mXmppService;
 	private SlidingMenu mSlidingMenu;
 	private View mNetErrorView;
 	private TextView mTitleNameView;
@@ -96,15 +96,15 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
-			mXxService = ((XXService.XXBinder) service).getService();
-			mXxService.registerConnectionStatusCallback(MainActivity.this);
+			mXmppService = ((XmppService.XXBinder) service).getService();
+			mXmppService.registerConnectionStatusCallback(MainActivity.this);
 			// 开始连接xmpp服务器
-			if (!mXxService.isAuthenticated()) {
+			if (!mXmppService.isAuthenticated()) {
 				String usr = PreferenceUtils.getPrefString(MainActivity.this,
 						PreferenceConstants.ACCOUNT, "");
 				String password = PreferenceUtils.getPrefString(
 						MainActivity.this, PreferenceConstants.PASSWORD, "");
-				mXxService.Login(usr, password);
+				mXmppService.Login(usr, password);
 				// mTitleNameView.setText(R.string.login_prompt_msg);
 				// setStatusImage(false);
 				// mTitleProgressBar.setVisibility(View.VISIBLE);
@@ -120,8 +120,8 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
-			mXxService.unRegisterConnectionStatusCallback();
-			mXxService = null;
+			mXmppService.unRegisterConnectionStatusCallback();
+			mXmppService = null;
 		}
 
 	};
@@ -129,7 +129,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		startService(new Intent(MainActivity.this, XXService.class));
+		startService(new Intent(MainActivity.this, XmppService.class));
 
 		initSlidingMenu();
 		setContentView(R.layout.main_center_layout);
@@ -162,7 +162,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 		// if (!isConnected())
 		// mTitleNameView.setText(R.string.login_prompt_no);
 		mRosterAdapter.requery();
-		XXBroadcastReceiver.mListeners.add(this);
+		XmppBroadcastReceiver.mListeners.add(this);
 		if (NetUtil.getNetworkState(this) == NetUtil.NETWORN_NONE)
 			mNetErrorView.setVisibility(View.VISIBLE);
 		else
@@ -178,7 +178,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 		super.onPause();
 		getContentResolver().unregisterContentObserver(mRosterObserver);
 		unbindXMPPService();
-		XXBroadcastReceiver.mListeners.remove(this);
+		XmppBroadcastReceiver.mListeners.remove(this);
 	}
 
 	@Override
@@ -205,7 +205,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 
 	private void bindXMPPService() {
 		LogUtil.i(LoginActivity.class, "[SERVICE] Unbind");
-		bindService(new Intent(MainActivity.this, XXService.class),
+		bindService(new Intent(MainActivity.this, XmppService.class),
 				mServiceConnection, Context.BIND_AUTO_CREATE
 						+ Context.BIND_DEBUG_UNBIND);
 	}
@@ -301,7 +301,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 	}
 
 	private boolean isConnected() {
-		return mXxService != null && mXxService.isAuthenticated();
+		return mXmppService != null && mXmppService.isAuthenticated();
 	}
 
 	private void showGroupQuickActionBar(View view) {
@@ -337,7 +337,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 						case 1:
 
 							new AddRosterItemDialog(MainActivity.this,
-									mXxService).show();// 添加联系人
+                                    mXmppService).show();// 添加联系人
 							break;
 						default:
 							break;
@@ -374,8 +374,8 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 						}
 						switch (actionId) {
 						case 0:
-							if (mXxService != null)
-								mXxService
+							if (mXmppService != null)
+								mXmppService
 										.requestAuthorizationForRosterItem(userJid);
 							break;
 						case 1:
@@ -569,7 +569,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 						default:
 							break;
 						}
-						mXxService.setStatusFromConfig();
+						mXmppService.setStatusFromConfig();
 						SettingsFragment fragment = (SettingsFragment) getSupportFragmentManager()
 								.findFragmentById(R.id.main_right_fragment);
 						fragment.readData();
@@ -596,7 +596,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog,
 									int which) {
-								mXxService.removeRosterItem(JID);
+								mXmppService.removeRosterItem(JID);
 							}
 						}).setNegativeButton(android.R.string.no, null)
 				.create().show();
@@ -633,8 +633,8 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 				getString(R.string.RenameEntry_summ, userName, JID), userName,
 				new EditOk() {
 					public void ok(String result) {
-						if (mXxService != null)
-							mXxService.renameRosterItem(JID, result);
+						if (mXmppService != null)
+							mXmppService.renameRosterItem(JID, result);
 					}
 				});
 	}
@@ -644,8 +644,8 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 				getString(R.string.RenameGroup_summ, groupName), groupName,
 				new EditOk() {
 					public void ok(String result) {
-						if (mXxService != null)
-							mXxService.renameRosterGroup(groupName, result);
+						if (mXmppService != null)
+							mXmppService.renameRosterGroup(groupName, result);
 					}
 				});
 	}
@@ -666,7 +666,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 									int which) {
 								LogUtil.d("new group: " + gv.getGroupName());
 								if (isConnected())
-									mXxService.moveRosterItemToGroup(jabberID,
+									mXmppService.moveRosterItemToGroup(jabberID,
 											gv.getGroupName());
 							}
 						}).setNegativeButton(android.R.string.cancel, null)
@@ -702,7 +702,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 	@Override
 	public void connectionStatusChanged(int connectedState, String reason) {
 		switch (connectedState) {
-		case XXService.CONNECTED:
+		case XmppService.CONNECTED:
 			mTitleNameView.setText(XMPPHelper.splitJidAndServer(PreferenceUtils
 					.getPrefString(MainActivity.this,
 							PreferenceConstants.ACCOUNT, "")));
@@ -710,12 +710,12 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 			// mTitleStatusView.setVisibility(View.GONE);
 			setStatusImage(true);
 			break;
-		case XXService.CONNECTING:
+		case XmppService.CONNECTING:
 			mTitleNameView.setText(R.string.login_prompt_msg);
 			mTitleProgressBar.setVisibility(View.VISIBLE);
 			mTitleStatusView.setVisibility(View.GONE);
 			break;
-		case XXService.DISCONNECTED:
+		case XmppService.DISCONNECTED:
 			mTitleNameView.setText(R.string.login_prompt_no);
 			mTitleProgressBar.setVisibility(View.GONE);
 			mTitleStatusView.setVisibility(View.GONE);
@@ -728,8 +728,8 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 	}
 
 	@Override
-	public XXService getService() {
-		return mXxService;
+	public XmppService getService() {
+		return mXmppService;
 	}
 
 	@Override
@@ -773,7 +773,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements
 						PreferenceConstants.ACCOUNT, "");
 				String password = PreferenceUtils.getPrefString(
 						MainActivity.this, PreferenceConstants.PASSWORD, "");
-				mXxService.Login(usr, password);
+				mXmppService.Login(usr, password);
 			}
 			try {
 				Thread.sleep(2000);

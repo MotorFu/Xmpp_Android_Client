@@ -22,7 +22,7 @@ import com.zxq.activity.FeedBackActivity;
 import com.zxq.activity.FragmentCallBack;
 import com.zxq.activity.LoginActivity;
 import com.zxq.activity.MainActivity;
-import com.zxq.service.XXService;
+import com.zxq.service.XmppService;
 import com.zxq.ui.switcher.Switch;
 import com.zxq.ui.view.CustomDialog;
 import com.zxq.util.DialogUtil;
@@ -225,7 +225,7 @@ public class SettingsFragment extends Fragment implements OnClickListener,
 			if (mExitDialog != null && mExitDialog.isShowing())
 				mExitDialog.dismiss();
 		} else if (id == R.id.btn_exit_comfirm) {
-			XXService service = mFragmentCallBack.getService();
+			XmppService service = mFragmentCallBack.getService();
 			if (service != null) {
 				service.logout();// 注销
 				service.stopSelf();// 停止服务
@@ -250,7 +250,7 @@ public class SettingsFragment extends Fragment implements OnClickListener,
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog,
 									int which) {
-								XXService service = mFragmentCallBack
+								XmppService service = mFragmentCallBack
 										.getService();
 								if (service != null) {
 									service.logout();// 注销

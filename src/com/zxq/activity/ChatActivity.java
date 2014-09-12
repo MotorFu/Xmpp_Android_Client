@@ -46,6 +46,7 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import com.zxq.app.XmppApplication;
 import com.zxq.ui.emoji.EmojiKeyboard;
 import com.zxq.ui.emoji.EmojiKeyboard.EventListener;
 import com.zxq.util.*;
@@ -53,12 +54,11 @@ import com.zxq.xmpp.R;
 import com.zxq.adapter.ChatAdapter;
 import com.zxq.adapter.FaceAdapter;
 import com.zxq.adapter.FacePageAdeapter;
-import com.zxq.app.XXApp;
 import com.zxq.db.ChatProvider;
 import com.zxq.db.RosterProvider;
 import com.zxq.db.ChatProvider.ChatConstants;
 import com.zxq.service.IConnectionStatusCallback;
-import com.zxq.service.XXService;
+import com.zxq.service.XmppService;
 import com.zxq.ui.swipeback.SwipeBackActivity;
 import com.zxq.ui.view.CirclePageIndicator;
 import com.zxq.ui.xlistview.MsgListView;
@@ -91,27 +91,27 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 			ChatProvider.ChatConstants.DELIVERY_STATUS };// 查询字段
 
 	private ContentObserver mContactObserver = new ContactObserver();// 联系人数据监听，主要是监听对方在线状态
-	private XXService mXxService;// Main服务
+	private XmppService mXmppService;// Main服务
 	ServiceConnection mServiceConnection = new ServiceConnection() {
 
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
-			mXxService = ((XXService.XXBinder) service).getService();
-			mXxService.registerConnectionStatusCallback(ChatActivity.this);
+			mXmppService = ((XmppService.XXBinder) service).getService();
+			mXmppService.registerConnectionStatusCallback(ChatActivity.this);
 			// 如果没有连接上，则重新连接xmpp服务器
-			if (!mXxService.isAuthenticated()) {
+			if (!mXmppService.isAuthenticated()) {
 				String usr = PreferenceUtils.getPrefString(ChatActivity.this,
 						PreferenceConstants.ACCOUNT, "");
 				String password = PreferenceUtils.getPrefString(
 						ChatActivity.this, PreferenceConstants.PASSWORD, "");
-				mXxService.Login(usr, password);
+				mXmppService.Login(usr, password);
 			}
 		}
 
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
-			mXxService.unRegisterConnectionStatusCallback();
-			mXxService = null;
+			mXmppService.unRegisterConnectionStatusCallback();
+			mXmppService = null;
 		}
 
 	};
@@ -131,7 +131,7 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 	 * 绑定服务
 	 */
 	private void bindXMPPService() {
-		Intent mServiceIntent = new Intent(this, XXService.class);
+		Intent mServiceIntent = new Intent(this, XmppService.class);
 		Uri chatURI = Uri.parse(mWithJabberID);
 		mServiceIntent.setData(chatURI);
 		bindService(mServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
@@ -232,7 +232,7 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 	private void initData() {
 		mWithJabberID = getIntent().getDataString().toLowerCase();// 获取聊天对象的id
 		// 将表情map的key保存在数组中
-		Set<String> keySet = XXApp.getInstance().getFaceMap().keySet();
+		Set<String> keySet = XmppApplication.getInstance().getFaceMap().keySet();
 		mFaceMapKeys = new ArrayList<String>();
 		mFaceMapKeys.addAll(keySet);
 	}
@@ -384,10 +384,10 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 
 	private void sendMessageIfNotNull() {
 		if (mChatEditText.getText().length() >= 1) {
-			if (mXxService != null) {
-				mXxService.sendMessage(mWithJabberID, mChatEditText.getText()
+			if (mXmppService != null) {
+				mXmppService.sendMessage(mWithJabberID, mChatEditText.getText()
 						.toString());
-				if (!mXxService.isAuthenticated())
+				if (!mXmppService.isAuthenticated())
 					ToastUtil.showShort(this, "消息已经保存随后发送");
 			}
 			mChatEditText.setText("");
@@ -418,7 +418,7 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 	private void initFacePage() {
 		// TODO Auto-generated method stub
 		List<View> lv = new ArrayList<View>();
-		for (int i = 0; i < XXApp.NUM_PAGE; ++i)
+		for (int i = 0; i < XmppApplication.NUM_PAGE; ++i)
 			lv.add(getGridView(i));
 		FacePageAdeapter adapter = new FacePageAdeapter(lv);
 		mFaceViewPager.setAdapter(adapter);
@@ -467,7 +467,7 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
 				// TODO Auto-generated method stub
-				if (arg2 == XXApp.NUM) {// 删除键的位置
+				if (arg2 == XmppApplication.NUM) {// 删除键的位置
 					int selection = mChatEditText.getSelectionStart();
 					String text = mChatEditText.getText().toString();
 					if (selection > 0) {
@@ -482,7 +482,7 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 								.delete(selection - 1, selection);
 					}
 				} else {
-					int count = mCurrentPage * XXApp.NUM + arg2;
+					int count = mCurrentPage * XmppApplication.NUM + arg2;
 					// 注释的部分，在EditText中显示字符串
 					// String ori = msgEt.getText().toString();
 					// int index = msgEt.getSelectionStart();
@@ -493,7 +493,7 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 
 					// 下面这部分，在EditText中显示表情
 					Bitmap bitmap = BitmapFactory.decodeResource(
-							getResources(), (Integer) XXApp.getInstance()
+							getResources(), (Integer) XmppApplication.getInstance()
 									.getFaceMap().values().toArray()[count]);
 					if (bitmap != null) {
 						int rawHeigh = bitmap.getHeight();

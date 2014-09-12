@@ -26,7 +26,7 @@ import android.widget.EditText;
 import com.zxq.util.*;
 import com.zxq.xmpp.R;
 import com.zxq.service.IConnectionStatusCallback;
-import com.zxq.service.XXService;
+import com.zxq.service.XmppService;
 import com.zxq.util.LogUtil;
 
 public class LoginActivity extends FragmentActivity implements
@@ -40,7 +40,7 @@ public class LoginActivity extends FragmentActivity implements
     private CheckBox mHideLoginCK;
     private CheckBox mUseTlsCK;
     private CheckBox mSilenceLoginCK;
-    private XXService mXxService;
+    private XmppService mXmppService;
     private Dialog mLoginDialog;
     private ConnectionOutTimeProcess mLoginOutTimeProcess;
     private String mAccount;
@@ -74,15 +74,15 @@ public class LoginActivity extends FragmentActivity implements
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            mXxService = ((XXService.XXBinder) service).getService();
-            mXxService.registerConnectionStatusCallback(LoginActivity.this);
+            mXmppService = ((XmppService.XXBinder) service).getService();
+            mXmppService.registerConnectionStatusCallback(LoginActivity.this);
             // 开始连接xmpp服务器
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            mXxService.unRegisterConnectionStatusCallback();
-            mXxService = null;
+            mXmppService.unRegisterConnectionStatusCallback();
+            mXmppService = null;
         }
 
     };
@@ -90,7 +90,7 @@ public class LoginActivity extends FragmentActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        startService(new Intent(LoginActivity.this, XXService.class));
+        startService(new Intent(LoginActivity.this, XmppService.class));
         bindXMPPService();
         setContentView(R.layout.loginpage);
         initView();
@@ -215,8 +215,8 @@ public class LoginActivity extends FragmentActivity implements
             mLoginOutTimeProcess.start();
         if (mLoginDialog != null && !mLoginDialog.isShowing())
             mLoginDialog.show();
-        if (mXxService != null) {
-            mXxService.Login(mAccount, mPassword);
+        if (mXmppService != null) {
+            mXmppService.Login(mAccount, mPassword);
         }
     }
 
@@ -251,7 +251,7 @@ public class LoginActivity extends FragmentActivity implements
 
     private void bindXMPPService() {
         LogUtil.i(LoginActivity.class, "[SERVICE] Unbind");
-        Intent mServiceIntent = new Intent(this, XXService.class);
+        Intent mServiceIntent = new Intent(this, XmppService.class);
         mServiceIntent.setAction(LOGIN_ACTION);
         bindService(mServiceIntent, mServiceConnection,
                 Context.BIND_AUTO_CREATE + Context.BIND_DEBUG_UNBIND);
@@ -358,11 +358,11 @@ public class LoginActivity extends FragmentActivity implements
             mLoginOutTimeProcess.stop();
             mLoginOutTimeProcess = null;
         }
-        if (connectedState == XXService.CONNECTED) {
+        if (connectedState == XmppService.CONNECTED) {
             save2Preferences();
             startActivity(new Intent(this, MainActivity.class));
             finish();
-        } else if (connectedState == XXService.DISCONNECTED)
+        } else if (connectedState == XmppService.DISCONNECTED)
             ToastUtil.showLong(LoginActivity.this, getString(R.string.request_failed)
                     + reason);
     }

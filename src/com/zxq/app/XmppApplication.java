@@ -10,13 +10,13 @@ import com.zxq.xmpp.R;
 import com.zxq.util.PreferenceConstants;
 import com.zxq.util.PreferenceUtils;
 
-public class XXApp extends Application {
+public class XmppApplication extends Application {
 	public static final int NUM_PAGE = 6;// 总共有多少页
 	public static int NUM = 20;// 每页20个表情,还有最后一个删除button
 	private Map<String, Integer> mFaceMap = new LinkedHashMap<String, Integer>();
-	private static XXApp mApplication;
+	private static XmppApplication mApplication;
 
-	public synchronized static XXApp getInstance() {
+	public synchronized static XmppApplication getInstance() {
 		return mApplication;
 	}
 
@@ -39,7 +39,6 @@ public class XXApp extends Application {
 	}
 
 	private void initFaceMap() {
-		// TODO Auto-generated method stub
 		mFaceMap.put("[呲牙]", R.drawable.f_static_000);
 		mFaceMap.put("[调皮]", R.drawable.f_static_001);
 		mFaceMap.put("[流汗]", R.drawable.f_static_002);
@@ -61,7 +60,6 @@ public class XXApp extends Application {
 		mFaceMap.put("[可爱]", R.drawable.f_static_018);
 		mFaceMap.put("[色]", R.drawable.f_static_019);
 		mFaceMap.put("[害羞]", R.drawable.f_static_020);
-
 		mFaceMap.put("[得意]", R.drawable.f_static_021);
 		mFaceMap.put("[吐]", R.drawable.f_static_022);
 		mFaceMap.put("[微笑]", R.drawable.f_static_023);
@@ -83,7 +81,6 @@ public class XXApp extends Application {
 		mFaceMap.put("[衰]", R.drawable.f_static_039);
 		mFaceMap.put("[撇嘴]", R.drawable.f_static_040);
 		mFaceMap.put("[阴险]", R.drawable.f_static_041);
-
 		mFaceMap.put("[奋斗]", R.drawable.f_static_042);
 		mFaceMap.put("[发呆]", R.drawable.f_static_043);
 		mFaceMap.put("[右哼哼]", R.drawable.f_static_044);
@@ -105,7 +102,6 @@ public class XXApp extends Application {
 		mFaceMap.put("[西瓜]", R.drawable.f_static_060);
 		mFaceMap.put("[啤酒]", R.drawable.f_static_061);
 		mFaceMap.put("[飘虫]", R.drawable.f_static_062);
-
 		mFaceMap.put("[勾引]", R.drawable.f_static_063);
 		mFaceMap.put("[OK]", R.drawable.f_static_064);
 		mFaceMap.put("[爱你]", R.drawable.f_static_065);
@@ -127,7 +123,6 @@ public class XXApp extends Application {
 		mFaceMap.put("[饥饿]", R.drawable.f_static_081);
 		mFaceMap.put("[困]", R.drawable.f_static_082);
 		mFaceMap.put("[咒骂]", R.drawable.f_static_083);
-
 		mFaceMap.put("[折磨]", R.drawable.f_static_084);
 		mFaceMap.put("[抠鼻]", R.drawable.f_static_085);
 		mFaceMap.put("[鼓掌]", R.drawable.f_static_086);
@@ -149,7 +144,6 @@ public class XXApp extends Application {
 		mFaceMap.put("[街舞]", R.drawable.f_static_102);
 		mFaceMap.put("[献吻]", R.drawable.f_static_103);
 		mFaceMap.put("[左太极]", R.drawable.f_static_104);
-
 		mFaceMap.put("[右太极]", R.drawable.f_static_105);
 		mFaceMap.put("[闭嘴]", R.drawable.f_static_106);
 	}

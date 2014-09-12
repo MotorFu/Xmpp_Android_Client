@@ -18,19 +18,19 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.text.TextUtils;
 
+import com.zxq.app.XmppBroadcastReceiver;
+import com.zxq.exception.XmppException;
 import com.zxq.util.*;
 import com.zxq.xmpp.R;
 import com.zxq.activity.BaseActivity;
 import com.zxq.activity.LoginActivity;
 import com.zxq.activity.MainActivity;
 import com.zxq.activity.BaseActivity.BackPressHandler;
-import com.zxq.app.XXBroadcastReceiver;
-import com.zxq.app.XXBroadcastReceiver.EventHandler;
-import com.zxq.exception.XXException;
+import com.zxq.app.XmppBroadcastReceiver.EventHandler;
 import com.zxq.smack.SmackImpl;
 import com.zxq.util.LogUtil;
 
-public class XXService extends BaseService implements EventHandler,
+public class XmppService extends BaseService implements EventHandler,
 		BackPressHandler {
 	public static final int CONNECTED = 0;
 	public static final int DISCONNECTED = -1;
@@ -77,7 +77,7 @@ public class XXService extends BaseService implements EventHandler,
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		LogUtil.i(XXService.class, "[SERVICE] onBind");
+		LogUtil.i(XmppService.class, "[SERVICE] onBind");
 		String chatPartner = intent.getDataString();
 		if ((chatPartner != null)) {
 			mIsBoundTo.add(chatPartner);
@@ -118,15 +118,15 @@ public class XXService extends BaseService implements EventHandler,
 	}
 
 	public class XXBinder extends Binder {
-		public XXService getService() {
-			return XXService.this;
+		public XmppService getService() {
+			return XmppService.this;
 		}
 	}
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		XXBroadcastReceiver.mListeners.add(this);
+		XmppBroadcastReceiver.mListeners.add(this);
 		BaseActivity.mListeners.add(this);
 		mActivityManager = ((ActivityManager) getSystemService(Context.ACTIVITY_SERVICE));
 		mPAlarmIntent = PendingIntent.getBroadcast(this, 0, mAlarmIntent,
@@ -139,10 +139,10 @@ public class XXService extends BaseService implements EventHandler,
 		if (intent != null
 				&& intent.getAction() != null
 				&& TextUtils.equals(intent.getAction(),
-						XXBroadcastReceiver.BOOT_COMPLETED_ACTION)) {
-			String account = PreferenceUtils.getPrefString(XXService.this,
+						XmppBroadcastReceiver.BOOT_COMPLETED_ACTION)) {
+			String account = PreferenceUtils.getPrefString(XmppService.this,
 					PreferenceConstants.ACCOUNT, "");
-			String password = PreferenceUtils.getPrefString(XXService.this,
+			String password = PreferenceUtils.getPrefString(XmppService.this,
 					PreferenceConstants.PASSWORD, "");
 			if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(password))
 				Login(account, password);
@@ -155,7 +155,7 @@ public class XXService extends BaseService implements EventHandler,
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		XXBroadcastReceiver.mListeners.remove(this);
+		XmppBroadcastReceiver.mListeners.remove(this);
 		BaseActivity.mListeners.remove(this);
 		((AlarmManager) getSystemService(Context.ALARM_SERVICE))
 				.cancel(mPAlarmIntent);// 取消重连闹钟
@@ -178,7 +178,7 @@ public class XXService extends BaseService implements EventHandler,
 			public void run() {
 				try {
 					postConnecting();
-					mSmackable = new SmackImpl(XXService.this);
+					mSmackable = new SmackImpl(XmppService.this);
 					if (mSmackable.login(account, password)) {
 						// 登陆成功
 						postConnectionScuessed();
@@ -186,13 +186,13 @@ public class XXService extends BaseService implements EventHandler,
 						// 登陆失败
 						postConnectionFailed(LOGIN_FAILED);
 					}
-				} catch (XXException e) {
+				} catch (XmppException e) {
 					String message = e.getLocalizedMessage();
 					// 登陆失败
 					if (e.getCause() != null)
 						message += "\n" + e.getCause().getLocalizedMessage();
 					postConnectionFailed(message);
-					LogUtil.i(XXService.class, "YaximXMPPException in doConnect():");
+					LogUtil.i(XmppService.class, "YaximXMPPException in doConnect():");
 					e.printStackTrace();
 				} finally {
 					if (mConnectingThread != null)
@@ -274,7 +274,7 @@ public class XXService extends BaseService implements EventHandler,
 	public void addRosterItem(String user, String alias, String group) {
 		try {
 			mSmackable.addRosterItem(user, alias, group);
-		} catch (XXException e) {
+		} catch (XmppException e) {
 			ToastUtil.showShort(this, e.getMessage());
 			LogUtil.e("exception in addRosterItem(): " + e.getMessage());
 		}
@@ -289,7 +289,7 @@ public class XXService extends BaseService implements EventHandler,
 	public void removeRosterItem(String user) {
 		try {
 			mSmackable.removeRosterItem(user);
-		} catch (XXException e) {
+		} catch (XmppException e) {
 			ToastUtil.showShort(this, e.getMessage());
 			LogUtil.e("exception in removeRosterItem(): " + e.getMessage());
 		}
@@ -299,7 +299,7 @@ public class XXService extends BaseService implements EventHandler,
 	public void moveRosterItemToGroup(String user, String group) {
 		try {
 			mSmackable.moveRosterItemToGroup(user, group);
-		} catch (XXException e) {
+		} catch (XmppException e) {
 			ToastUtil.showShort(this, e.getMessage());
 			LogUtil.e("exception in moveRosterItemToGroup(): " + e.getMessage());
 		}
@@ -309,7 +309,7 @@ public class XXService extends BaseService implements EventHandler,
 	public void renameRosterItem(String user, String newName) {
 		try {
 			mSmackable.renameRosterItem(user, newName);
-		} catch (XXException e) {
+		} catch (XmppException e) {
 			ToastUtil.showShort(this, e.getMessage());
 			LogUtil.e("exception in renameRosterItem(): " + e.getMessage());
 		}
@@ -330,7 +330,7 @@ public class XXService extends BaseService implements EventHandler,
 	 * @param reason
 	 */
 	private void connectionFailed(String reason) {
-		LogUtil.i(XXService.class, "connectionFailed: " + reason);
+		LogUtil.i(XmppService.class, "connectionFailed: " + reason);
 		mConnectedState = DISCONNECTED;// 更新当前连接状态
 //		if (mSmackable != null)
 //			mSmackable.setStatusOffline();// 将所有联系人标记为离线
@@ -354,9 +354,9 @@ public class XXService extends BaseService implements EventHandler,
 			return;
 		}
 
-		String account = PreferenceUtils.getPrefString(XXService.this,
+		String account = PreferenceUtils.getPrefString(XmppService.this,
 				PreferenceConstants.ACCOUNT, "");
-		String password = PreferenceUtils.getPrefString(XXService.this,
+		String password = PreferenceUtils.getPrefString(XmppService.this,
 				PreferenceConstants.PASSWORD, "");
 		// 无保存的帐号密码时，也直接返回
 		if (TextUtils.isEmpty(account) || TextUtils.isEmpty(password)) {
@@ -421,9 +421,9 @@ public class XXService extends BaseService implements EventHandler,
 	public void newMessage(final String from, final String message) {
 		mMainHandler.post(new Runnable() {
 			public void run() {
-				if (!PreferenceUtils.getPrefBoolean(XXService.this,
+				if (!PreferenceUtils.getPrefBoolean(XmppService.this,
 						PreferenceConstants.SCLIENTNOTIFY, false))
-					MediaPlayer.create(XXService.this, R.raw.office).start();
+					MediaPlayer.create(XmppService.this, R.raw.office).start();
 				if (!isAppOnForeground())
 					notifyClient(from, mSmackable.getNameForJID(from), message,
 							!mIsBoundTo.contains(from));
@@ -519,7 +519,7 @@ public class XXService extends BaseService implements EventHandler,
 	private class ReconnectAlarmReceiver extends BroadcastReceiver {
 		public void onReceive(Context ctx, Intent i) {
 			LogUtil.d("Alarm received.");
-			if (!PreferenceUtils.getPrefBoolean(XXService.this,
+			if (!PreferenceUtils.getPrefBoolean(XmppService.this,
 					PreferenceConstants.AUTO_RECONNECT, true)) {
 				return;
 			}
@@ -527,9 +527,9 @@ public class XXService extends BaseService implements EventHandler,
 				LogUtil.d("Reconnect attempt aborted: we are connected again!");
 				return;
 			}
-			String account = PreferenceUtils.getPrefString(XXService.this,
+			String account = PreferenceUtils.getPrefString(XmppService.this,
 					PreferenceConstants.ACCOUNT, "");
-			String password = PreferenceUtils.getPrefString(XXService.this,
+			String password = PreferenceUtils.getPrefString(XmppService.this,
 					PreferenceConstants.PASSWORD, "");
 			if (TextUtils.isEmpty(account) || TextUtils.isEmpty(password)) {
 				LogUtil.d("account = null || password = null");
@@ -547,9 +547,9 @@ public class XXService extends BaseService implements EventHandler,
 		}
 		if (isAuthenticated())// 如果已经连接上，直接返回
 			return;
-		String account = PreferenceUtils.getPrefString(XXService.this,
+		String account = PreferenceUtils.getPrefString(XmppService.this,
 				PreferenceConstants.ACCOUNT, "");
-		String password = PreferenceUtils.getPrefString(XXService.this,
+		String password = PreferenceUtils.getPrefString(XmppService.this,
 				PreferenceConstants.PASSWORD, "");
 		if (TextUtils.isEmpty(account) || TextUtils.isEmpty(password))// 如果没有帐号，也直接返回
 			return;

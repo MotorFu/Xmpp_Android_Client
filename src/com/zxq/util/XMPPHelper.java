@@ -13,30 +13,30 @@ import android.text.Spanned;
 import android.text.style.ImageSpan;
 import android.util.TypedValue;
 
-import com.zxq.app.XXApp;
-import com.zxq.exception.XXAdressMalformedException;
+import com.zxq.app.XmppApplication;
+import com.zxq.exception.XmppAdressMalformedException;
 
 public class XMPPHelper {
 	private static final Pattern EMOTION_URL = Pattern.compile("\\[(\\S+?)\\]");
 
 	public static void verifyJabberID(String jid)
-			throws XXAdressMalformedException {
+			throws XmppAdressMalformedException {
 		if (jid != null) {
 			Pattern p = Pattern
 					.compile("(?i)[a-z0-9\\-_\\.]++@[a-z0-9\\-_]++(\\.[a-z0-9\\-_]++)++");
 			Matcher m = p.matcher(jid);
 
 			if (!m.matches()) {
-				throw new XXAdressMalformedException(
+				throw new XmppAdressMalformedException(
 						"Configured Jabber-ID is incorrect!");
 			}
 		} else {
-			throw new XXAdressMalformedException("Jabber-ID wasn't set!");
+			throw new XmppAdressMalformedException("Jabber-ID wasn't set!");
 		}
 	}
 
 	public static void verifyJabberID(Editable jid)
-			throws XXAdressMalformedException {
+			throws XmppAdressMalformedException {
 		verifyJabberID(jid.toString());
 	}
 
@@ -98,8 +98,8 @@ public class XMPPHelper {
 			int k = localMatcher.start();
 			int m = localMatcher.end();
 			if (m - k < 8) {
-				if (XXApp.getInstance().getFaceMap().containsKey(str2)) {
-					int face = XXApp.getInstance().getFaceMap().get(str2);
+				if (XmppApplication.getInstance().getFaceMap().containsKey(str2)) {
+					int face = XmppApplication.getInstance().getFaceMap().get(str2);
 					Bitmap bitmap = BitmapFactory.decodeResource(
 							context.getResources(), face);
 					if (bitmap != null) {

@@ -23,7 +23,7 @@ import com.zxq.activity.FragmentCallBack;
 import com.zxq.adapter.RecentChatAdapter;
 import com.zxq.db.ChatProvider;
 import com.zxq.db.ChatProvider.ChatConstants;
-import com.zxq.service.XXService;
+import com.zxq.service.XmppService;
 import com.zxq.ui.swipelistview.BaseSwipeListViewListener;
 import com.zxq.ui.swipelistview.SwipeListView;
 import com.zxq.ui.view.AddRosterItemDialog;
@@ -141,12 +141,12 @@ public class RecentChatFragment extends Fragment implements OnClickListener {
 	public void onClick(View v) {
 		int id = v.getId();
 		if (id == R.id.ivTitleBtnRightImage) {
-			XXService xxService = mFragmentCallBack.getService();
-			if (xxService == null || !xxService.isAuthenticated()) {
+			XmppService xmppService = mFragmentCallBack.getService();
+			if (xmppService == null || !xmppService.isAuthenticated()) {
 				return;
 			}
 			new AddRosterItemDialog(mFragmentCallBack.getMainActivity(),
-					xxService).show();// 添加联系人
+                    xmppService).show();// 添加联系人
 		}
 	}
 
