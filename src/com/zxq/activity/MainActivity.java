@@ -1,65 +1,43 @@
 package com.zxq.activity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import android.app.AlertDialog;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.database.ContentObserver;
+import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.EditText;
-import android.widget.ExpandableListView;
-import android.widget.ExpandableListView.OnChildClickListener;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.ScrollView;
-import android.widget.TextView;
-
-import com.zxq.app.XmppBroadcastReceiver;
-import com.zxq.util.*;
-import com.zxq.xmpp.R;
+import android.widget.*;
 import com.zxq.adapter.RosterAdapter;
+import com.zxq.app.XmppBroadcastReceiver;
 import com.zxq.app.XmppBroadcastReceiver.EventHandler;
 import com.zxq.db.ChatProvider;
 import com.zxq.db.RosterProvider;
 import com.zxq.db.RosterProvider.RosterConstants;
+import com.zxq.fragment.FriendChatFragment;
 import com.zxq.fragment.RecentChatFragment;
 import com.zxq.fragment.SettingsFragment;
 import com.zxq.service.IConnectionStatusCallback;
 import com.zxq.service.XmppService;
-import com.zxq.ui.iphonetreeview.IphoneTreeView;
-import com.zxq.ui.pulltorefresh.PullToRefreshBase;
-import com.zxq.ui.pulltorefresh.PullToRefreshScrollView;
-import com.zxq.ui.pulltorefresh.PullToRefreshBase.OnRefreshListener;
 import com.zxq.ui.quickaction.ActionItem;
 import com.zxq.ui.quickaction.QuickAction;
 import com.zxq.ui.quickaction.QuickAction.OnActionItemClickListener;
 import com.zxq.ui.slidingmenu.BaseSlidingFragmentActivity;
 import com.zxq.ui.slidingmenu.SlidingMenu;
-import com.zxq.ui.view.AddRosterItemDialog;
 import com.zxq.ui.view.ChangeLog;
 import com.zxq.ui.view.GroupNameView;
-import com.zxq.util.LogUtil;
+import com.zxq.util.*;
+import com.zxq.xmpp.R;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends BaseSlidingFragmentActivity implements OnClickListener, IConnectionStatusCallback, EventHandler, FragmentCallBack {
     private static final int ID_CHAT = 0;
@@ -70,18 +48,18 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
 
     public static HashMap<String, Integer> mStatusMap;
 
-    private Handler mainHandler = new Handler();
-    private XmppService mXmppService;
+    private FriendChatFragment friendChatFragment;
+
     private SlidingMenu mSlidingMenu;
     private View mNetErrorView;
     private TextView mTitleNameView;
     private ImageView mTitleStatusView;
     private ProgressBar mTitleProgressBar;
-    private PullToRefreshScrollView mPullRefreshScrollView;
-    private IphoneTreeView mIphoneTreeView;
+
+    private XmppService mXmppService;
+    private Handler mainHandler = new Handler();
     private RosterAdapter mRosterAdapter;
-    private ContentObserver mRosterObserver = new RosterObserver();
-    private int mLongPressGroupId, mLongPressChildId;
+
     private long firstTime;
 
     static {
@@ -124,7 +102,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         initSlidingMenu();
         setContentView(R.layout.main_center_layout);
         initViews();
-        registerListAdapter();
+       setupData();
     }
 
 
@@ -142,9 +120,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
     protected void onResume() {
         super.onResume();
         bindXMPPService();
-        getContentResolver().registerContentObserver(RosterProvider.CONTENT_URI, true, mRosterObserver);
         setStatusImage(isConnected());
-        mRosterAdapter.requery();
         XmppBroadcastReceiver.mListeners.add(this);
         if (NetUtil.getNetworkState(this) == NetUtil.NETWORN_NONE)
             mNetErrorView.setVisibility(View.VISIBLE);
@@ -159,7 +135,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
     @Override
     protected void onPause() {
         super.onPause();
-        getContentResolver().unregisterContentObserver(mRosterObserver);
+
         unbindXMPPService();
         XmppBroadcastReceiver.mListeners.remove(this);
     }
@@ -169,10 +145,11 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         super.onDestroy();
     }
 
-    private void registerListAdapter() {
-        mRosterAdapter = new RosterAdapter(this, mIphoneTreeView, mPullRefreshScrollView);
-        mIphoneTreeView.setAdapter(mRosterAdapter);
-        mRosterAdapter.requery();
+    private void setupData() {
+        friendChatFragment = FriendChatFragment.getInstance(mXmppService,mRosterAdapter,mainHandler);
+        FragmentTransaction mFragementTransaction = getSupportFragmentManager().beginTransaction();
+        mFragementTransaction.replace(R.id.main_fragment_content, friendChatFragment);
+        mFragementTransaction.commit();
     }
 
     private void unbindXMPPService() {
@@ -196,7 +173,6 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         Fragment mFrag = new SettingsFragment();
         mFragementTransaction.replace(R.id.main_right_fragment, mFrag);
         mFragementTransaction.commit();
-
         ImageButton mLeftBtn = ((ImageButton) findViewById(R.id.show_left_fragment_btn));
         mLeftBtn.setVisibility(View.VISIBLE);
         mLeftBtn.setOnClickListener(this);
@@ -209,43 +185,8 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         mTitleNameView.setText(XMPPHelper.splitJidAndServer(PreferenceUtils.getPrefString(this, PreferenceConstants.ACCOUNT, "")));
         mTitleNameView.setOnClickListener(this);
 
-        mPullRefreshScrollView = (PullToRefreshScrollView) findViewById(R.id.pull_refresh_scrollview);
-        mPullRefreshScrollView.setOnRefreshListener(new OnRefreshListener<ScrollView>() {
-            @Override
-            public void onRefresh(PullToRefreshBase<ScrollView> refreshView) {
-                new GetDataTask().execute();
-            }
-        });
 
-        mIphoneTreeView = (IphoneTreeView) findViewById(R.id.iphone_tree_view);
-        mIphoneTreeView.setHeaderView(getLayoutInflater().inflate(R.layout.contact_buddy_list_group, mIphoneTreeView, false));
-        mIphoneTreeView.setEmptyView(findViewById(R.id.empty));
-        mIphoneTreeView.setOnItemLongClickListener(new OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                int groupPos = (Integer) view.getTag(R.id.xxx01); // 参数值是在setTag时使用的对应资源id号
-                int childPos = (Integer) view.getTag(R.id.xxx02);
-                mLongPressGroupId = groupPos;
-                mLongPressChildId = childPos;
-                if (childPos == -1) {// 长按的是父项
-                    // 根据groupPos判断你长按的是哪个父项，做相应处理（弹框等）
-                    showGroupQuickActionBar(view.findViewById(R.id.group_name));
-                } else {
-                    // 根据groupPos及childPos判断你长按的是哪个父项下的哪个子项，然后做相应处理。
-                    showChildQuickActionBar(view.findViewById(R.id.icon));
-                }
-                return false;
-            }
-        });
-        mIphoneTreeView.setOnChildClickListener(new OnChildClickListener() {
-            @Override
-            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                String userJid = mRosterAdapter.getChild(groupPosition, childPosition).getJid();
-                String userName = mRosterAdapter.getChild(groupPosition, childPosition).getAlias();
-                startChatActivity(userJid, userName);
-                return false;
-            }
-        });
+
     }
 
     //发起向好友会话
@@ -261,76 +202,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         return mXmppService != null && mXmppService.isAuthenticated();
     }
 
-    //==========QuickAction是一个快速弹出窗口===================
-    private void showGroupQuickActionBar(View view) {//父节点弹窗
-        QuickAction quickAction = new QuickAction(this, QuickAction.HORIZONTAL);
-        quickAction.addActionItem(new ActionItem(0, getString(R.string.rename)));
-        quickAction.addActionItem(new ActionItem(1, getString(R.string.add_friend)));
-        quickAction.setOnActionItemClickListener(new OnActionItemClickListener() {
-            @Override
-            public void onItemClick(QuickAction source, int pos, int actionId) {
-                if (!isConnected()) {   // 如果没有连接直接返回
-                    ToastUtil.showShort(MainActivity.this, R.string.conversation_net_error_label);
-                    return;
-                }
-                switch (actionId) {
-                    case 0:
-                        String groupName = mRosterAdapter.getGroup(mLongPressGroupId).getGroupName();
-                        if (TextUtils.isEmpty(groupName)) {// 系统默认分组不允许重命名
-                            ToastUtil.showShort(MainActivity.this, R.string.roster_group_rename_failed);
-                            return;
-                        }
-                        renameRosterGroupDialog(mRosterAdapter.getGroup(mLongPressGroupId).getGroupName());
-                        break;
-                    case 1:
-                        new AddRosterItemDialog(MainActivity.this, mXmppService).show();// 添加联系人
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
-        quickAction.show(view);
-        quickAction.setAnimStyle(QuickAction.ANIM_GROW_FROM_CENTER);
-    }
 
-    private void showChildQuickActionBar(View view) {//子节点弹窗
-        QuickAction quickAction = new QuickAction(this, QuickAction.HORIZONTAL);
-        quickAction.addActionItem(new ActionItem(0, getString(R.string.add)));
-        quickAction.addActionItem(new ActionItem(1, getString(R.string.rename)));
-        quickAction.addActionItem(new ActionItem(2, getString(R.string.move)));
-        quickAction.addActionItem(new ActionItem(3, getString(R.string.delete)));
-        quickAction.setOnActionItemClickListener(new OnActionItemClickListener() {
-            @Override
-            public void onItemClick(QuickAction source, int pos, int actionId) {
-                String userJid = mRosterAdapter.getChild(mLongPressGroupId, mLongPressChildId).getJid();
-                String userName = mRosterAdapter.getChild(mLongPressGroupId, mLongPressChildId).getAlias();
-                if (!isConnected()) {
-                    ToastUtil.showShort(MainActivity.this, R.string.conversation_net_error_label);
-                    return;
-                }
-                switch (actionId) {
-                    case 0:
-                        if (mXmppService != null)
-                            mXmppService.requestAuthorizationForRosterItem(userJid);
-                        break;
-                    case 1:
-                        renameRosterItemDialog(userJid, userName);
-                        break;
-                    case 2:
-                        moveRosterItemToGroupDialog(userJid);
-                        break;
-                    case 3:
-                        removeRosterItemDialog(userJid, userName);
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-        });
-        quickAction.show(view);
-    }
 
     private void initSlidingMenu() {
         DisplayMetrics dm = new DisplayMetrics();
@@ -465,9 +337,6 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         quickAction.show(v);
     }
 
-    public abstract class EditOk {
-        abstract public void ok(String result);
-    }
 
     void removeChatHistory(final String JID) {
         getContentResolver().delete(ChatProvider.CONTENT_URI, ChatProvider.ChatConstants.JID + " = ?", new String[]{JID});
@@ -481,40 +350,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         }).setNegativeButton(android.R.string.no, null).create().show();
     }
 
-    private void editTextDialog(int titleId, CharSequence message, String text, final EditOk ok) {
-        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        View layout = inflater.inflate(R.layout.edittext_dialog, null);
-        TextView messageView = (TextView) layout.findViewById(R.id.text);
-        messageView.setText(message);
-        final EditText input = (EditText) layout.findViewById(R.id.editText);
-        input.setTransformationMethod(android.text.method.SingleLineTransformationMethod.getInstance());
-        input.setText(text);
-        new AlertDialog.Builder(this).setTitle(titleId).setView(layout).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                String newName = input.getText().toString();
-                if (newName.length() != 0)
-                    ok.ok(newName);
-            }
-        }).setNegativeButton(android.R.string.cancel, null).create().show();
-    }
 
-    void renameRosterItemDialog(final String JID, final String userName) {
-        editTextDialog(R.string.RenameEntry_title, getString(R.string.RenameEntry_summ, userName, JID), userName, new EditOk() {
-            public void ok(String result) {
-                if (mXmppService != null)
-                    mXmppService.renameRosterItem(JID, result);
-            }
-        });
-    }
-
-    void renameRosterGroupDialog(final String groupName) {
-        editTextDialog(R.string.RenameGroup_title, getString(R.string.RenameGroup_summ, groupName), groupName, new EditOk() {
-            public void ok(String result) {
-                if (mXmppService != null)
-                    mXmppService.renameRosterGroup(groupName, result);
-            }
-        });
-    }
 
     void moveRosterItemToGroupDialog(final String jabberID) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -590,54 +426,8 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         return this;
     }
 
-    public void updateRoster() {
-        mRosterAdapter.requery();
-    }
 
 
-    private class RosterObserver extends ContentObserver {
-        public RosterObserver() {
-            super(mainHandler);
-        }
 
-        public void onChange(boolean selfChange) {
-            LogUtil.d(MainActivity.class, "RosterObserver.onChange: " + selfChange);
-            if (mRosterAdapter != null)
-                mainHandler.postDelayed(new Runnable() {
-                    public void run() {
-                        updateRoster();
-                    }
-                }, 100);
-        }
-    }
 
-    //重新获取数据
-    private class GetDataTask extends AsyncTask<Void, Void, String[]> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected String[] doInBackground(Void... params) {
-            if (!isConnected()) {// 如果没有连接重新连接
-                String usr = PreferenceUtils.getPrefString(MainActivity.this, PreferenceConstants.ACCOUNT, "");
-                String password = PreferenceUtils.getPrefString(MainActivity.this, PreferenceConstants.PASSWORD, "");
-                mXmppService.Login(usr, password);
-            }
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String[] result) {
-            mRosterAdapter.requery();// 重新查询一下数据库
-            mPullRefreshScrollView.onRefreshComplete();
-            ToastUtil.showShort(MainActivity.this, "刷新成功!");
-            super.onPostExecute(result);
-        }
-    }
 }

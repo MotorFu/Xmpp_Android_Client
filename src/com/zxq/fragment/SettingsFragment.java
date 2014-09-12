@@ -144,7 +144,7 @@ public class SettingsFragment extends Fragment implements OnClickListener, OnChe
 		int id = buttonView.getId();
 		if (id == R.id.show_offline_roster_switch) {
 			PreferenceUtils.setPrefBoolean(getActivity(), PreferenceConstants.SHOW_OFFLINE, isChecked);
-			mFragmentCallBack.getMainActivity().updateRoster();
+			//mFragmentCallBack.getMainActivity().updateRoster();
 		} else if (id == R.id.notify_run_background_switch) {
 			PreferenceUtils.setPrefBoolean(getActivity(), PreferenceConstants.FOREGROUND, isChecked);
 		} else if (id == R.id.new_msg_sound_switch) {

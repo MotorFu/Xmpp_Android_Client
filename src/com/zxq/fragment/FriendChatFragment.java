@@ -4,26 +4,33 @@ import android.app.AlertDialog;
 import android.app.Service;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ExpandableListView;
+import android.widget.*;
 import com.zxq.activity.ChatActivity;
+import com.zxq.activity.MainActivity;
 import com.zxq.adapter.RosterAdapter;
 import com.zxq.db.RosterProvider;
 import com.zxq.service.XmppService;
 import com.zxq.ui.iphonetreeview.IphoneTreeView;
+import com.zxq.ui.pulltorefresh.PullToRefreshBase;
+import com.zxq.ui.pulltorefresh.PullToRefreshScrollView;
 import com.zxq.ui.quickaction.ActionItem;
 import com.zxq.ui.quickaction.QuickAction;
 import com.zxq.ui.view.AddRosterItemDialog;
 import com.zxq.ui.view.GroupNameView;
 import com.zxq.util.LogUtil;
+import com.zxq.util.PreferenceConstants;
+import com.zxq.util.PreferenceUtils;
 import com.zxq.util.ToastUtil;
 import com.zxq.xmpp.R;
 
@@ -37,11 +44,34 @@ public class FriendChatFragment extends Fragment {
     private IphoneTreeView mIphoneTreeView;
     private RosterAdapter mRosterAdapter;
     private XmppService mXmppService;
+    private Handler mainHandler;
+    private PullToRefreshScrollView mPullRefreshScrollView;
     private int mLongPressGroupId, mLongPressChildId;
+    private ContentObserver mRosterObserver = new RosterObserver();
     private static final String[] GROUPS_QUERY = new String[]{RosterProvider.RosterConstants._ID, RosterProvider.RosterConstants.GROUP,};
     private static final String[] ROSTER_QUERY = new String[]{RosterProvider.RosterConstants._ID, RosterProvider.RosterConstants.JID, RosterProvider.RosterConstants.ALIAS, RosterProvider.RosterConstants.STATUS_MODE, RosterProvider.RosterConstants.STATUS_MESSAGE,};
+    private static FriendChatFragment friendChatFragment;
 
+    private FriendChatFragment(XmppService mXmppService, RosterAdapter mRosterAdapter,Handler mainHandler) {
+        this.mXmppService = mXmppService;
+        this.mRosterAdapter = mRosterAdapter;
+        this.mainHandler =mainHandler;
 
+    }
+
+    public static FriendChatFragment getInstance(XmppService mXmppService, RosterAdapter mRosterAdapter,Handler mainHandler) {
+        if (friendChatFragment == null)
+            friendChatFragment = new FriendChatFragment(mXmppService, mRosterAdapter,mainHandler);
+        return friendChatFragment;
+    }
+
+    public abstract class EditOk {
+        abstract public void ok(String result);
+    }
+
+    public void updateRoster() {
+        mRosterAdapter.requery();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -51,7 +81,13 @@ public class FriendChatFragment extends Fragment {
     }
 
     private void initViews(View inflate) {
-
+        mPullRefreshScrollView = (PullToRefreshScrollView) inflate.findViewById(R.id.pull_refresh_scrollview);
+        mPullRefreshScrollView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener<ScrollView>() {
+            @Override
+            public void onRefresh(PullToRefreshBase<ScrollView> refreshView) {
+                new GetDataTask().execute();
+            }
+        });
         mIphoneTreeView = (IphoneTreeView) inflate.findViewById(R.id.iphone_tree_view);
         mIphoneTreeView.setHeaderView(this.getActivity().getLayoutInflater().inflate(R.layout.contact_buddy_list_group, mIphoneTreeView, false));
         mIphoneTreeView.setEmptyView(inflate.findViewById(R.id.empty));
@@ -92,19 +128,31 @@ public class FriendChatFragment extends Fragment {
         chatIntent.putExtra(ChatActivity.INTENT_EXTRA_USERNAME, userName);
         startActivity(chatIntent);
     }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        setupData();
+    }
+
+    private void setupData() {
+        mRosterAdapter = new RosterAdapter(this.getActivity(), mIphoneTreeView, mPullRefreshScrollView);
+        mIphoneTreeView.setAdapter(mRosterAdapter);
+        mRosterAdapter.requery();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        mRosterAdapter.requery();
+        this.getActivity().getContentResolver().registerContentObserver(RosterProvider.CONTENT_URI, true, mRosterObserver);
+
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        this.getActivity().getContentResolver().unregisterContentObserver(mRosterObserver);
     }
 
     @Override
@@ -131,7 +179,7 @@ public class FriendChatFragment extends Fragment {
                             ToastUtil.showShort(FriendChatFragment.this.getActivity(), R.string.roster_group_rename_failed);
                             return;
                         }
-                     //   renameRosterGroupDialog(mRosterAdapter.getGroup(mLongPressGroupId).getGroupName());
+                        //   renameRosterGroupDialog(mRosterAdapter.getGroup(mLongPressGroupId).getGroupName());
                         break;
                     case 1:
                         new AddRosterItemDialog((com.zxq.activity.MainActivity) FriendChatFragment.this.getActivity(), mXmppService).show();// 添加联系人
@@ -145,13 +193,32 @@ public class FriendChatFragment extends Fragment {
         quickAction.setAnimStyle(QuickAction.ANIM_GROW_FROM_CENTER);
     }
 
+
+    private void editTextDialog(int titleId, CharSequence message, String text, final EditOk ok) {
+        LayoutInflater inflater = (LayoutInflater) this.getActivity().getSystemService(Service.LAYOUT_INFLATER_SERVICE);
+        View layout = inflater.inflate(R.layout.edittext_dialog, null);
+        TextView messageView = (TextView) layout.findViewById(R.id.text);
+        messageView.setText(message);
+        final EditText input = (EditText) layout.findViewById(R.id.editText);
+        input.setTransformationMethod(android.text.method.SingleLineTransformationMethod.getInstance());
+        input.setText(text);
+        new AlertDialog.Builder(this.getActivity()).setTitle(titleId).setView(layout).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                String newName = input.getText().toString();
+                if (newName.length() != 0)
+                    ok.ok(newName);
+            }
+        }).setNegativeButton(android.R.string.cancel, null).create().show();
+    }
+
+
     void renameRosterGroupDialog(final String groupName) {
-//        editTextDialog(R.string.RenameGroup_title, getString(R.string.RenameGroup_summ, groupName), groupName, new EditOk() {
-//            public void ok(String result) {
-//                if (mXmppService != null)
-//                    mXmppService.renameRosterGroup(groupName, result);
-//            }
-//        });
+        editTextDialog(R.string.RenameGroup_title, getString(R.string.RenameGroup_summ, groupName), groupName, new EditOk() {
+            public void ok(String result) {
+                if (mXmppService != null)
+                    mXmppService.renameRosterGroup(groupName, result);
+            }
+        });
     }
 
     private void showChildQuickActionBar(View view) {//子节点弹窗
@@ -193,12 +260,12 @@ public class FriendChatFragment extends Fragment {
     }
 
     void renameRosterItemDialog(final String JID, final String userName) {
-//        editTextDialog(R.string.RenameEntry_title, getString(R.string.RenameEntry_summ, userName, JID), userName, new EditOk() {
-//            public void ok(String result) {
-//                if (mXmppService != null)
-//                    mXmppService.renameRosterItem(JID, result);
-//            }
-//        });
+        editTextDialog(R.string.RenameEntry_title, getString(R.string.RenameEntry_summ, userName, JID), userName, new EditOk() {
+            public void ok(String result) {
+                if (mXmppService != null)
+                    mXmppService.renameRosterItem(JID, result);
+            }
+        });
     }
 
 
@@ -237,6 +304,7 @@ public class FriendChatFragment extends Fragment {
         return list;
     }
 
+
     public List<String[]> getRosterContacts() {//获得所有人员名称
         List<String[]> list = new ArrayList<String[]>();
         Cursor cursor = FriendChatFragment.this.getActivity().getContentResolver().query(RosterProvider.CONTENT_URI, ROSTER_QUERY, null, null, RosterProvider.RosterConstants.ALIAS);
@@ -255,7 +323,55 @@ public class FriendChatFragment extends Fragment {
         return list;
     }
 
+
     private boolean isConnected() {
         return mXmppService != null && mXmppService.isAuthenticated();
+    }
+
+    //重新获取数据
+    private class GetDataTask extends AsyncTask<Void, Void, String[]> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected String[] doInBackground(Void... params) {
+            if (!isConnected()) {// 如果没有连接重新连接
+                String usr = PreferenceUtils.getPrefString(FriendChatFragment.this.getActivity(), PreferenceConstants.ACCOUNT, "");
+                String password = PreferenceUtils.getPrefString(FriendChatFragment.this.getActivity(), PreferenceConstants.PASSWORD, "");
+                mXmppService.Login(usr, password);
+            }
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String[] result) {
+            mRosterAdapter.requery();// 重新查询一下数据库
+            mPullRefreshScrollView.onRefreshComplete();
+            ToastUtil.showShort(FriendChatFragment.this.getActivity(), "刷新成功!");
+            super.onPostExecute(result);
+        }
+    }
+
+
+    private class RosterObserver extends ContentObserver {
+        public RosterObserver() {
+            super(mainHandler);
+        }
+
+        public void onChange(boolean selfChange) {
+            LogUtil.d(MainActivity.class, "RosterObserver.onChange: " + selfChange);
+            if (mRosterAdapter != null)
+                mainHandler.postDelayed(new Runnable() {
+                    public void run() {
+                        updateRoster();
+                    }
+                }, 100);
+        }
     }
 }
