@@ -102,9 +102,9 @@ public class SmackImpl implements Smack {
 	private XMPPConnection mXMPPConnection;// 连接对象
 	private XmppService mService;// 主服务
 	private Roster mRoster;// 联系人对象
-	private final ContentResolver mContentResolver;// 数据库操作对象
+    private final ContentResolver mContentResolver;// 数据库操作对象
 
-	private RosterListener mRosterListener;// 联系人动态监听
+    private RosterListener mRosterListener;// 联系人动态监听
 	private PacketListener mPacketListener;// 消息动态监听
 	private PacketListener mSendFailureListener;// 消息发送失败动态监听
 	private PacketListener mPongListener;// ping pong服务器动态监听
