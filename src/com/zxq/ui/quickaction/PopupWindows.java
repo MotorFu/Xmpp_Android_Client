@@ -16,7 +16,7 @@ import android.content.Context;
  * Custom popup window.
  * 
  * @author Lorensius W. L. T <lorenz@londatiga.net>
- *
+ * 
  */
 public class PopupWindows {
 	protected Context mContext;
@@ -24,56 +24,57 @@ public class PopupWindows {
 	protected View mRootView;
 	protected Drawable mBackground = null;
 	protected WindowManager mWindowManager;
-	
+
 	/**
 	 * Constructor.
 	 * 
-	 * @param context Context
+	 * @param context
+	 *            Context
 	 */
 	public PopupWindows(Context context) {
-		mContext	= context;
-		mWindow 	= new PopupWindow(context);
+		mContext = context;
+		mWindow = new PopupWindow(context);
 
 		mWindow.setTouchInterceptor(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				if (event.getAction() == MotionEvent.ACTION_OUTSIDE) {
 					mWindow.dismiss();
-					
+
 					return true;
 				}
-				
+
 				return false;
 			}
 		});
 
 		mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 	}
-	
+
 	/**
 	 * On dismiss
 	 */
-	protected void onDismiss() {		
+	protected void onDismiss() {
 	}
-	
+
 	/**
 	 * On show
 	 */
-	protected void onShow() {		
+	protected void onShow() {
 	}
 
 	/**
 	 * On pre show
 	 */
 	protected void preShow() {
-		if (mRootView == null) 
+		if (mRootView == null)
 			throw new IllegalStateException("setContentView was not called with a view to display.");
-	
+
 		onShow();
 
-		if (mBackground == null) 
+		if (mBackground == null)
 			mWindow.setBackgroundDrawable(new BitmapDrawable());
-		else 
+		else
 			mWindow.setBackgroundDrawable(mBackground);
 
 		mWindow.setWidth(WindowManager.LayoutParams.WRAP_CONTENT);
@@ -88,7 +89,8 @@ public class PopupWindows {
 	/**
 	 * Set background drawable.
 	 * 
-	 * @param background Background drawable
+	 * @param background
+	 *            Background drawable
 	 */
 	public void setBackgroundDrawable(Drawable background) {
 		mBackground = background;
@@ -97,22 +99,24 @@ public class PopupWindows {
 	/**
 	 * Set content view.
 	 * 
-	 * @param root Root view
+	 * @param root
+	 *            Root view
 	 */
 	public void setContentView(View root) {
 		mRootView = root;
-		
+
 		mWindow.setContentView(root);
 	}
 
 	/**
 	 * Set content view.
 	 * 
-	 * @param layoutResID Resource id
+	 * @param layoutResID
+	 *            Resource id
 	 */
 	public void setContentView(int layoutResID) {
 		LayoutInflater inflator = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		
+
 		setContentView(inflator.inflate(layoutResID, null));
 	}
 
@@ -122,7 +126,7 @@ public class PopupWindows {
 	 * @param listener
 	 */
 	public void setOnDismissListener(PopupWindow.OnDismissListener listener) {
-		mWindow.setOnDismissListener(listener);  
+		mWindow.setOnDismissListener(listener);
 	}
 
 	/**

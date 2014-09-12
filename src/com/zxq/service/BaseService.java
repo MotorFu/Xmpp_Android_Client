@@ -35,10 +35,8 @@ public abstract class BaseService extends Service {
 	private Vibrator mVibrator;
 	protected WakeLock mWakeLock;
 
-	private Map<String, Integer> mNotificationCount = new HashMap<String, Integer>(
-			2);
-	private Map<String, Integer> mNotificationId = new HashMap<String, Integer>(
-			2);
+	private Map<String, Integer> mNotificationCount = new HashMap<String, Integer>(2);
+	private Map<String, Integer> mNotificationId = new HashMap<String, Integer>(2);
 	private int mLastNotificationId = 2;
 
 	@Override
@@ -64,8 +62,7 @@ public abstract class BaseService extends Service {
 		LogUtil.i(TAG, "called onCreate()");
 		super.onCreate();
 		mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-		mWakeLock = ((PowerManager) getSystemService(Context.POWER_SERVICE))
-				.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, APP_NAME);
+		mWakeLock = ((PowerManager) getSystemService(Context.POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, APP_NAME);
 		addNotificationMGR();
 	}
 
@@ -86,8 +83,7 @@ public abstract class BaseService extends Service {
 		mNotificationIntent = new Intent(this, ChatActivity.class);
 	}
 
-	protected void notifyClient(String fromJid, String fromUserName,
-			String message, boolean showNotification) {
+	protected void notifyClient(String fromJid, String fromUserName, String message, boolean showNotification) {
 		if (!showNotification) {
 			return;
 		}
@@ -106,8 +102,7 @@ public abstract class BaseService extends Service {
 
 		// If vibration is set to true, add the vibration flag to
 		// the notification and let the system decide.
-		boolean vibraNotify = PreferenceUtils.getPrefBoolean(this,
-				PreferenceConstants.VIBRATIONNOTIFY, true);
+		boolean vibraNotify = PreferenceUtils.getPrefBoolean(this, PreferenceConstants.VIBRATIONNOTIFY, true);
 		if (vibraNotify) {
 			mVibrator.vibrate(400);
 		}
@@ -116,8 +111,7 @@ public abstract class BaseService extends Service {
 		mWakeLock.release();
 	}
 
-	private void setNotification(String fromJid, String fromUserId,
-			String message) {
+	private void setNotification(String fromJid, String fromUserId, String message) {
 
 		int mNotificationCounter = 0;
 		if (mNotificationCount.containsKey(fromJid)) {
@@ -133,33 +127,28 @@ public abstract class BaseService extends Service {
 		}
 		String title = author;
 		String ticker;
-		boolean isTicker = PreferenceUtils.getPrefBoolean(this,
-				PreferenceConstants.TICKER, true);
+		boolean isTicker = PreferenceUtils.getPrefBoolean(this, PreferenceConstants.TICKER, true);
 		if (isTicker) {
 			int newline = message.indexOf('\n');
 			int limit = 0;
 			String messageSummary = message;
 			if (newline >= 0)
 				limit = newline;
-			if (limit > MAX_TICKER_MSG_LEN
-					|| message.length() > MAX_TICKER_MSG_LEN)
+			if (limit > MAX_TICKER_MSG_LEN || message.length() > MAX_TICKER_MSG_LEN)
 				limit = MAX_TICKER_MSG_LEN;
 			if (limit > 0)
 				messageSummary = message.substring(0, limit) + " [...]";
 			ticker = title + ":\n" + messageSummary;
 		} else
 			ticker = author;
-		mNotification = new Notification(R.drawable.notify_newmessage, ticker,
-				System.currentTimeMillis());
+		mNotification = new Notification(R.drawable.notify_newmessage, ticker, System.currentTimeMillis());
 		Uri userNameUri = Uri.parse(fromJid);
 		mNotificationIntent.setData(userNameUri);
-		mNotificationIntent.putExtra(ChatActivity.INTENT_EXTRA_USERNAME,
-				fromUserId);
+		mNotificationIntent.putExtra(ChatActivity.INTENT_EXTRA_USERNAME, fromUserId);
 		mNotificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
 		// need to set flag FLAG_UPDATE_CURRENT to get extras transferred
-		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
-				mNotificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, mNotificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		mNotification.setLatestEventInfo(this, title, message, pendingIntent);
 		if (mNotificationCounter > 1)
@@ -168,8 +157,7 @@ public abstract class BaseService extends Service {
 	}
 
 	private void setLEDNotification() {
-		boolean isLEDNotify = PreferenceUtils.getPrefBoolean(this,
-				PreferenceConstants.LEDNOTIFY, true);
+		boolean isLEDNotify = PreferenceUtils.getPrefBoolean(this, PreferenceConstants.LEDNOTIFY, true);
 		if (isLEDNotify) {
 			mNotification.ledARGB = Color.MAGENTA;
 			mNotification.ledOnMS = 300;

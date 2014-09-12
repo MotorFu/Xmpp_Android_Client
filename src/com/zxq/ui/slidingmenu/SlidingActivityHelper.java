@@ -10,7 +10,6 @@ import android.view.ViewGroup.LayoutParams;
 
 import com.zxq.xmpp.R;
 
-
 public class SlidingActivityHelper {
 
 	private Activity mActivity;
@@ -29,38 +28,41 @@ public class SlidingActivityHelper {
 
 	/**
 	 * Instantiates a new SlidingActivityHelper.
-	 *
-	 * @param activity the associated activity
+	 * 
+	 * @param activity
+	 *            the associated activity
 	 */
 	public SlidingActivityHelper(Activity activity) {
 		mActivity = activity;
 	}
 
 	/**
-	 * Sets mSlidingMenu as a newly inflated SlidingMenu. Should be called within the activitiy's onCreate()
-	 *
-	 * @param savedInstanceState the saved instance state (unused)
+	 * Sets mSlidingMenu as a newly inflated SlidingMenu. Should be called
+	 * within the activitiy's onCreate()
+	 * 
+	 * @param savedInstanceState
+	 *            the saved instance state (unused)
 	 */
 	public void onCreate(Bundle savedInstanceState) {
 		mSlidingMenu = (SlidingMenu) LayoutInflater.from(mActivity).inflate(R.layout.slidingmenumain, null);
 	}
 
 	/**
-	 * Further SlidingMenu initialization. Should be called within the activitiy's onPostCreate()
-	 *
-	 * @param savedInstanceState the saved instance state (unused)
+	 * Further SlidingMenu initialization. Should be called within the
+	 * activitiy's onPostCreate()
+	 * 
+	 * @param savedInstanceState
+	 *            the saved instance state (unused)
 	 */
 	public void onPostCreate(Bundle savedInstanceState) {
 		if (mViewBehind == null || mViewAbove == null) {
-			throw new IllegalStateException("Both setBehindContentView must be called " +
-					"in onCreate in addition to setContentView.");
+			throw new IllegalStateException("Both setBehindContentView must be called " + "in onCreate in addition to setContentView.");
 		}
 
 		mOnPostCreateCalled = true;
 
-		mSlidingMenu.attachToActivity(mActivity, 
-				mEnableSlide ? SlidingMenu.SLIDING_WINDOW : SlidingMenu.SLIDING_CONTENT);
-		
+		mSlidingMenu.attachToActivity(mActivity, mEnableSlide ? SlidingMenu.SLIDING_WINDOW : SlidingMenu.SLIDING_CONTENT);
+
 		final boolean open;
 		final boolean secondary;
 		if (savedInstanceState != null) {
@@ -79,18 +81,19 @@ public class SlidingActivityHelper {
 						mSlidingMenu.showMenu(false);
 					}
 				} else {
-					mSlidingMenu.showContent(false);					
+					mSlidingMenu.showContent(false);
 				}
 			}
 		});
 	}
 
 	/**
-	 * Controls whether the ActionBar slides along with the above view when the menu is opened,
-	 * or if it stays in place.
-	 *
-	 * @param slidingActionBarEnabled True if you want the ActionBar to slide along with the SlidingMenu,
-	 * false if you want the ActionBar to stay in place
+	 * Controls whether the ActionBar slides along with the above view when the
+	 * menu is opened, or if it stays in place.
+	 * 
+	 * @param slidingActionBarEnabled
+	 *            True if you want the ActionBar to slide along with the
+	 *            SlidingMenu, false if you want the ActionBar to stay in place
 	 */
 	public void setSlidingActionBarEnabled(boolean slidingActionBarEnabled) {
 		if (mOnPostCreateCalled)
@@ -99,9 +102,11 @@ public class SlidingActivityHelper {
 	}
 
 	/**
-	 * Finds a view that was identified by the id attribute from the XML that was processed in onCreate(Bundle).
+	 * Finds a view that was identified by the id attribute from the XML that
+	 * was processed in onCreate(Bundle).
 	 * 
-	 * @param id the resource id of the desired view
+	 * @param id
+	 *            the resource id of the desired view
 	 * @return The view if found or null otherwise.
 	 */
 	public View findViewById(int id) {
@@ -115,11 +120,13 @@ public class SlidingActivityHelper {
 	}
 
 	/**
-	 * Called to retrieve per-instance state from an activity before being killed so that the state can be
-	 * restored in onCreate(Bundle) or onRestoreInstanceState(Bundle) (the Bundle populated by this method
-	 * will be passed to both). 
-	 *
-	 * @param outState Bundle in which to place your saved state.
+	 * Called to retrieve per-instance state from an activity before being
+	 * killed so that the state can be restored in onCreate(Bundle) or
+	 * onRestoreInstanceState(Bundle) (the Bundle populated by this method will
+	 * be passed to both).
+	 * 
+	 * @param outState
+	 *            Bundle in which to place your saved state.
 	 */
 	public void onSaveInstanceState(Bundle outState) {
 		outState.putBoolean("SlidingActivityHelper.open", mSlidingMenu.isMenuShowing());
@@ -128,9 +135,11 @@ public class SlidingActivityHelper {
 
 	/**
 	 * Register the above content view.
-	 *
-	 * @param v the above content view to register
-	 * @param params LayoutParams for that view (unused)
+	 * 
+	 * @param v
+	 *            the above content view to register
+	 * @param params
+	 *            LayoutParams for that view (unused)
 	 */
 	public void registerAboveContentView(View v, LayoutParams params) {
 		if (!mBroadcasting)
@@ -138,13 +147,16 @@ public class SlidingActivityHelper {
 	}
 
 	/**
-	 * Set the activity content to an explicit view. This view is placed directly into the activity's view
-	 * hierarchy. It can itself be a complex view hierarchy. When calling this method, the layout parameters
-	 * of the specified view are ignored. Both the width and the height of the view are set by default to
-	 * MATCH_PARENT. To use your own layout parameters, invoke setContentView(android.view.View,
-	 * android.view.ViewGroup.LayoutParams) instead.
-	 *
-	 * @param v The desired content to display.
+	 * Set the activity content to an explicit view. This view is placed
+	 * directly into the activity's view hierarchy. It can itself be a complex
+	 * view hierarchy. When calling this method, the layout parameters of the
+	 * specified view are ignored. Both the width and the height of the view are
+	 * set by default to MATCH_PARENT. To use your own layout parameters, invoke
+	 * setContentView(android.view.View, android.view.ViewGroup.LayoutParams)
+	 * instead.
+	 * 
+	 * @param v
+	 *            The desired content to display.
 	 */
 	public void setContentView(View v) {
 		mBroadcasting = true;
@@ -152,11 +164,14 @@ public class SlidingActivityHelper {
 	}
 
 	/**
-	 * Set the behind view content to an explicit view. This view is placed directly into the behind view 's view hierarchy.
-	 * It can itself be a complex view hierarchy.
-	 *
-	 * @param view The desired content to display.
-	 * @param layoutParams Layout parameters for the view. (unused)
+	 * Set the behind view content to an explicit view. This view is placed
+	 * directly into the behind view 's view hierarchy. It can itself be a
+	 * complex view hierarchy.
+	 * 
+	 * @param view
+	 *            The desired content to display.
+	 * @param layoutParams
+	 *            Layout parameters for the view. (unused)
 	 */
 	public void setBehindContentView(View view, LayoutParams layoutParams) {
 		mViewBehind = view;
@@ -165,7 +180,7 @@ public class SlidingActivityHelper {
 
 	/**
 	 * Gets the SlidingMenu associated with this activity.
-	 *
+	 * 
 	 * @return the SlidingMenu associated with this activity.
 	 */
 	public SlidingMenu getSlidingMenu() {
@@ -194,8 +209,8 @@ public class SlidingActivityHelper {
 	}
 
 	/**
-	 * Open the SlidingMenu and show the secondary menu view. Will default to the regular menu
-	 * if there is only one.
+	 * Open the SlidingMenu and show the secondary menu view. Will default to
+	 * the regular menu if there is only one.
 	 */
 	public void showSecondaryMenu() {
 		mSlidingMenu.showSecondaryMenu();
@@ -203,9 +218,11 @@ public class SlidingActivityHelper {
 
 	/**
 	 * On key up.
-	 *
-	 * @param keyCode the key code
-	 * @param event the event
+	 * 
+	 * @param keyCode
+	 *            the key code
+	 * @param event
+	 *            the event
 	 * @return true, if successful
 	 */
 	public boolean onKeyUp(int keyCode, KeyEvent event) {

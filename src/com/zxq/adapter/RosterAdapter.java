@@ -27,36 +27,16 @@ import com.zxq.util.PreferenceConstants;
 import com.zxq.util.PreferenceUtils;
 import com.zxq.util.StatusMode;
 
-public class RosterAdapter extends BaseExpandableListAdapter implements
-		IphoneTreeHeaderAdapter {
+public class RosterAdapter extends BaseExpandableListAdapter implements IphoneTreeHeaderAdapter {
 	// 不在线状态
-	private static final String OFFLINE_EXCLUSION = RosterConstants.STATUS_MODE
-			+ " != " + StatusMode.offline.ordinal();
+	private static final String OFFLINE_EXCLUSION = RosterConstants.STATUS_MODE + " != " + StatusMode.offline.ordinal();
 	// 在线人数
-	private static final String COUNT_AVAILABLE_MEMBERS = "SELECT COUNT() FROM "
-			+ RosterProvider.TABLE_ROSTER
-			+ " inner_query"
-			+ " WHERE inner_query."
-			+ RosterConstants.GROUP
-			+ " = "
-			+ RosterProvider.QUERY_ALIAS
-			+ "."
-			+ RosterConstants.GROUP
-			+ " AND inner_query." + OFFLINE_EXCLUSION;
+	private static final String COUNT_AVAILABLE_MEMBERS = "SELECT COUNT() FROM " + RosterProvider.TABLE_ROSTER + " inner_query" + " WHERE inner_query." + RosterConstants.GROUP + " = " + RosterProvider.QUERY_ALIAS + "." + RosterConstants.GROUP + " AND inner_query." + OFFLINE_EXCLUSION;
 	// 总人数
-	private static final String COUNT_MEMBERS = "SELECT COUNT() FROM "
-			+ RosterProvider.TABLE_ROSTER + " inner_query"
-			+ " WHERE inner_query." + RosterConstants.GROUP + " = "
-			+ RosterProvider.QUERY_ALIAS + "." + RosterConstants.GROUP;
-	private static final String[] GROUPS_QUERY_COUNTED = new String[] {
-			RosterConstants._ID,
-			RosterConstants.GROUP,
-			"(" + COUNT_AVAILABLE_MEMBERS + ") || '/' || (" + COUNT_MEMBERS
-					+ ") AS members" };
+	private static final String COUNT_MEMBERS = "SELECT COUNT() FROM " + RosterProvider.TABLE_ROSTER + " inner_query" + " WHERE inner_query." + RosterConstants.GROUP + " = " + RosterProvider.QUERY_ALIAS + "." + RosterConstants.GROUP;
+	private static final String[] GROUPS_QUERY_COUNTED = new String[] { RosterConstants._ID, RosterConstants.GROUP, "(" + COUNT_AVAILABLE_MEMBERS + ") || '/' || (" + COUNT_MEMBERS + ") AS members" };
 	// 联系人查询序列
-	private static final String[] ROSTER_QUERY = new String[] {
-			RosterConstants._ID, RosterConstants.JID, RosterConstants.ALIAS,
-			RosterConstants.STATUS_MODE, RosterConstants.STATUS_MESSAGE, };
+	private static final String[] ROSTER_QUERY = new String[] { RosterConstants._ID, RosterConstants.JID, RosterConstants.ALIAS, RosterConstants.STATUS_MODE, RosterConstants.STATUS_MESSAGE, };
 	private Context mContext;
 	private ContentResolver mContentResolver;
 	private List<Group> mGroupList;
@@ -66,8 +46,7 @@ public class RosterAdapter extends BaseExpandableListAdapter implements
 	private HashMap<Integer, Integer> groupStatusMap;
 	private PullToRefreshScrollView mPullToRefreshScrollView;
 
-	public RosterAdapter(Context context, IphoneTreeView iphoneTreeView,
-			PullToRefreshScrollView pullToRefreshScrollView) {
+	public RosterAdapter(Context context, IphoneTreeView iphoneTreeView, PullToRefreshScrollView pullToRefreshScrollView) {
 		// TODO Auto-generated constructor stub
 		mContext = context;
 		mIphoneTreeView = iphoneTreeView;
@@ -76,28 +55,23 @@ public class RosterAdapter extends BaseExpandableListAdapter implements
 		mContentResolver = context.getContentResolver();
 		mGroupList = new ArrayList<Group>();
 		groupStatusMap = new HashMap<Integer, Integer>();
-		mIsShowOffline = PreferenceUtils.getPrefBoolean(mContext,
-				PreferenceConstants.SHOW_OFFLINE, true);
+		mIsShowOffline = PreferenceUtils.getPrefBoolean(mContext, PreferenceConstants.SHOW_OFFLINE, true);
 	}
 
 	public void requery() {
 		if (mGroupList != null && mGroupList.size() > 0)
 			mGroupList.clear();
 		// 是否显示在线人数
-		mIsShowOffline = PreferenceUtils.getPrefBoolean(mContext,
-				PreferenceConstants.SHOW_OFFLINE, true);
+		mIsShowOffline = PreferenceUtils.getPrefBoolean(mContext, PreferenceConstants.SHOW_OFFLINE, true);
 		String selectWhere = null;
 		if (!mIsShowOffline)
 			selectWhere = OFFLINE_EXCLUSION;
-		Cursor groupCursor = mContentResolver.query(RosterProvider.GROUPS_URI,
-				GROUPS_QUERY_COUNTED, selectWhere, null, RosterConstants.GROUP);
+		Cursor groupCursor = mContentResolver.query(RosterProvider.GROUPS_URI, GROUPS_QUERY_COUNTED, selectWhere, null, RosterConstants.GROUP);
 		groupCursor.moveToFirst();
 		while (!groupCursor.isAfterLast()) {
 			Group group = new Group();
-			group.setGroupName(groupCursor.getString(groupCursor
-					.getColumnIndex(RosterConstants.GROUP)));
-			group.setMembers(groupCursor.getString(groupCursor
-					.getColumnIndex("members")));
+			group.setGroupName(groupCursor.getString(groupCursor.getColumnIndex(RosterConstants.GROUP)));
+			group.setMembers(groupCursor.getString(groupCursor.getColumnIndex("members")));
 			mGroupList.add(group);
 			groupCursor.moveToNext();
 		}
@@ -114,19 +88,14 @@ public class RosterAdapter extends BaseExpandableListAdapter implements
 		String selectWhere = RosterConstants.GROUP + " = ?";
 		if (!mIsShowOffline)
 			selectWhere += " AND " + OFFLINE_EXCLUSION;
-		Cursor childCursor = mContentResolver.query(RosterProvider.CONTENT_URI,
-				ROSTER_QUERY, selectWhere, new String[] { groupname }, null);
+		Cursor childCursor = mContentResolver.query(RosterProvider.CONTENT_URI, ROSTER_QUERY, selectWhere, new String[] { groupname }, null);
 		childCursor.moveToFirst();
 		while (!childCursor.isAfterLast()) {
 			Roster roster = new Roster();
-			roster.setJid(childCursor.getString(childCursor
-					.getColumnIndexOrThrow(RosterConstants.JID)));
-			roster.setAlias(childCursor.getString(childCursor
-					.getColumnIndexOrThrow(RosterConstants.ALIAS)));
-			roster.setStatus_message(childCursor.getString(childCursor
-					.getColumnIndexOrThrow(RosterConstants.STATUS_MESSAGE)));
-			roster.setStatusMode(childCursor.getString(childCursor
-					.getColumnIndexOrThrow(RosterConstants.STATUS_MODE)));
+			roster.setJid(childCursor.getString(childCursor.getColumnIndexOrThrow(RosterConstants.JID)));
+			roster.setAlias(childCursor.getString(childCursor.getColumnIndexOrThrow(RosterConstants.ALIAS)));
+			roster.setStatus_message(childCursor.getString(childCursor.getColumnIndexOrThrow(RosterConstants.STATUS_MESSAGE)));
+			roster.setStatusMode(childCursor.getString(childCursor.getColumnIndexOrThrow(RosterConstants.STATUS_MODE)));
 			childList.add(roster);
 			childCursor.moveToNext();
 		}
@@ -143,8 +112,7 @@ public class RosterAdapter extends BaseExpandableListAdapter implements
 	public int getChildrenCount(int groupPosition) {
 		if (mGroupList.size() <= 0)
 			return 0;
-		return getChildrenRosters(mGroupList.get(groupPosition).getGroupName())
-				.size();
+		return getChildrenRosters(mGroupList.get(groupPosition).getGroupName()).size();
 	}
 
 	@Override
@@ -154,8 +122,7 @@ public class RosterAdapter extends BaseExpandableListAdapter implements
 
 	@Override
 	public Roster getChild(int groupPosition, int childPosition) {
-		return getChildrenRosters(mGroupList.get(groupPosition).getGroupName())
-				.get(childPosition);
+		return getChildrenRosters(mGroupList.get(groupPosition).getGroupName()).get(childPosition);
 	}
 
 	@Override
@@ -174,23 +141,17 @@ public class RosterAdapter extends BaseExpandableListAdapter implements
 	}
 
 	@Override
-	public View getGroupView(int groupPosition, boolean isExpanded,
-			View convertView, ViewGroup parent) {
+	public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = mInflater.inflate(R.layout.contact_buddy_list_group,
-					null);
+			convertView = mInflater.inflate(R.layout.contact_buddy_list_group, null);
 		}
-		TextView groupName = (TextView) convertView
-				.findViewById(R.id.group_name);
+		TextView groupName = (TextView) convertView.findViewById(R.id.group_name);
 		Group group = getGroup(groupPosition);
 
-		groupName.setText(TextUtils.isEmpty(group.getGroupName()) ? mContext
-				.getString(R.string.default_group) : group.getGroupName());
-		TextView onlineNum = (TextView) convertView
-				.findViewById(R.id.online_count);
+		groupName.setText(TextUtils.isEmpty(group.getGroupName()) ? mContext.getString(R.string.default_group) : group.getGroupName());
+		TextView onlineNum = (TextView) convertView.findViewById(R.id.online_count);
 		onlineNum.setText(group.getMembers());
-		ImageView indicator = (ImageView) convertView
-				.findViewById(R.id.group_indicator);
+		ImageView indicator = (ImageView) convertView.findViewById(R.id.group_indicator);
 		if (isExpanded)
 			indicator.setImageResource(R.drawable.indicator_expanded);
 		else
@@ -203,40 +164,29 @@ public class RosterAdapter extends BaseExpandableListAdapter implements
 	}
 
 	@Override
-	public View getChildView(int groupPosition, int childPosition,
-			boolean isLastChild, View convertView, ViewGroup parent) {
+	public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
 		Roster roster = getChild(groupPosition, childPosition);
 		int presenceMode = Integer.parseInt(roster.getStatusMode());
 		ViewHolder holder;
-		if (convertView == null
-				|| convertView.getTag(R.drawable.ic_launcher + presenceMode) == null) {
+		if (convertView == null || convertView.getTag(R.drawable.ic_launcher + presenceMode) == null) {
 			LogUtil.i("liweiping", "new  child ");
 			holder = new ViewHolder();
-			convertView = mInflater.inflate(
-					R.layout.contact_list_item_for_buddy, parent, false);
+			convertView = mInflater.inflate(R.layout.contact_list_item_for_buddy, parent, false);
 			holder.headView = (ImageView) convertView.findViewById(R.id.icon);
-			holder.statusView = (ImageView) convertView
-					.findViewById(R.id.stateicon);
-			holder.nickView = (TextView) convertView
-					.findViewById(R.id.contact_list_item_name);
-			holder.onlineModeView = (ImageView) convertView
-					.findViewById(R.id.online_mode);
-			holder.statusMsgView = (TextView) convertView
-					.findViewById(R.id.contact_list_item_state);
+			holder.statusView = (ImageView) convertView.findViewById(R.id.stateicon);
+			holder.nickView = (TextView) convertView.findViewById(R.id.contact_list_item_name);
+			holder.onlineModeView = (ImageView) convertView.findViewById(R.id.online_mode);
+			holder.statusMsgView = (TextView) convertView.findViewById(R.id.contact_list_item_state);
 			convertView.setTag(R.drawable.ic_launcher + presenceMode, holder);
-			convertView.setTag(R.string.app_name, R.drawable.ic_launcher
-					+ presenceMode);
+			convertView.setTag(R.string.app_name, R.drawable.ic_launcher + presenceMode);
 		} else {
 			LogUtil.i("liweiping", "get child form case");
-			holder = (ViewHolder) convertView.getTag(R.drawable.ic_launcher
-					+ presenceMode);
+			holder = (ViewHolder) convertView.getTag(R.drawable.ic_launcher + presenceMode);
 		}
 		holder.nickView.setText(roster.getAlias());
 
-		holder.statusMsgView.setText(TextUtils.isEmpty(roster
-				.getStatusMessage()) ? mContext.getString(R.string.status_offline) : roster.getStatusMessage());
-		setViewImage(holder.onlineModeView, holder.headView, holder.statusView,
-				roster.getStatusMode());
+		holder.statusMsgView.setText(TextUtils.isEmpty(roster.getStatusMessage()) ? mContext.getString(R.string.status_offline) : roster.getStatusMessage());
+		setViewImage(holder.onlineModeView, holder.headView, holder.statusView, roster.getStatusMode());
 
 		convertView.setTag(R.id.xxx01, groupPosition);
 		convertView.setTag(R.id.xxx02, childPosition);
@@ -252,8 +202,7 @@ public class RosterAdapter extends BaseExpandableListAdapter implements
 
 	}
 
-	protected void setViewImage(ImageView online, ImageView head, ImageView v,
-			String value) {
+	protected void setViewImage(ImageView online, ImageView head, ImageView v, String value) {
 		int presenceMode = Integer.parseInt(value);
 		int statusDrawable = getIconForPresenceMode(presenceMode);
 		if (statusDrawable == -1) {
@@ -284,13 +233,11 @@ public class RosterAdapter extends BaseExpandableListAdapter implements
 		if (childPosition == childCount - 1) {
 			mPullToRefreshScrollView.setMode(Mode.DISABLED);
 			return PINNED_HEADER_PUSHED_UP;
-		} else if (childPosition == -1
-				&& !mIphoneTreeView.isGroupExpanded(groupPosition)) {
+		} else if (childPosition == -1 && !mIphoneTreeView.isGroupExpanded(groupPosition)) {
 			mPullToRefreshScrollView.setMode(Mode.PULL_FROM_START);
 			return PINNED_HEADER_GONE;
 		} else {
-			LogUtil.i("liweiping", "groupPosition = " + groupPosition
-                    + ", childPosition = " + childPosition);
+			LogUtil.i("liweiping", "groupPosition = " + groupPosition + ", childPosition = " + childPosition);
 			// 第一组第一个,可以下拉刷新
 			if (groupPosition == 0 && childPosition == -1) {
 				mPullToRefreshScrollView.setMode(Mode.PULL_FROM_START);
@@ -302,14 +249,10 @@ public class RosterAdapter extends BaseExpandableListAdapter implements
 	}
 
 	@Override
-	public void configureTreeHeader(View header, int groupPosition,
-			int childPosition, int alpha) {
+	public void configureTreeHeader(View header, int groupPosition, int childPosition, int alpha) {
 		Group group = getGroup(groupPosition);
-		((TextView) header.findViewById(R.id.group_name)).setText(TextUtils
-				.isEmpty(group.getGroupName()) ? mContext
-				.getString(R.string.default_group) : group.getGroupName());
-		((TextView) header.findViewById(R.id.online_count)).setText(group
-				.getMembers());
+		((TextView) header.findViewById(R.id.group_name)).setText(TextUtils.isEmpty(group.getGroupName()) ? mContext.getString(R.string.default_group) : group.getGroupName());
+		((TextView) header.findViewById(R.id.online_count)).setText(group.getMembers());
 	}
 
 	@Override

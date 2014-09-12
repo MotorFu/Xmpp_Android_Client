@@ -12,8 +12,7 @@ import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnGroupClickListener;
 
-public class IphoneTreeView extends ExpandableListView implements
-		OnScrollListener, OnGroupClickListener {
+public class IphoneTreeView extends ExpandableListView implements OnScrollListener, OnGroupClickListener {
 	public IphoneTreeView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		registerListener();
@@ -56,8 +55,7 @@ public class IphoneTreeView extends ExpandableListView implements
 		 * @param childPosition
 		 * @param alpha
 		 */
-		void configureTreeHeader(View header, int groupPosition,
-				int childPosition, int alpha);
+		void configureTreeHeader(View header, int groupPosition, int childPosition, int alpha);
 
 		/**
 		 * 设置组按下的状态
@@ -99,9 +97,7 @@ public class IphoneTreeView extends ExpandableListView implements
 
 	public void setHeaderView(View view) {
 		mHeaderView = view;
-		AbsListView.LayoutParams lp = new AbsListView.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT,
-				ViewGroup.LayoutParams.WRAP_CONTENT);
+		AbsListView.LayoutParams lp = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 		view.setLayoutParams(lp);
 
 		if (mHeaderView != null) {
@@ -120,11 +116,9 @@ public class IphoneTreeView extends ExpandableListView implements
 	 * 点击 HeaderView 触发的事件
 	 */
 	private void headerViewClick() {
-		long packedPosition = getExpandableListPosition(this
-				.getFirstVisiblePosition());
+		long packedPosition = getExpandableListPosition(this.getFirstVisiblePosition());
 
-		int groupPosition = ExpandableListView
-				.getPackedPositionGroup(packedPosition);
+		int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
 
 		if (mAdapter.getHeadViewClickStatus(groupPosition) == 1) {
 			this.collapseGroup(groupPosition);
@@ -161,9 +155,7 @@ public class IphoneTreeView extends ExpandableListView implements
 				float offsetX = Math.abs(x - mDownX);
 				float offsetY = Math.abs(y - mDownY);
 				// 如果 HeaderView 是可见的 , 点击在 HeaderView 内 , 那么触发 headerClick()
-				if (x <= mHeaderViewWidth && y <= mHeaderViewHeight
-						&& offsetX <= mHeaderViewWidth
-						&& offsetY <= mHeaderViewHeight) {
+				if (x <= mHeaderViewWidth && y <= mHeaderViewHeight && offsetX <= mHeaderViewWidth && offsetY <= mHeaderViewHeight) {
 					if (mHeaderView != null) {
 						headerViewClick();
 					}
@@ -185,16 +177,16 @@ public class IphoneTreeView extends ExpandableListView implements
 		super.setAdapter(adapter);
 		mAdapter = (IphoneTreeHeaderAdapter) adapter;
 	}
-	
-	public static final int COLLAPSED = 0;//收起状态
-	public static final int EXPANDED = 1;//展开状态
+
+	public static final int COLLAPSED = 0;// 收起状态
+	public static final int EXPANDED = 1;// 展开状态
+
 	/**
 	 * 
 	 * 点击了 Group 触发的事件 , 要根据根据当前点击 Group 的状态来
 	 */
 	@Override
-	public boolean onGroupClick(ExpandableListView parent, View v,
-			int groupPosition, long id) {
+	public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
 		if (mAdapter.getHeadViewClickStatus(groupPosition) == COLLAPSED) {
 			mAdapter.onHeadViewClick(groupPosition, EXPANDED);
 			parent.expandGroup(groupPosition);
@@ -223,14 +215,11 @@ public class IphoneTreeView extends ExpandableListView implements
 	private int mOldState = -1;
 
 	@Override
-	protected void onLayout(boolean changed, int left, int top, int right,
-			int bottom) {
+	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
 		final long flatPostion = getExpandableListPosition(getFirstVisiblePosition());
-		final int groupPos = ExpandableListView
-				.getPackedPositionGroup(flatPostion);
-		final int childPos = ExpandableListView
-				.getPackedPositionChild(flatPostion);
+		final int groupPos = ExpandableListView.getPackedPositionGroup(flatPostion);
+		final int childPos = ExpandableListView.getPackedPositionChild(flatPostion);
 		int state = mAdapter.getTreeHeaderState(groupPos, childPos);
 		if (mHeaderView != null && mAdapter != null && state != mOldState) {
 			mOldState = state;
@@ -241,8 +230,7 @@ public class IphoneTreeView extends ExpandableListView implements
 	}
 
 	public void configureHeaderView(int groupPosition, int childPosition) {
-		if (mHeaderView == null || mAdapter == null
-				|| ((ExpandableListAdapter) mAdapter).getGroupCount() == 0) {
+		if (mHeaderView == null || mAdapter == null || ((ExpandableListAdapter) mAdapter).getGroupCount() == 0) {
 			return;
 		}
 
@@ -255,8 +243,7 @@ public class IphoneTreeView extends ExpandableListView implements
 		}
 
 		case IphoneTreeHeaderAdapter.PINNED_HEADER_VISIBLE: {
-			mAdapter.configureTreeHeader(mHeaderView, groupPosition,
-					childPosition, MAX_ALPHA);
+			mAdapter.configureTreeHeader(mHeaderView, groupPosition, childPosition, MAX_ALPHA);
 
 			if (mHeaderView.getTop() != 0) {
 				mHeaderView.layout(0, 0, mHeaderViewWidth, mHeaderViewHeight);
@@ -286,12 +273,10 @@ public class IphoneTreeView extends ExpandableListView implements
 				alpha = MAX_ALPHA;
 			}
 
-			mAdapter.configureTreeHeader(mHeaderView, groupPosition,
-					childPosition, alpha);
+			mAdapter.configureTreeHeader(mHeaderView, groupPosition, childPosition, alpha);
 
 			if (mHeaderView.getTop() != y) {
-				mHeaderView.layout(0, y, mHeaderViewWidth, mHeaderViewHeight
-						+ y);
+				mHeaderView.layout(0, y, mHeaderViewWidth, mHeaderViewHeight + y);
 			}
 
 			mHeaderViewVisible = true;
@@ -313,8 +298,7 @@ public class IphoneTreeView extends ExpandableListView implements
 	}
 
 	@Override
-	public void onScroll(AbsListView view, int firstVisibleItem,
-			int visibleItemCount, int totalItemCount) {
+	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 		final long flatPos = getExpandableListPosition(firstVisibleItem);
 		int groupPosition = ExpandableListView.getPackedPositionGroup(flatPos);
 		int childPosition = ExpandableListView.getPackedPositionChild(flatPos);

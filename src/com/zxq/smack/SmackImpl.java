@@ -68,15 +68,9 @@ public class SmackImpl implements Smack {
 
 	private static final int PACKET_TIMEOUT = 30000;// 超时时间
 	// 发送离线消息的字段
-	final static private String[] SEND_OFFLINE_PROJECTION = new String[] {
-			ChatConstants._ID, ChatConstants.JID, ChatConstants.MESSAGE,
-			ChatConstants.DATE, ChatConstants.PACKET_ID };
+	final static private String[] SEND_OFFLINE_PROJECTION = new String[] { ChatConstants._ID, ChatConstants.JID, ChatConstants.MESSAGE, ChatConstants.DATE, ChatConstants.PACKET_ID };
 	// 发送离线消息的搜索数据库条件，自己发出去的OUTGOING，并且状态为DS_NEW
-	final static private String SEND_OFFLINE_SELECTION = ChatConstants.DIRECTION
-			+ " = "
-			+ ChatConstants.OUTGOING
-			+ " AND "
-			+ ChatConstants.DELIVERY_STATUS + " = " + ChatConstants.DS_NEW;
+	final static private String SEND_OFFLINE_SELECTION = ChatConstants.DIRECTION + " = " + ChatConstants.OUTGOING + " AND " + ChatConstants.DELIVERY_STATUS + " = " + ChatConstants.DS_NEW;
 
 	static {
 		registerSmackProviders();
@@ -86,24 +80,17 @@ public class SmackImpl implements Smack {
 	static void registerSmackProviders() {
 		ProviderManager pm = ProviderManager.getInstance();
 		// add IQ handling
-		pm.addIQProvider("query", "http://jabber.org/protocol/disco#info",
-				new DiscoverInfoProvider());
+		pm.addIQProvider("query", "http://jabber.org/protocol/disco#info", new DiscoverInfoProvider());
 		// add delayed delivery notifications
-		pm.addExtensionProvider("delay", "urn:xmpp:delay",
-				new DelayInfoProvider());
+		pm.addExtensionProvider("delay", "urn:xmpp:delay", new DelayInfoProvider());
 		pm.addExtensionProvider("x", "jabber:x:delay", new DelayInfoProvider());
 		// add carbons and forwarding
-		pm.addExtensionProvider("forwarded", Forwarded.NAMESPACE,
-				new Forwarded.Provider());
+		pm.addExtensionProvider("forwarded", Forwarded.NAMESPACE, new Forwarded.Provider());
 		pm.addExtensionProvider("sent", Carbon.NAMESPACE, new Carbon.Provider());
-		pm.addExtensionProvider("received", Carbon.NAMESPACE,
-				new Carbon.Provider());
+		pm.addExtensionProvider("received", Carbon.NAMESPACE, new Carbon.Provider());
 		// add delivery receipts
-		pm.addExtensionProvider(DeliveryReceipt.ELEMENT,
-				DeliveryReceipt.NAMESPACE, new DeliveryReceipt.Provider());
-		pm.addExtensionProvider(DeliveryReceiptRequest.ELEMENT,
-				DeliveryReceipt.NAMESPACE,
-				new DeliveryReceiptRequest.Provider());
+		pm.addExtensionProvider(DeliveryReceipt.ELEMENT, DeliveryReceipt.NAMESPACE, new DeliveryReceipt.Provider());
+		pm.addExtensionProvider(DeliveryReceiptRequest.ELEMENT, DeliveryReceipt.NAMESPACE, new DeliveryReceiptRequest.Provider());
 		// add XMPP Ping (XEP-0199)
 		pm.addIQProvider("ping", "urn:xmpp:ping", new PingProvider());
 
@@ -137,20 +124,14 @@ public class SmackImpl implements Smack {
 	// ping-pong服务器
 
 	public SmackImpl(XmppService service) {
-		String customServer = PreferenceUtils.getPrefString(service,
-				PreferenceConstants.CUSTOM_SERVER, "");// 用户手动设置的服务器名称，本来打算给用户指定服务器的
-		int port = PreferenceUtils.getPrefInt(service,
-				PreferenceConstants.PORT, PreferenceConstants.DEFAULT_PORT_INT);// 端口号，也是留给用户手动设置的
-		String server = PreferenceUtils.getPrefString(service,
-				PreferenceConstants.Server, PreferenceConstants.GMAIL_SERVER);// 默认的服务器，即谷歌服务器
-		boolean smackdebug = PreferenceUtils.getPrefBoolean(service,
-				PreferenceConstants.SMACKDEBUG, false);// 是否需要smack debug
-		boolean requireSsl = PreferenceUtils.getPrefBoolean(service,
-				PreferenceConstants.REQUIRE_TLS, false);// 是否需要ssl安全配置
-		if (customServer.length() > 0
-				|| port != PreferenceConstants.DEFAULT_PORT_INT)
-			this.mXMPPConfig = new ConnectionConfiguration(customServer, port,
-					server);
+		String customServer = PreferenceUtils.getPrefString(service, PreferenceConstants.CUSTOM_SERVER, "");// 用户手动设置的服务器名称，本来打算给用户指定服务器的
+		int port = PreferenceUtils.getPrefInt(service, PreferenceConstants.PORT, PreferenceConstants.DEFAULT_PORT_INT);// 端口号，也是留给用户手动设置的
+		String server = PreferenceUtils.getPrefString(service, PreferenceConstants.Server, PreferenceConstants.GMAIL_SERVER);// 默认的服务器，即谷歌服务器
+		boolean smackdebug = PreferenceUtils.getPrefBoolean(service, PreferenceConstants.SMACKDEBUG, false);// 是否需要smack
+																											// debug
+		boolean requireSsl = PreferenceUtils.getPrefBoolean(service, PreferenceConstants.REQUIRE_TLS, false);// 是否需要ssl安全配置
+		if (customServer.length() > 0 || port != PreferenceConstants.DEFAULT_PORT_INT)
+			this.mXMPPConfig = new ConnectionConfiguration(customServer, port, server);
 		else
 			this.mXMPPConfig = new ConnectionConfiguration(server); // use SRV
 
@@ -159,8 +140,7 @@ public class SmackImpl implements Smack {
 		this.mXMPPConfig.setCompressionEnabled(false); // disable for now
 		this.mXMPPConfig.setDebuggerEnabled(smackdebug);
 		if (requireSsl)
-			this.mXMPPConfig
-					.setSecurityMode(ConnectionConfiguration.SecurityMode.required);
+			this.mXMPPConfig.setSecurityMode(ConnectionConfiguration.SecurityMode.required);
 
 		this.mXMPPConnection = new XMPPConnection(mXMPPConfig);
 		this.mService = service;
@@ -205,15 +185,13 @@ public class SmackImpl implements Smack {
 			initServiceDiscovery();// 与服务器交互消息监听,发送消息需要回执，判断是否发送成功
 			// SMACK auto-logins if we were authenticated before
 			if (!mXMPPConnection.isAuthenticated()) {
-				String ressource = PreferenceUtils.getPrefString(mService,
-						PreferenceConstants.RESSOURCE, XMPP_IDENTITY_NAME);
+				String ressource = PreferenceUtils.getPrefString(mService, PreferenceConstants.RESSOURCE, XMPP_IDENTITY_NAME);
 				mXMPPConnection.login(account, password, ressource);
 			}
 			setStatusFromConfig();// 更新在线状态
 
 		} catch (XMPPException e) {
-			throw new XmppException(e.getLocalizedMessage(),
-					e.getWrappedThrowable());
+			throw new XmppException(e.getLocalizedMessage(), e.getWrappedThrowable());
 		} catch (Exception e) {
 			// actually we just care for IllegalState or NullPointer or XMPPEx.
 			LogUtil.e(SmackImpl.class, "login(): " + Log.getStackTraceString(e));
@@ -261,27 +239,20 @@ public class SmackImpl implements Smack {
 
 						// try to extract a carbon
 						Carbon cc = CarbonManager.getCarbon(msg);
-						if (cc != null
-								&& cc.getDirection() == Carbon.Direction.received) {// 收到的消息
+						if (cc != null && cc.getDirection() == Carbon.Direction.received) {// 收到的消息
 							LogUtil.d("carbon: " + cc.toXML());
-							msg = (Message) cc.getForwarded()
-									.getForwardedPacket();
+							msg = (Message) cc.getForwarded().getForwardedPacket();
 							chatMessage = msg.getBody();
 							// fall through
-						} else if (cc != null
-								&& cc.getDirection() == Carbon.Direction.sent) {// 如果是自己发送的消息，则添加到数据库后直接返回
+						} else if (cc != null && cc.getDirection() == Carbon.Direction.sent) {// 如果是自己发送的消息，则添加到数据库后直接返回
 							LogUtil.d("carbon: " + cc.toXML());
-							msg = (Message) cc.getForwarded()
-									.getForwardedPacket();
+							msg = (Message) cc.getForwarded().getForwardedPacket();
 							chatMessage = msg.getBody();
 							if (chatMessage == null)
 								return;
 							String fromJID = getJabberID(msg.getTo());
 
-							addChatMessageToDB(ChatConstants.OUTGOING, fromJID,
-									chatMessage, ChatConstants.DS_SENT_OR_READ,
-									System.currentTimeMillis(),
-									msg.getPacketID());
+							addChatMessageToDB(ChatConstants.OUTGOING, fromJID, chatMessage, ChatConstants.DS_SENT_OR_READ, System.currentTimeMillis(), msg.getPacketID());
 							// always return after adding
 							return;// 记得要返回
 						}
@@ -295,11 +266,9 @@ public class SmackImpl implements Smack {
 						}
 
 						long ts;// 消息时间戳
-						DelayInfo timestamp = (DelayInfo) msg.getExtension(
-								"delay", "urn:xmpp:delay");
+						DelayInfo timestamp = (DelayInfo) msg.getExtension("delay", "urn:xmpp:delay");
 						if (timestamp == null)
-							timestamp = (DelayInfo) msg.getExtension("x",
-									"jabber:x:delay");
+							timestamp = (DelayInfo) msg.getExtension("x", "jabber:x:delay");
 						if (timestamp != null)
 							ts = timestamp.getStamp().getTime();
 						else
@@ -307,9 +276,7 @@ public class SmackImpl implements Smack {
 
 						String fromJID = getJabberID(msg.getFrom());// 消息来自对象
 
-						addChatMessageToDB(ChatConstants.INCOMING, fromJID,
-								chatMessage, ChatConstants.DS_NEW, ts,
-								msg.getPacketID());// 存入数据库，并标记为新消息DS_NEW
+						addChatMessageToDB(ChatConstants.INCOMING, fromJID, chatMessage, ChatConstants.DS_NEW, ts, msg.getPacketID());// 存入数据库，并标记为新消息DS_NEW
 						mService.newMessage(fromJID, chatMessage);// 通知service，处理是否需要显示通知栏，
 					}
 				} catch (Exception e) {
@@ -340,8 +307,7 @@ public class SmackImpl implements Smack {
 	 * @param packetID
 	 *            服务器为了区分每一条消息生成的消息包的id
 	 */
-	private void addChatMessageToDB(int direction, String JID, String message,
-			int delivery_status, long ts, String packetID) {
+	private void addChatMessageToDB(int direction, String JID, String message, int delivery_status, long ts, String packetID) {
 		ContentValues values = new ContentValues();
 
 		values.put(ChatConstants.DIRECTION, direction);
@@ -360,8 +326,7 @@ public class SmackImpl implements Smack {
 	private void registerMessageSendFailureListener() {
 		// do not register multiple packet listeners
 		if (mSendFailureListener != null)
-			mXMPPConnection
-					.removePacketSendFailureListener(mSendFailureListener);
+			mXMPPConnection.removePacketSendFailureListener(mSendFailureListener);
 
 		PacketTypeFilter filter = new PacketTypeFilter(Message.class);
 
@@ -372,14 +337,8 @@ public class SmackImpl implements Smack {
 						Message msg = (Message) packet;
 						String chatMessage = msg.getBody();
 
-						Log.d("SmackableImp",
-								"message "
-										+ chatMessage
-										+ " could not be sent (ID:"
-										+ (msg.getPacketID() == null ? "null"
-												: msg.getPacketID()) + ")");
-						changeMessageDeliveryStatus(msg.getPacketID(),
-								ChatConstants.DS_NEW);// 当消息发送失败时，将此消息标记为新消息，下次再发送
+						Log.d("SmackableImp", "message " + chatMessage + " could not be sent (ID:" + (msg.getPacketID() == null ? "null" : msg.getPacketID()) + ")");
+						changeMessageDeliveryStatus(msg.getPacketID(), ChatConstants.DS_NEW);// 当消息发送失败时，将此消息标记为新消息，下次再发送
 					}
 				} catch (Exception e) {
 					// SMACK silently discards exceptions dropped from
@@ -390,8 +349,7 @@ public class SmackImpl implements Smack {
 			}
 		};
 
-		mXMPPConnection.addPacketSendFailureListener(mSendFailureListener,
-				filter);// 这句也是关键啦！
+		mXMPPConnection.addPacketSendFailureListener(mSendFailureListener, filter);// 这句也是关键啦！
 	}
 
 	/**
@@ -405,11 +363,8 @@ public class SmackImpl implements Smack {
 	public void changeMessageDeliveryStatus(String packetID, int new_status) {
 		ContentValues cv = new ContentValues();
 		cv.put(ChatConstants.DELIVERY_STATUS, new_status);
-		Uri rowuri = Uri.parse("content://" + ChatProvider.AUTHORITY + "/"
-				+ ChatProvider.TABLE_NAME);
-		mContentResolver.update(rowuri, cv, ChatConstants.PACKET_ID
-				+ " = ? AND " + ChatConstants.DIRECTION + " = "
-				+ ChatConstants.OUTGOING, new String[] { packetID });
+		Uri rowuri = Uri.parse("content://" + ChatProvider.AUTHORITY + "/" + ChatProvider.TABLE_NAME);
+		mContentResolver.update(rowuri, cv, ChatConstants.PACKET_ID + " = ? AND " + ChatConstants.DIRECTION + " = " + ChatConstants.OUTGOING, new String[] { packetID });
 	}
 
 	/***************** end 处理消息发送失败状态 ***********************/
@@ -430,36 +385,20 @@ public class SmackImpl implements Smack {
 					return;
 
 				if (packet.getPacketID().equals(mPingID)) {// 如果服务器返回的消息为ping服务器时的消息，说明没有掉线
-					LogUtil.i(String.format(
-                            "Ping: server latency %1.3fs",
-                            (System.currentTimeMillis() - mPingTimestamp) / 1000.));
+					LogUtil.i(String.format("Ping: server latency %1.3fs", (System.currentTimeMillis() - mPingTimestamp) / 1000.));
 					mPingID = null;
-					((AlarmManager) mService
-							.getSystemService(Context.ALARM_SERVICE))
-							.cancel(mPongTimeoutAlarmPendIntent);// 取消超时闹钟
+					((AlarmManager) mService.getSystemService(Context.ALARM_SERVICE)).cancel(mPongTimeoutAlarmPendIntent);// 取消超时闹钟
 				}
 			}
 
 		};
 
-		mXMPPConnection.addPacketListener(mPongListener, new PacketTypeFilter(
-				IQ.class));// 正式开始监听
-		mPingAlarmPendIntent = PendingIntent.getBroadcast(
-				mService.getApplicationContext(), 0, mPingAlarmIntent,
-				PendingIntent.FLAG_UPDATE_CURRENT);// 定时ping服务器，以此来确定是否掉线
-		mPongTimeoutAlarmPendIntent = PendingIntent.getBroadcast(
-				mService.getApplicationContext(), 0, mPongTimeoutAlarmIntent,
-				PendingIntent.FLAG_UPDATE_CURRENT);// 超时闹钟
-		mService.registerReceiver(mPingAlarmReceiver, new IntentFilter(
-				PING_ALARM));// 注册定时ping服务器广播接收者
-		mService.registerReceiver(mPongTimeoutAlarmReceiver, new IntentFilter(
-				PONG_TIMEOUT_ALARM));// 注册连接超时广播接收者
-		((AlarmManager) mService.getSystemService(Context.ALARM_SERVICE))
-				.setInexactRepeating(AlarmManager.RTC_WAKEUP,
-						System.currentTimeMillis()
-								+ AlarmManager.INTERVAL_FIFTEEN_MINUTES,
-						AlarmManager.INTERVAL_FIFTEEN_MINUTES,
-						mPingAlarmPendIntent);// 15分钟ping以此服务器
+		mXMPPConnection.addPacketListener(mPongListener, new PacketTypeFilter(IQ.class));// 正式开始监听
+		mPingAlarmPendIntent = PendingIntent.getBroadcast(mService.getApplicationContext(), 0, mPingAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);// 定时ping服务器，以此来确定是否掉线
+		mPongTimeoutAlarmPendIntent = PendingIntent.getBroadcast(mService.getApplicationContext(), 0, mPongTimeoutAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);// 超时闹钟
+		mService.registerReceiver(mPingAlarmReceiver, new IntentFilter(PING_ALARM));// 注册定时ping服务器广播接收者
+		mService.registerReceiver(mPongTimeoutAlarmReceiver, new IntentFilter(PONG_TIMEOUT_ALARM));// 注册连接超时广播接收者
+		((AlarmManager) mService.getSystemService(Context.ALARM_SERVICE)).setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + AlarmManager.INTERVAL_FIFTEEN_MINUTES, AlarmManager.INTERVAL_FIFTEEN_MINUTES, mPingAlarmPendIntent);// 15分钟ping以此服务器
 	}
 
 	/**
@@ -489,17 +428,14 @@ public class SmackImpl implements Smack {
 
 	/***************** start 发送离线消息 ***********************/
 	public void sendOfflineMessages() {
-		Cursor cursor = mContentResolver.query(ChatProvider.CONTENT_URI,
-				SEND_OFFLINE_PROJECTION, SEND_OFFLINE_SELECTION, null, null);// 查询数据库获取离线消息游标
+		Cursor cursor = mContentResolver.query(ChatProvider.CONTENT_URI, SEND_OFFLINE_PROJECTION, SEND_OFFLINE_SELECTION, null, null);// 查询数据库获取离线消息游标
 		final int _ID_COL = cursor.getColumnIndexOrThrow(ChatConstants._ID);
 		final int JID_COL = cursor.getColumnIndexOrThrow(ChatConstants.JID);
 		final int MSG_COL = cursor.getColumnIndexOrThrow(ChatConstants.MESSAGE);
 		final int TS_COL = cursor.getColumnIndexOrThrow(ChatConstants.DATE);
-		final int PACKETID_COL = cursor
-				.getColumnIndexOrThrow(ChatConstants.PACKET_ID);
+		final int PACKETID_COL = cursor.getColumnIndexOrThrow(ChatConstants.PACKET_ID);
 		ContentValues mark_sent = new ContentValues();
-		mark_sent.put(ChatConstants.DELIVERY_STATUS,
-				ChatConstants.DS_SENT_OR_READ);
+		mark_sent.put(ChatConstants.DELIVERY_STATUS, ChatConstants.DS_SENT_OR_READ);
 		while (cursor.moveToNext()) {// 遍历之后将离线消息发出
 			int _id = cursor.getInt(_ID_COL);
 			String toJID = cursor.getString(JID_COL);
@@ -519,8 +455,7 @@ public class SmackImpl implements Smack {
 				packetID = newMessage.getPacketID();
 				mark_sent.put(ChatConstants.PACKET_ID, packetID);
 			}
-			Uri rowuri = Uri.parse("content://" + ChatProvider.AUTHORITY + "/"
-					+ ChatProvider.TABLE_NAME + "/" + _id);
+			Uri rowuri = Uri.parse("content://" + ChatProvider.AUTHORITY + "/" + ChatProvider.TABLE_NAME + "/" + _id);
 			// 将消息标记为已发送再调用发送，因为，假设此消息又未发送成功，有SendFailListener重新标记消息
 			mContentResolver.update(rowuri, mark_sent, null, null);
 			mXMPPConnection.sendPacket(newMessage); // must be after marking
@@ -538,8 +473,7 @@ public class SmackImpl implements Smack {
 	 * @param toJID
 	 * @param message
 	 */
-	public static void saveAsOfflineMessage(ContentResolver cr, String toJID,
-			String message) {
+	public static void saveAsOfflineMessage(ContentResolver cr, String toJID, String message) {
 		ContentValues values = new ContentValues();
 		values.put(ChatConstants.DIRECTION, ChatConstants.OUTGOING);
 		values.put(ChatConstants.JID, toJID);
@@ -619,8 +553,7 @@ public class SmackImpl implements Smack {
 	private void updateRosterEntryInDB(final RosterEntry entry) {
 		final ContentValues values = getContentValuesForRosterEntry(entry);
 
-		if (mContentResolver.update(RosterProvider.CONTENT_URI, values,
-				RosterConstants.JID + " = ?", new String[] { entry.getUser() }) == 0)// 如果数据库无此好友
+		if (mContentResolver.update(RosterProvider.CONTENT_URI, values, RosterConstants.JID + " = ?", new String[] { entry.getUser() }) == 0)// 如果数据库无此好友
 			addRosterEntryToDB(entry);// 则添加到数据库
 	}
 
@@ -642,8 +575,7 @@ public class SmackImpl implements Smack {
 	 * @param jabberID
 	 */
 	private void deleteRosterEntryFromDB(final String jabberID) {
-		int count = mContentResolver.delete(RosterProvider.CONTENT_URI,
-				RosterConstants.JID + " = ?", new String[] { jabberID });
+		int count = mContentResolver.delete(RosterProvider.CONTENT_URI, RosterConstants.JID + " = ?", new String[] { jabberID });
 		LogUtil.i("deleteRosterEntryFromDB: Deleted " + count + " entries");
 	}
 
@@ -725,24 +657,20 @@ public class SmackImpl implements Smack {
 	 */
 	private void initServiceDiscovery() {
 		// register connection features
-		ServiceDiscoveryManager sdm = ServiceDiscoveryManager
-				.getInstanceFor(mXMPPConnection);
+		ServiceDiscoveryManager sdm = ServiceDiscoveryManager.getInstanceFor(mXMPPConnection);
 		if (sdm == null)
 			sdm = new ServiceDiscoveryManager(mXMPPConnection);
 
 		sdm.addFeature("http://jabber.org/protocol/disco#info");
 
 		// reference PingManager, set ping flood protection to 10s
-		PingManager.getInstanceFor(mXMPPConnection).setPingMinimumInterval(
-				10 * 1000);
+		PingManager.getInstanceFor(mXMPPConnection).setPingMinimumInterval(10 * 1000);
 		// reference DeliveryReceiptManager, add listener
 
-		DeliveryReceiptManager dm = DeliveryReceiptManager
-				.getInstanceFor(mXMPPConnection);
+		DeliveryReceiptManager dm = DeliveryReceiptManager.getInstanceFor(mXMPPConnection);
 		dm.enableAutoReceipts();
 		dm.registerReceiptReceivedListener(new DeliveryReceiptManager.ReceiptReceivedListener() {
-			public void onReceiptReceived(String fromJid, String toJid,
-					String receiptId) {
+			public void onReceiptReceived(String fromJid, String toJid, String receiptId) {
 				LogUtil.d(SmackImpl.class, "got delivery receipt for " + receiptId);
 				changeMessageDeliveryStatus(receiptId, ChatConstants.DS_ACKED);// 标记为对方已读，实际上遇到了点问题，所以其实没有用上此状态
 			}
@@ -751,18 +679,12 @@ public class SmackImpl implements Smack {
 
 	@Override
 	public void setStatusFromConfig() {// 设置自己的当前状态，供外部服务调用
-		boolean messageCarbons = PreferenceUtils.getPrefBoolean(mService,
-				PreferenceConstants.MESSAGE_CARBONS, true);
-		String statusMode = PreferenceUtils.getPrefString(mService,
-				PreferenceConstants.STATUS_MODE, PreferenceConstants.AVAILABLE);
-		String statusMessage = PreferenceUtils.getPrefString(mService,
-				PreferenceConstants.STATUS_MESSAGE,
-				mService.getString(R.string.status_online));
-		int priority = PreferenceUtils.getPrefInt(mService,
-				PreferenceConstants.PRIORITY, 0);
+		boolean messageCarbons = PreferenceUtils.getPrefBoolean(mService, PreferenceConstants.MESSAGE_CARBONS, true);
+		String statusMode = PreferenceUtils.getPrefString(mService, PreferenceConstants.STATUS_MODE, PreferenceConstants.AVAILABLE);
+		String statusMessage = PreferenceUtils.getPrefString(mService, PreferenceConstants.STATUS_MESSAGE, mService.getString(R.string.status_online));
+		int priority = PreferenceUtils.getPrefInt(mService, PreferenceConstants.PRIORITY, 0);
 		if (messageCarbons)
-			CarbonManager.getInstanceFor(mXMPPConnection).sendCarbonsEnabled(
-					true);
+			CarbonManager.getInstanceFor(mXMPPConnection).sendCarbonsEnabled(true);
 
 		Presence presence = new Presence(Presence.Type.available);
 		Mode mode = Mode.valueOf(statusMode);
@@ -775,20 +697,17 @@ public class SmackImpl implements Smack {
 	@Override
 	public boolean isAuthenticated() {// 是否与服务器连接上，供本类和外部服务调用
 		if (mXMPPConnection != null) {
-			return (mXMPPConnection.isConnected() && mXMPPConnection
-					.isAuthenticated());
+			return (mXMPPConnection.isConnected() && mXMPPConnection.isAuthenticated());
 		}
 		return false;
 	}
 
 	@Override
-	public void addRosterItem(String user, String alias, String group)
-			throws XmppException {// 添加联系人，供外部服务调用
+	public void addRosterItem(String user, String alias, String group) throws XmppException {// 添加联系人，供外部服务调用
 		addRosterEntry(user, alias, group);
 	}
 
-	private void addRosterEntry(String user, String alias, String group)
-			throws XmppException {
+	private void addRosterEntry(String user, String alias, String group) throws XmppException {
 		mRoster = mXMPPConnection.getRoster();
 		try {
 			mRoster.createEntry(user, alias, new String[] { group });
@@ -820,8 +739,7 @@ public class SmackImpl implements Smack {
 	}
 
 	@Override
-	public void renameRosterItem(String user, String newName)
-			throws XmppException {// 重命名联系人，供外部服务调用
+	public void renameRosterItem(String user, String newName) throws XmppException {// 重命名联系人，供外部服务调用
 		// TODO Auto-generated method stub
 		mRoster = mXMPPConnection.getRoster();
 		RosterEntry rosterEntry = mRoster.getEntry(user);
@@ -833,14 +751,12 @@ public class SmackImpl implements Smack {
 	}
 
 	@Override
-	public void moveRosterItemToGroup(String user, String group)
-			throws XmppException {// 移动好友到其他分组，供外部服务调用
+	public void moveRosterItemToGroup(String user, String group) throws XmppException {// 移动好友到其他分组，供外部服务调用
 		// TODO Auto-generated method stub
 		tryToMoveRosterEntryToGroup(user, group);
 	}
 
-	private void tryToMoveRosterEntryToGroup(String userName, String groupName)
-			throws XmppException {
+	private void tryToMoveRosterEntryToGroup(String userName, String groupName) throws XmppException {
 
 		mRoster = mXMPPConnection.getRoster();
 		RosterGroup rosterGroup = getRosterGroup(groupName);
@@ -859,8 +775,7 @@ public class SmackImpl implements Smack {
 		}
 	}
 
-	private void removeRosterEntryFromGroups(RosterEntry rosterEntry)
-			throws XmppException {// 从对应组中删除联系人，供外部服务调用
+	private void removeRosterEntryFromGroups(RosterEntry rosterEntry) throws XmppException {// 从对应组中删除联系人，供外部服务调用
 		Collection<RosterGroup> oldGroups = rosterEntry.getGroups();
 
 		for (RosterGroup group : oldGroups) {
@@ -868,8 +783,7 @@ public class SmackImpl implements Smack {
 		}
 	}
 
-	private void tryToRemoveUserFromGroup(RosterGroup group,
-			RosterEntry rosterEntry) throws XmppException {
+	private void tryToRemoveUserFromGroup(RosterGroup group, RosterEntry rosterEntry) throws XmppException {
 		try {
 			group.removeEntry(rosterEntry);
 		} catch (XMPPException e) {
@@ -922,15 +836,11 @@ public class SmackImpl implements Smack {
 		newMessage.setBody(message);
 		newMessage.addExtension(new DeliveryReceiptRequest());
 		if (isAuthenticated()) {
-			addChatMessageToDB(ChatConstants.OUTGOING, toJID, message,
-					ChatConstants.DS_SENT_OR_READ, System.currentTimeMillis(),
-					newMessage.getPacketID());
+			addChatMessageToDB(ChatConstants.OUTGOING, toJID, message, ChatConstants.DS_SENT_OR_READ, System.currentTimeMillis(), newMessage.getPacketID());
 			mXMPPConnection.sendPacket(newMessage);
 		} else {
 			// send offline -> store to DB
-			addChatMessageToDB(ChatConstants.OUTGOING, toJID, message,
-					ChatConstants.DS_NEW, System.currentTimeMillis(),
-					newMessage.getPacketID());
+			addChatMessageToDB(ChatConstants.OUTGOING, toJID, message, ChatConstants.DS_NEW, System.currentTimeMillis(), newMessage.getPacketID());
 		}
 	}
 
@@ -942,24 +852,19 @@ public class SmackImpl implements Smack {
 		}
 		Ping ping = new Ping();
 		ping.setType(Type.GET);
-		ping.setTo(PreferenceUtils.getPrefString(mService,
-				PreferenceConstants.Server, PreferenceConstants.GMAIL_SERVER));
+		ping.setTo(PreferenceUtils.getPrefString(mService, PreferenceConstants.Server, PreferenceConstants.GMAIL_SERVER));
 		mPingID = ping.getPacketID();// 此id其实是随机生成，但是唯一的
 		mPingTimestamp = System.currentTimeMillis();
 		LogUtil.d("Ping: sending ping " + mPingID);
 		mXMPPConnection.sendPacket(ping);// 发送ping消息
 
 		// register ping timeout handler: PACKET_TIMEOUT(30s) + 3s
-		((AlarmManager) mService.getSystemService(Context.ALARM_SERVICE)).set(
-				AlarmManager.RTC_WAKEUP, System.currentTimeMillis()
-						+ PACKET_TIMEOUT + 3000, mPongTimeoutAlarmPendIntent);// 此时需要启动超时判断的闹钟了，时间间隔为30+3秒
+		((AlarmManager) mService.getSystemService(Context.ALARM_SERVICE)).set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + PACKET_TIMEOUT + 3000, mPongTimeoutAlarmPendIntent);// 此时需要启动超时判断的闹钟了，时间间隔为30+3秒
 	}
 
 	@Override
 	public String getNameForJID(String jid) {
-		if (null != this.mRoster.getEntry(jid)
-				&& null != this.mRoster.getEntry(jid).getName()
-				&& this.mRoster.getEntry(jid).getName().length() > 0) {
+		if (null != this.mRoster.getEntry(jid) && null != this.mRoster.getEntry(jid).getName() && this.mRoster.getEntry(jid).getName().length() > 0) {
 			return this.mRoster.getEntry(jid).getName();
 		} else {
 			return jid;
@@ -973,13 +878,10 @@ public class SmackImpl implements Smack {
 		try {
 			mXMPPConnection.getRoster().removeRosterListener(mRosterListener);
 			mXMPPConnection.removePacketListener(mPacketListener);
-			mXMPPConnection
-					.removePacketSendFailureListener(mSendFailureListener);
+			mXMPPConnection.removePacketSendFailureListener(mSendFailureListener);
 			mXMPPConnection.removePacketListener(mPongListener);
-			((AlarmManager) mService.getSystemService(Context.ALARM_SERVICE))
-					.cancel(mPingAlarmPendIntent);
-			((AlarmManager) mService.getSystemService(Context.ALARM_SERVICE))
-					.cancel(mPongTimeoutAlarmPendIntent);
+			((AlarmManager) mService.getSystemService(Context.ALARM_SERVICE)).cancel(mPingAlarmPendIntent);
+			((AlarmManager) mService.getSystemService(Context.ALARM_SERVICE)).cancel(mPongTimeoutAlarmPendIntent);
 			mService.unregisterReceiver(mPingAlarmReceiver);
 			mService.unregisterReceiver(mPongTimeoutAlarmReceiver);
 		} catch (Exception e) {
@@ -996,7 +898,7 @@ public class SmackImpl implements Smack {
 				}
 			}.start();
 		}
-//		setStatusOffline();
+		// setStatusOffline();
 		this.mService = null;
 		return true;
 	}

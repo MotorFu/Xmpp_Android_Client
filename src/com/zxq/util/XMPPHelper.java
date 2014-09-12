@@ -22,13 +22,11 @@ public class XMPPHelper {
 	public static void verifyJabberID(String jid)
 			throws XmppAdressMalformedException {
 		if (jid != null) {
-			Pattern p = Pattern
-					.compile("(?i)[a-z0-9\\-_\\.]++@[a-z0-9\\-_]++(\\.[a-z0-9\\-_]++)++");
+			Pattern p = Pattern.compile("(?i)[a-z0-9\\-_\\.]++@[a-z0-9\\-_]++(\\.[a-z0-9\\-_]++)++");
 			Matcher m = p.matcher(jid);
 
 			if (!m.matches()) {
-				throw new XmppAdressMalformedException(
-						"Configured Jabber-ID is incorrect!");
+				throw new XmppAdressMalformedException("Configured Jabber-ID is incorrect!");
 			}
 		} else {
 			throw new XmppAdressMalformedException("Jabber-ID wasn't set!");
@@ -100,8 +98,7 @@ public class XMPPHelper {
 			if (m - k < 8) {
 				if (XmppApplication.getInstance().getFaceMap().containsKey(str2)) {
 					int face = XmppApplication.getInstance().getFaceMap().get(str2);
-					Bitmap bitmap = BitmapFactory.decodeResource(
-							context.getResources(), face);
+					Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), face);
 					if (bitmap != null) {
 						if (small) {
 							int rawHeigh = bitmap.getHeight();
@@ -120,13 +117,10 @@ public class XMPPHelper {
 							// matrix.postSkew(0.1f, 0.1f);
 							// 将图片大小压缩
 							// 压缩后图片的宽和高以及kB大小均会变化
-							bitmap = Bitmap.createBitmap(bitmap, 0, 0,
-									rawWidth, rawHeigh, matrix, true);
+							bitmap = Bitmap.createBitmap(bitmap, 0, 0,rawWidth, rawHeigh, matrix, true);
 						}
-						ImageSpan localImageSpan = new ImageSpan(context,
-								bitmap, ImageSpan.ALIGN_BASELINE);
-						value.setSpan(localImageSpan, k, m,
-								Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+						ImageSpan localImageSpan = new ImageSpan(context,bitmap, ImageSpan.ALIGN_BASELINE);
+						value.setSpan(localImageSpan, k, m,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 					}
 				}
 			}

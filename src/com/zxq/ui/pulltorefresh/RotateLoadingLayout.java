@@ -47,8 +47,7 @@ public class RotateLoadingLayout extends LoadingLayout {
 		mHeaderImageMatrix = new Matrix();
 		mHeaderImage.setImageMatrix(mHeaderImageMatrix);
 
-		mRotateAnimation = new RotateAnimation(0, 720, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
-				0.5f);
+		mRotateAnimation = new RotateAnimation(0, 720, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 		mRotateAnimation.setInterpolator(ANIMATION_INTERPOLATOR);
 		mRotateAnimation.setDuration(ROTATION_ANIMATION_DURATION);
 		mRotateAnimation.setRepeatCount(Animation.INFINITE);

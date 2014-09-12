@@ -24,11 +24,10 @@ public class XmppApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		mApplication = this;
-		LogUtil.isDebug = PreferenceUtils.getPrefBoolean(this,
-				PreferenceConstants.ISNEEDLOG, true);
-//		if (PreferenceUtils.getPrefBoolean(this,
-//				PreferenceConstants.REPORT_CRASH, true))
-//			CrashHandler.getInstance().init(this);
+		LogUtil.isDebug = PreferenceUtils.getPrefBoolean(this, PreferenceConstants.ISNEEDLOG, true);
+		// if (PreferenceUtils.getPrefBoolean(this,
+		// PreferenceConstants.REPORT_CRASH, true))
+		// CrashHandler.getInstance().init(this);
 		initFaceMap();
 	}
 

@@ -83,14 +83,12 @@ public class BounceScrollView extends ScrollView {
 				// 初始化头部矩形
 				if (normal.isEmpty()) {
 					// 保存正常的布局位置
-					normal.set(inner.getLeft(), inner.getTop(),
-							inner.getRight(), inner.getBottom());
+					normal.set(inner.getLeft(), inner.getTop(), inner.getRight(), inner.getBottom());
 				}
-//				Log.e("jj", "矩形：" + inner.getLeft() + "," + inner.getTop()
-//						+ "," + inner.getRight() + "," + inner.getBottom());
+				// Log.e("jj", "矩形：" + inner.getLeft() + "," + inner.getTop()
+				// + "," + inner.getRight() + "," + inner.getBottom());
 				// 移动布局
-				inner.layout(inner.getLeft(), inner.getTop() - deltaY / 2,
-						inner.getRight(), inner.getBottom() - deltaY / 2);
+				inner.layout(inner.getLeft(), inner.getTop() - deltaY / 2, inner.getRight(), inner.getBottom() - deltaY / 2);
 			}
 			isCount = true;
 			break;
@@ -105,15 +103,15 @@ public class BounceScrollView extends ScrollView {
 	 */
 	public void animation() {
 		// 开启移动动画
-		TranslateAnimation ta = new TranslateAnimation(0, 0, inner.getTop(),
-				normal.top);
+		TranslateAnimation ta = new TranslateAnimation(0, 0, inner.getTop(), normal.top);
 		ta.setDuration(200);
 		inner.startAnimation(ta);
 		// 设置回到正常的布局位置
 		inner.layout(normal.left, normal.top, normal.right, normal.bottom);
 
-//		Log.e("jj", "回归：" + normal.left + "," + normal.top + "," + normal.right
-//				+ "," + normal.bottom);
+		// Log.e("jj", "回归：" + normal.left + "," + normal.top + "," +
+		// normal.right
+		// + "," + normal.bottom);
 
 		normal.setEmpty();
 
@@ -134,7 +132,7 @@ public class BounceScrollView extends ScrollView {
 	public boolean isNeedMove() {
 		int offset = inner.getMeasuredHeight() - getHeight();
 		int scrollY = getScrollY();
-//		Log.e("jj", "scrolly=" + scrollY);
+		// Log.e("jj", "scrolly=" + scrollY);
 		// 0是顶部，后面那个是底部
 		if (scrollY == 0 || scrollY == offset) {
 			return true;

@@ -30,8 +30,7 @@ import com.zxq.app.XmppBroadcastReceiver.EventHandler;
 import com.zxq.smack.SmackImpl;
 import com.zxq.util.LogUtil;
 
-public class XmppService extends BaseService implements EventHandler,
-		BackPressHandler {
+public class XmppService extends BaseService implements EventHandler, BackPressHandler {
 	public static final int CONNECTED = 0;
 	public static final int DISCONNECTED = -1;
 	public static final int CONNECTING = 1;
@@ -60,7 +59,7 @@ public class XmppService extends BaseService implements EventHandler,
 	private BroadcastReceiver mAlarmReceiver = new ReconnectAlarmReceiver();
 	// 自动重连 end
 	private ActivityManager mActivityManager;
-	private HashSet<String> mIsBoundTo = new HashSet<String>();//用来保存当前正在聊天对象的数组
+	private HashSet<String> mIsBoundTo = new HashSet<String>();// 用来保存当前正在聊天对象的数组
 
 	/**
 	 * 注册注解面和聊天界面时连接状态变化回调
@@ -83,8 +82,7 @@ public class XmppService extends BaseService implements EventHandler,
 			mIsBoundTo.add(chatPartner);
 		}
 		String action = intent.getAction();
-		if (!TextUtils.isEmpty(action)
-				&& TextUtils.equals(action, LoginActivity.LOGIN_ACTION)) {
+		if (!TextUtils.isEmpty(action) && TextUtils.equals(action, LoginActivity.LOGIN_ACTION)) {
 			mIsFirstLoginAction = true;
 		} else {
 			mIsFirstLoginAction = false;
@@ -100,8 +98,7 @@ public class XmppService extends BaseService implements EventHandler,
 			mIsBoundTo.add(chatPartner);
 		}
 		String action = intent.getAction();
-		if (!TextUtils.isEmpty(action)
-				&& TextUtils.equals(action, LoginActivity.LOGIN_ACTION)) {
+		if (!TextUtils.isEmpty(action) && TextUtils.equals(action, LoginActivity.LOGIN_ACTION)) {
 			mIsFirstLoginAction = true;
 		} else {
 			mIsFirstLoginAction = false;
@@ -129,21 +126,15 @@ public class XmppService extends BaseService implements EventHandler,
 		XmppBroadcastReceiver.mListeners.add(this);
 		BaseActivity.mListeners.add(this);
 		mActivityManager = ((ActivityManager) getSystemService(Context.ACTIVITY_SERVICE));
-		mPAlarmIntent = PendingIntent.getBroadcast(this, 0, mAlarmIntent,
-				PendingIntent.FLAG_UPDATE_CURRENT);
+		mPAlarmIntent = PendingIntent.getBroadcast(this, 0, mAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		registerReceiver(mAlarmReceiver, new IntentFilter(RECONNECT_ALARM));
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		if (intent != null
-				&& intent.getAction() != null
-				&& TextUtils.equals(intent.getAction(),
-						XmppBroadcastReceiver.BOOT_COMPLETED_ACTION)) {
-			String account = PreferenceUtils.getPrefString(XmppService.this,
-					PreferenceConstants.ACCOUNT, "");
-			String password = PreferenceUtils.getPrefString(XmppService.this,
-					PreferenceConstants.PASSWORD, "");
+		if (intent != null && intent.getAction() != null && TextUtils.equals(intent.getAction(), XmppBroadcastReceiver.BOOT_COMPLETED_ACTION)) {
+			String account = PreferenceUtils.getPrefString(XmppService.this, PreferenceConstants.ACCOUNT, "");
+			String password = PreferenceUtils.getPrefString(XmppService.this, PreferenceConstants.PASSWORD, "");
 			if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(password))
 				Login(account, password);
 		}
@@ -157,8 +148,7 @@ public class XmppService extends BaseService implements EventHandler,
 		super.onDestroy();
 		XmppBroadcastReceiver.mListeners.remove(this);
 		BaseActivity.mListeners.remove(this);
-		((AlarmManager) getSystemService(Context.ALARM_SERVICE))
-				.cancel(mPAlarmIntent);// 取消重连闹钟
+		((AlarmManager) getSystemService(Context.ALARM_SERVICE)).cancel(mPAlarmIntent);// 取消重连闹钟
 		unregisterReceiver(mAlarmReceiver);// 注销广播监听
 		logout();
 	}
@@ -332,51 +322,41 @@ public class XmppService extends BaseService implements EventHandler,
 	private void connectionFailed(String reason) {
 		LogUtil.i(XmppService.class, "connectionFailed: " + reason);
 		mConnectedState = DISCONNECTED;// 更新当前连接状态
-//		if (mSmackable != null)
-//			mSmackable.setStatusOffline();// 将所有联系人标记为离线
+		// if (mSmackable != null)
+		// mSmackable.setStatusOffline();// 将所有联系人标记为离线
 		if (TextUtils.equals(reason, LOGOUT)) {// 如果是手动退出
-			((AlarmManager) getSystemService(Context.ALARM_SERVICE))
-					.cancel(mPAlarmIntent);
+			((AlarmManager) getSystemService(Context.ALARM_SERVICE)).cancel(mPAlarmIntent);
 			return;
 		}
 		// 回调
 		if (mConnectionStatusCallback != null) {
-			mConnectionStatusCallback.connectionStatusChanged(mConnectedState,
-					reason);
+			mConnectionStatusCallback.connectionStatusChanged(mConnectedState, reason);
 			if (mIsFirstLoginAction)// 如果是第一次登录,就算登录失败也不需要继续
 				return;
 		}
 
 		// 无网络连接时,直接返回
 		if (NetUtil.getNetworkState(this) == NetUtil.NETWORN_NONE) {
-			((AlarmManager) getSystemService(Context.ALARM_SERVICE))
-					.cancel(mPAlarmIntent);
+			((AlarmManager) getSystemService(Context.ALARM_SERVICE)).cancel(mPAlarmIntent);
 			return;
 		}
 
-		String account = PreferenceUtils.getPrefString(XmppService.this,
-				PreferenceConstants.ACCOUNT, "");
-		String password = PreferenceUtils.getPrefString(XmppService.this,
-				PreferenceConstants.PASSWORD, "");
+		String account = PreferenceUtils.getPrefString(XmppService.this, PreferenceConstants.ACCOUNT, "");
+		String password = PreferenceUtils.getPrefString(XmppService.this, PreferenceConstants.PASSWORD, "");
 		// 无保存的帐号密码时，也直接返回
 		if (TextUtils.isEmpty(account) || TextUtils.isEmpty(password)) {
 			LogUtil.d("account = null || password = null");
 			return;
 		}
 		// 如果不是手动退出并且需要重新连接，则开启重连闹钟
-		if (PreferenceUtils.getPrefBoolean(this,
-				PreferenceConstants.AUTO_RECONNECT, true)) {
-			LogUtil.d("connectionFailed(): registering reconnect in "
-                    + mReconnectTimeout + "s");
-			((AlarmManager) getSystemService(Context.ALARM_SERVICE)).set(
-					AlarmManager.RTC_WAKEUP, System.currentTimeMillis()
-							+ mReconnectTimeout * 1000, mPAlarmIntent);
+		if (PreferenceUtils.getPrefBoolean(this, PreferenceConstants.AUTO_RECONNECT, true)) {
+			LogUtil.d("connectionFailed(): registering reconnect in " + mReconnectTimeout + "s");
+			((AlarmManager) getSystemService(Context.ALARM_SERVICE)).set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + mReconnectTimeout * 1000, mPAlarmIntent);
 			mReconnectTimeout = mReconnectTimeout * 2;
 			if (mReconnectTimeout > RECONNECT_MAXIMUM)
 				mReconnectTimeout = RECONNECT_MAXIMUM;
 		} else {
-			((AlarmManager) getSystemService(Context.ALARM_SERVICE))
-					.cancel(mPAlarmIntent);
+			((AlarmManager) getSystemService(Context.ALARM_SERVICE)).cancel(mPAlarmIntent);
 		}
 
 	}
@@ -395,8 +375,7 @@ public class XmppService extends BaseService implements EventHandler,
 		mReconnectTimeout = RECONNECT_AFTER;// 重置重连的时间
 
 		if (mConnectionStatusCallback != null)
-			mConnectionStatusCallback.connectionStatusChanged(mConnectedState,
-					"");
+			mConnectionStatusCallback.connectionStatusChanged(mConnectedState, "");
 	}
 
 	// 连接中，通知界面线程做一些处理
@@ -413,20 +392,17 @@ public class XmppService extends BaseService implements EventHandler,
 		// TODO Auto-generated method stub
 		mConnectedState = CONNECTING;// 连接中
 		if (mConnectionStatusCallback != null)
-			mConnectionStatusCallback.connectionStatusChanged(mConnectedState,
-					"");
+			mConnectionStatusCallback.connectionStatusChanged(mConnectedState, "");
 	}
 
 	// 收到新消息
 	public void newMessage(final String from, final String message) {
 		mMainHandler.post(new Runnable() {
 			public void run() {
-				if (!PreferenceUtils.getPrefBoolean(XmppService.this,
-						PreferenceConstants.SCLIENTNOTIFY, false))
+				if (!PreferenceUtils.getPrefBoolean(XmppService.this, PreferenceConstants.SCLIENTNOTIFY, false))
 					MediaPlayer.create(XmppService.this, R.raw.office).start();
 				if (!isAppOnForeground())
-					notifyClient(from, mSmackable.getNameForJID(from), message,
-							!mIsBoundTo.contains(from));
+					notifyClient(from, mSmackable.getNameForJID(from), message, !mIsBoundTo.contains(from));
 				// T.showLong(XXService.this, from + ": " + message);
 
 			}
@@ -451,19 +427,15 @@ public class XmppService extends BaseService implements EventHandler,
 	 * @param message
 	 */
 	public void updateServiceNotification(String message) {
-		if (!PreferenceUtils.getPrefBoolean(this,
-				PreferenceConstants.FOREGROUND, true))
+		if (!PreferenceUtils.getPrefBoolean(this, PreferenceConstants.FOREGROUND, true))
 			return;
-		String title = PreferenceUtils.getPrefString(this,
-				PreferenceConstants.ACCOUNT, "");
-		Notification n = new Notification(R.drawable.login_default_avatar,
-				title, System.currentTimeMillis());
+		String title = PreferenceUtils.getPrefString(this, PreferenceConstants.ACCOUNT, "");
+		Notification n = new Notification(R.drawable.login_default_avatar, title, System.currentTimeMillis());
 		n.flags = Notification.FLAG_ONGOING_EVENT | Notification.FLAG_NO_CLEAR;
 
 		Intent notificationIntent = new Intent(this, MainActivity.class);
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		n.contentIntent = PendingIntent.getActivity(this, 0,
-				notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		n.contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		n.setLatestEventInfo(this, title, message, n.contentIntent);
 		startForeground(SERVICE_NOTIFICATION, n);
@@ -493,9 +465,7 @@ public class XmppService extends BaseService implements EventHandler,
 
 	public boolean isAppOnForeground() {
 		List<RunningTaskInfo> taskInfos = mActivityManager.getRunningTasks(1);
-		if (taskInfos.size() > 0
-				&& TextUtils.equals(getPackageName(),
-						taskInfos.get(0).topActivity.getPackageName())) {
+		if (taskInfos.size() > 0 && TextUtils.equals(getPackageName(), taskInfos.get(0).topActivity.getPackageName())) {
 			return true;
 		}
 
@@ -519,18 +489,15 @@ public class XmppService extends BaseService implements EventHandler,
 	private class ReconnectAlarmReceiver extends BroadcastReceiver {
 		public void onReceive(Context ctx, Intent i) {
 			LogUtil.d("Alarm received.");
-			if (!PreferenceUtils.getPrefBoolean(XmppService.this,
-					PreferenceConstants.AUTO_RECONNECT, true)) {
+			if (!PreferenceUtils.getPrefBoolean(XmppService.this, PreferenceConstants.AUTO_RECONNECT, true)) {
 				return;
 			}
 			if (mConnectedState != DISCONNECTED) {
 				LogUtil.d("Reconnect attempt aborted: we are connected again!");
 				return;
 			}
-			String account = PreferenceUtils.getPrefString(XmppService.this,
-					PreferenceConstants.ACCOUNT, "");
-			String password = PreferenceUtils.getPrefString(XmppService.this,
-					PreferenceConstants.PASSWORD, "");
+			String account = PreferenceUtils.getPrefString(XmppService.this, PreferenceConstants.ACCOUNT, "");
+			String password = PreferenceUtils.getPrefString(XmppService.this, PreferenceConstants.PASSWORD, "");
 			if (TextUtils.isEmpty(account) || TextUtils.isEmpty(password)) {
 				LogUtil.d("account = null || password = null");
 				return;
@@ -547,14 +514,11 @@ public class XmppService extends BaseService implements EventHandler,
 		}
 		if (isAuthenticated())// 如果已经连接上，直接返回
 			return;
-		String account = PreferenceUtils.getPrefString(XmppService.this,
-				PreferenceConstants.ACCOUNT, "");
-		String password = PreferenceUtils.getPrefString(XmppService.this,
-				PreferenceConstants.PASSWORD, "");
+		String account = PreferenceUtils.getPrefString(XmppService.this, PreferenceConstants.ACCOUNT, "");
+		String password = PreferenceUtils.getPrefString(XmppService.this, PreferenceConstants.PASSWORD, "");
 		if (TextUtils.isEmpty(account) || TextUtils.isEmpty(password))// 如果没有帐号，也直接返回
 			return;
-		if (!PreferenceUtils.getPrefBoolean(this,
-				PreferenceConstants.AUTO_RECONNECT, true))// 不需要重连
+		if (!PreferenceUtils.getPrefBoolean(this, PreferenceConstants.AUTO_RECONNECT, true))// 不需要重连
 			return;
 		Login(account, password);// 重连
 	}

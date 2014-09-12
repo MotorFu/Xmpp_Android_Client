@@ -31,10 +31,7 @@ public class XmppBroadcastReceiver extends BroadcastReceiver {
 			Intent xmppServiceIntent = new Intent(context, XmppService.class);
 			context.stopService(xmppServiceIntent);
 		} else {
-			if (!TextUtils.isEmpty(PreferenceUtils.getPrefString(context,
-					PreferenceConstants.PASSWORD, ""))
-					&& PreferenceUtils.getPrefBoolean(context,
-							PreferenceConstants.AUTO_START, true)) {
+			if (!TextUtils.isEmpty(PreferenceUtils.getPrefString(context, PreferenceConstants.PASSWORD, "")) && PreferenceUtils.getPrefBoolean(context, PreferenceConstants.AUTO_START, true)) {
 				Intent i = new Intent(context, XmppService.class);
 				i.setAction(BOOT_COMPLETED_ACTION);
 				context.startService(i);

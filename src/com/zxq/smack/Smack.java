@@ -47,8 +47,7 @@ public interface Smack {
 	 *            所在的分组
 	 * @throws com.zxq.exception.XmppException
 	 */
-	public void addRosterItem(String user, String alias, String group)
-			throws XmppException;
+	public void addRosterItem(String user, String alias, String group) throws XmppException;
 
 	/**
 	 * 删除好友
@@ -68,8 +67,7 @@ public interface Smack {
 	 *            新昵称
 	 * @throws com.zxq.exception.XmppException
 	 */
-	public void renameRosterItem(String user, String newName)
-			throws XmppException;
+	public void renameRosterItem(String user, String newName) throws XmppException;
 
 	/**
 	 * 移动好友到新分组
@@ -80,8 +78,7 @@ public interface Smack {
 	 *            新组名
 	 * @throws com.zxq.exception.XmppException
 	 */
-	public void moveRosterItemToGroup(String user, String group)
-			throws XmppException;
+	public void moveRosterItemToGroup(String user, String group) throws XmppException;
 
 	/**
 	 * 重命名分组

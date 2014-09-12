@@ -15,7 +15,7 @@ import com.zxq.app.XmppApplication;
 import com.zxq.xmpp.R;
 
 public class FaceAdapter extends BaseAdapter {
-	
+
 	private LayoutInflater inflater;
 	private int currentPage = 0;
 	private Map<String, Integer> mFaceMap;
@@ -30,7 +30,7 @@ public class FaceAdapter extends BaseAdapter {
 	}
 
 	private void initData() {
-		for(Map.Entry<String, Integer> entry:mFaceMap.entrySet()){
+		for (Map.Entry<String, Integer> entry : mFaceMap.entrySet()) {
 			faceList.add(entry.getValue());
 		}
 	}
@@ -58,8 +58,7 @@ public class FaceAdapter extends BaseAdapter {
 		if (convertView == null) {
 			viewHolder = new ViewHolder();
 			convertView = inflater.inflate(R.layout.face, null, false);
-			viewHolder.faceIV = (ImageView) convertView
-					.findViewById(R.id.face_iv);
+			viewHolder.faceIV = (ImageView) convertView.findViewById(R.id.face_iv);
 			convertView.setTag(viewHolder);
 		} else {
 			viewHolder = (ViewHolder) convertView.getTag();

@@ -65,10 +65,8 @@ import com.zxq.ui.xlistview.MsgListView;
 import com.zxq.ui.xlistview.MsgListView.IXListViewListener;
 import com.zxq.util.LogUtil;
 
-public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
-		OnClickListener, IXListViewListener, IConnectionStatusCallback {
-	public static final String INTENT_EXTRA_USERNAME = ChatActivity.class
-			.getName() + ".username";// 昵称对应的key
+public class ChatActivity extends SwipeBackActivity implements OnTouchListener, OnClickListener, IXListViewListener, IConnectionStatusCallback {
+	public static final String INTENT_EXTRA_USERNAME = ChatActivity.class.getName() + ".username";// 昵称对应的key
 	private MsgListView mMsgListView;// 对话ListView
 	private ViewPager mFaceViewPager;// 表情选择ViewPager
 	private int mCurrentPage = 0;// 当前表情页
@@ -84,11 +82,7 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 	private List<String> mFaceMapKeys;// 表情对应的字符串数组
 	private String mWithJabberID = null;// 当前聊天用户的ID
 
-	private static final String[] PROJECTION_FROM = new String[] {
-			ChatProvider.ChatConstants._ID, ChatProvider.ChatConstants.DATE,
-			ChatProvider.ChatConstants.DIRECTION,
-			ChatProvider.ChatConstants.JID, ChatProvider.ChatConstants.MESSAGE,
-			ChatProvider.ChatConstants.DELIVERY_STATUS };// 查询字段
+	private static final String[] PROJECTION_FROM = new String[] { ChatProvider.ChatConstants._ID, ChatProvider.ChatConstants.DATE, ChatProvider.ChatConstants.DIRECTION, ChatProvider.ChatConstants.JID, ChatProvider.ChatConstants.MESSAGE, ChatProvider.ChatConstants.DELIVERY_STATUS };// 查询字段
 
 	private ContentObserver mContactObserver = new ContactObserver();// 联系人数据监听，主要是监听对方在线状态
 	private XmppService mXmppService;// Main服务
@@ -100,10 +94,8 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 			mXmppService.registerConnectionStatusCallback(ChatActivity.this);
 			// 如果没有连接上，则重新连接xmpp服务器
 			if (!mXmppService.isAuthenticated()) {
-				String usr = PreferenceUtils.getPrefString(ChatActivity.this,
-						PreferenceConstants.ACCOUNT, "");
-				String password = PreferenceUtils.getPrefString(
-						ChatActivity.this, PreferenceConstants.PASSWORD, "");
+				String usr = PreferenceUtils.getPrefString(ChatActivity.this, PreferenceConstants.ACCOUNT, "");
+				String password = PreferenceUtils.getPrefString(ChatActivity.this, PreferenceConstants.PASSWORD, "");
 				mXmppService.Login(usr, password);
 			}
 		}
@@ -143,10 +135,9 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 		setContentView(R.layout.chat);
 		initData();// 初始化数据
 		initView();// 初始化view
-		//initFacePage();// 初始化表情
+		// initFacePage();// 初始化表情
 		setChatWindowAdapter();// 初始化对话数据
-		getContentResolver().registerContentObserver(
-				RosterProvider.CONTENT_URI, true, mContactObserver);// 开始监听联系人数据库
+		getContentResolver().registerContentObserver(RosterProvider.CONTENT_URI, true, mContactObserver);// 开始监听联系人数据库
 	}
 
 	@Override
@@ -161,26 +152,19 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 	}
 
 	// 查询联系人数据库字段
-	private static final String[] STATUS_QUERY = new String[] {
-			RosterProvider.RosterConstants.STATUS_MODE,
-			RosterProvider.RosterConstants.STATUS_MESSAGE, };
+	private static final String[] STATUS_QUERY = new String[] { RosterProvider.RosterConstants.STATUS_MODE, RosterProvider.RosterConstants.STATUS_MESSAGE, };
 
 	private void updateContactStatus() {
-		Cursor cursor = getContentResolver().query(RosterProvider.CONTENT_URI,
-				STATUS_QUERY, RosterProvider.RosterConstants.JID + " = ?",
-				new String[] { mWithJabberID }, null);
-		int MODE_IDX = cursor
-				.getColumnIndex(RosterProvider.RosterConstants.STATUS_MODE);
-		int MSG_IDX = cursor
-				.getColumnIndex(RosterProvider.RosterConstants.STATUS_MESSAGE);
+		Cursor cursor = getContentResolver().query(RosterProvider.CONTENT_URI, STATUS_QUERY, RosterProvider.RosterConstants.JID + " = ?", new String[] { mWithJabberID }, null);
+		int MODE_IDX = cursor.getColumnIndex(RosterProvider.RosterConstants.STATUS_MODE);
+		int MSG_IDX = cursor.getColumnIndex(RosterProvider.RosterConstants.STATUS_MESSAGE);
 
 		if (cursor.getCount() == 1) {
 			cursor.moveToFirst();
 			int status_mode = cursor.getInt(MODE_IDX);
 			String status_message = cursor.getString(MSG_IDX);
 			LogUtil.d("contact status changed: " + status_mode + " " + status_message);
-			mTitleNameView.setText(XMPPHelper.splitJidAndServer(getIntent()
-					.getStringExtra(INTENT_EXTRA_USERNAME)));
+			mTitleNameView.setText(XMPPHelper.splitJidAndServer(getIntent().getStringExtra(INTENT_EXTRA_USERNAME)));
 			int statusId = StatusMode.values()[status_mode].getDrawableId();
 			if (statusId != -1) {// 如果对应离线状态
 				// Drawable icon = getResources().getDrawable(statusId);
@@ -246,18 +230,15 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 		new AsyncQueryHandler(getContentResolver()) {
 
 			@Override
-			protected void onQueryComplete(int token, Object cookie,
-					Cursor cursor) {
+			protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
 				// ListAdapter adapter = new ChatWindowAdapter(cursor,
 				// PROJECTION_FROM, PROJECTION_TO, mWithJabberID);
-				ListAdapter adapter = new ChatAdapter(ChatActivity.this,
-						cursor, PROJECTION_FROM);
+				ListAdapter adapter = new ChatAdapter(ChatActivity.this, cursor, PROJECTION_FROM);
 				mMsgListView.setAdapter(adapter);
 				mMsgListView.setSelection(adapter.getCount() - 1);
 			}
 
-		}.startQuery(0, null, ChatProvider.CONTENT_URI, PROJECTION_FROM,
-				selection, null, null);
+		}.startQuery(0, null, ChatProvider.CONTENT_URI, PROJECTION_FROM, selection, null, null);
 		// 同步查询数据库，建议停止使用,如果数据庞大时，导致界面失去响应
 		// Cursor cursor = managedQuery(ChatProvider.CONTENT_URI,
 		// PROJECTION_FROM,
@@ -282,20 +263,20 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 		mChatEditText = (EditText) findViewById(R.id.input);
 		mFaceRoot = (EmojiKeyboard) findViewById(R.id.face_ll);
 		mFaceRoot.setEventListener(new EventListener() {
-			
+
 			@Override
 			public void onEmojiSelected(String res) {
 				// TODO Auto-generated method stub
 				EmojiKeyboard.input(mChatEditText, res);
 			}
-			
+
 			@Override
 			public void onBackspace() {
 				// TODO Auto-generated method stub
 				EmojiKeyboard.backspace(mChatEditText);
 			}
 		});
-//		mFaceViewPager = (ViewPager) findViewById(R.id.face_pager);
+		// mFaceViewPager = (ViewPager) findViewById(R.id.face_pager);
 		mChatEditText.setOnTouchListener(this);
 		mTitleNameView = (TextView) findViewById(R.id.ivTitleName);
 		mTitleStatusView = (ImageView) findViewById(R.id.ivTitleStatus);
@@ -305,8 +286,7 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
 				// TODO Auto-generated method stub
 				if (keyCode == KeyEvent.KEYCODE_BACK) {
-					if (mWindowNanagerParams.softInputMode == WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE
-							|| mIsFaceShow) {
+					if (mWindowNanagerParams.softInputMode == WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE || mIsFaceShow) {
 						mFaceRoot.setVisibility(View.GONE);
 						mIsFaceShow = false;
 						// imm.showSoftInput(msgEt, 0);
@@ -319,14 +299,12 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 		mChatEditText.addTextChangedListener(new TextWatcher() {
 
 			@Override
-			public void onTextChanged(CharSequence s, int start, int before,
-					int count) {
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
 				// TODO Auto-generated method stub
 			}
 
 			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 				// TODO Auto-generated method stub
 
 			}
@@ -357,11 +335,10 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 
 	@Override
 	public void onClick(View v) {
-	int id = v.getId();
-		if(id ==  R.id.face_switch_btn){
+		int id = v.getId();
+		if (id == R.id.face_switch_btn) {
 			if (!mIsFaceShow) {
-				mInputMethodManager.hideSoftInputFromWindow(
-						mChatEditText.getWindowToken(), 0);
+				mInputMethodManager.hideSoftInputFromWindow(mChatEditText.getWindowToken(), 0);
 				try {
 					Thread.sleep(80);// 解决此时会黑一下屏幕的问题
 				} catch (InterruptedException e) {
@@ -373,11 +350,10 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 			} else {
 				mFaceRoot.setVisibility(View.GONE);
 				mInputMethodManager.showSoftInput(mChatEditText, 0);
-				mFaceSwitchBtn
-						.setImageResource(R.drawable.qzone_edit_face_drawable);
+				mFaceSwitchBtn.setImageResource(R.drawable.qzone_edit_face_drawable);
 				mIsFaceShow = false;
 			}
-		}else if(id == R.id.send){// 发送消息
+		} else if (id == R.id.send) {// 发送消息
 			sendMessageIfNotNull();
 		}
 	}
@@ -385,8 +361,7 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 	private void sendMessageIfNotNull() {
 		if (mChatEditText.getText().length() >= 1) {
 			if (mXmppService != null) {
-				mXmppService.sendMessage(mWithJabberID, mChatEditText.getText()
-						.toString());
+				mXmppService.sendMessage(mWithJabberID, mChatEditText.getText().toString());
 				if (!mXmppService.isAuthenticated())
 					ToastUtil.showShort(this, "消息已经保存随后发送");
 			}
@@ -398,17 +373,14 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		int id = v.getId();
-		if(id == R.id.msg_listView){
-			mInputMethodManager.hideSoftInputFromWindow(
-					mChatEditText.getWindowToken(), 0);
-			mFaceSwitchBtn
-					.setImageResource(R.drawable.qzone_edit_face_drawable);
+		if (id == R.id.msg_listView) {
+			mInputMethodManager.hideSoftInputFromWindow(mChatEditText.getWindowToken(), 0);
+			mFaceSwitchBtn.setImageResource(R.drawable.qzone_edit_face_drawable);
 			mFaceRoot.setVisibility(View.GONE);
 			mIsFaceShow = false;
-		}else if(id == R.id.input){
+		} else if (id == R.id.input) {
 			mInputMethodManager.showSoftInput(mChatEditText, 0);
-			mFaceSwitchBtn
-					.setImageResource(R.drawable.qzone_edit_face_drawable);
+			mFaceSwitchBtn.setImageResource(R.drawable.qzone_edit_face_drawable);
 			mFaceRoot.setVisibility(View.GONE);
 			mIsFaceShow = false;
 		}
@@ -456,16 +428,14 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 		gv.setCacheColorHint(Color.TRANSPARENT);
 		gv.setHorizontalSpacing(1);
 		gv.setVerticalSpacing(1);
-		gv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
-				LayoutParams.MATCH_PARENT));
+		gv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		gv.setGravity(Gravity.CENTER);
 		gv.setAdapter(new FaceAdapter(this, i));
 		gv.setOnTouchListener(forbidenScroll());
 		gv.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-					long arg3) {
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				// TODO Auto-generated method stub
 				if (arg2 == XmppApplication.NUM) {// 删除键的位置
 					int selection = mChatEditText.getSelectionStart();
@@ -478,8 +448,7 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 							mChatEditText.getText().delete(start, end);
 							return;
 						}
-						mChatEditText.getText()
-								.delete(selection - 1, selection);
+						mChatEditText.getText().delete(selection - 1, selection);
 					}
 				} else {
 					int count = mCurrentPage * XmppApplication.NUM + arg2;
@@ -492,9 +461,7 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 					// msgEt.setSelection(index + keys.get(count).length());
 
 					// 下面这部分，在EditText中显示表情
-					Bitmap bitmap = BitmapFactory.decodeResource(
-							getResources(), (Integer) XmppApplication.getInstance()
-									.getFaceMap().values().toArray()[count]);
+					Bitmap bitmap = BitmapFactory.decodeResource(getResources(), (Integer) XmppApplication.getInstance().getFaceMap().values().toArray()[count]);
 					if (bitmap != null) {
 						int rawHeigh = bitmap.getHeight();
 						int rawWidth = bitmap.getHeight();
@@ -512,17 +479,11 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 						// matrix.postSkew(0.1f, 0.1f);
 						// 将图片大小压缩
 						// 压缩后图片的宽和高以及kB大小均会变化
-						Bitmap newBitmap = Bitmap.createBitmap(bitmap, 0, 0,
-								rawWidth, rawHeigh, matrix, true);
-						ImageSpan imageSpan = new ImageSpan(ChatActivity.this,
-								newBitmap);
+						Bitmap newBitmap = Bitmap.createBitmap(bitmap, 0, 0, rawWidth, rawHeigh, matrix, true);
+						ImageSpan imageSpan = new ImageSpan(ChatActivity.this, newBitmap);
 						String emojiStr = mFaceMapKeys.get(count);
-						SpannableString spannableString = new SpannableString(
-								emojiStr);
-						spannableString.setSpan(imageSpan,
-								emojiStr.indexOf('['),
-								emojiStr.indexOf(']') + 1,
-								Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+						SpannableString spannableString = new SpannableString(emojiStr);
+						spannableString.setSpan(imageSpan, emojiStr.indexOf('['), emojiStr.indexOf(']') + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 						mChatEditText.append(spannableString);
 					} else {
 						String ori = mChatEditText.getText().toString();
@@ -530,8 +491,7 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener,
 						StringBuilder stringBuilder = new StringBuilder(ori);
 						stringBuilder.insert(index, mFaceMapKeys.get(count));
 						mChatEditText.setText(stringBuilder.toString());
-						mChatEditText.setSelection(index
-								+ mFaceMapKeys.get(count).length());
+						mChatEditText.setSelection(index + mFaceMapKeys.get(count).length());
 					}
 				}
 			}

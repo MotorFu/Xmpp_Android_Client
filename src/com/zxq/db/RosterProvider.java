@@ -25,14 +25,11 @@ public class RosterProvider extends ContentProvider {
 	public static final String AUTHORITY = "com.zxq.xx.provider.Roster";
 	public static final String TABLE_ROSTER = "roster";
 	public static final String TABLE_GROUPS = "groups";
-	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY
-			+ "/" + TABLE_ROSTER);
-	public static final Uri GROUPS_URI = Uri.parse("content://" + AUTHORITY
-			+ "/" + TABLE_GROUPS);
+	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + TABLE_ROSTER);
+	public static final Uri GROUPS_URI = Uri.parse("content://" + AUTHORITY + "/" + TABLE_GROUPS);
 	public static final String QUERY_ALIAS = "main_result";
 
-	private static final UriMatcher URI_MATCHER = new UriMatcher(
-			UriMatcher.NO_MATCH);
+	private static final UriMatcher URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 	private static final int CONTACTS = 1;
 	private static final int CONTACT_ID = 2;
 	private static final int GROUPS = 3;
@@ -112,8 +109,7 @@ public class RosterProvider extends ContentProvider {
 			throw new IllegalArgumentException("Cannot insert into URL: " + url);
 		}
 
-		ContentValues values = (initialValues != null) ? new ContentValues(
-				initialValues) : new ContentValues();
+		ContentValues values = (initialValues != null) ? new ContentValues(initialValues) : new ContentValues();
 
 		for (String colName : RosterConstants.getRequiredColumns()) {
 			if (values.containsKey(colName) == false) {
@@ -143,8 +139,7 @@ public class RosterProvider extends ContentProvider {
 	}
 
 	@Override
-	public Cursor query(Uri url, String[] projectionIn, String selection,
-			String[] selectionArgs, String sortOrder) {
+	public Cursor query(Uri url, String[] projectionIn, String selection, String[] selectionArgs, String sortOrder) {
 
 		SQLiteQueryBuilder qBuilder = new SQLiteQueryBuilder();
 		int match = URI_MATCHER.match(url);
@@ -179,14 +174,13 @@ public class RosterProvider extends ContentProvider {
 
 		String orderBy;
 		if (TextUtils.isEmpty(sortOrder) && match == CONTACTS) {
-			orderBy = RosterConstants.DEFAULT_SORT_ORDER;//默认按在线状态排序
+			orderBy = RosterConstants.DEFAULT_SORT_ORDER;// 默认按在线状态排序
 		} else {
 			orderBy = sortOrder;
 		}
 
 		SQLiteDatabase db = mOpenHelper.getReadableDatabase();
-		Cursor ret = qBuilder.query(db, projectionIn, selection, selectionArgs,
-				groupBy, null, orderBy);
+		Cursor ret = qBuilder.query(db, projectionIn, selection, selectionArgs, groupBy, null, orderBy);
 
 		if (ret == null) {
 			infoLog("RosterProvider.query: failed");
@@ -198,8 +192,7 @@ public class RosterProvider extends ContentProvider {
 	}
 
 	@Override
-	public int update(Uri url, ContentValues values, String where,
-			String[] whereArgs) {
+	public int update(Uri url, ContentValues values, String where, String[] whereArgs) {
 		int count;
 		long rowId = 0;
 		int match = URI_MATCHER.match(url);
@@ -257,21 +250,10 @@ public class RosterProvider extends ContentProvider {
 		public void onCreate(SQLiteDatabase db) {
 			infoLog("creating new roster table");
 
-			db.execSQL("CREATE TABLE " + TABLE_ROSTER + " ("
-					+ RosterConstants._ID
-					+ " INTEGER PRIMARY KEY AUTOINCREMENT, "
-					+ RosterConstants.JID
-					+ " TEXT UNIQUE ON CONFLICT REPLACE, "
-					+ RosterConstants.ALIAS + " TEXT, "
-					+ RosterConstants.STATUS_MODE + " INTEGER, "
-					+ RosterConstants.STATUS_MESSAGE + " TEXT, "
-					+ RosterConstants.GROUP + " TEXT);");
-			db.execSQL("CREATE INDEX idx_roster_group ON " + TABLE_ROSTER
-					+ " (" + RosterConstants.GROUP + ")");
-			db.execSQL("CREATE INDEX idx_roster_alias ON " + TABLE_ROSTER
-					+ " (" + RosterConstants.ALIAS + ")");
-			db.execSQL("CREATE INDEX idx_roster_status ON " + TABLE_ROSTER
-					+ " (" + RosterConstants.STATUS_MODE + ")");
+			db.execSQL("CREATE TABLE " + TABLE_ROSTER + " (" + RosterConstants._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + RosterConstants.JID + " TEXT UNIQUE ON CONFLICT REPLACE, " + RosterConstants.ALIAS + " TEXT, " + RosterConstants.STATUS_MODE + " INTEGER, " + RosterConstants.STATUS_MESSAGE + " TEXT, " + RosterConstants.GROUP + " TEXT);");
+			db.execSQL("CREATE INDEX idx_roster_group ON " + TABLE_ROSTER + " (" + RosterConstants.GROUP + ")");
+			db.execSQL("CREATE INDEX idx_roster_alias ON " + TABLE_ROSTER + " (" + RosterConstants.ALIAS + ")");
+			db.execSQL("CREATE INDEX idx_roster_status ON " + TABLE_ROSTER + " (" + RosterConstants.STATUS_MODE + ")");
 		}
 
 		@Override
@@ -300,8 +282,7 @@ public class RosterProvider extends ContentProvider {
 		public static final String STATUS_MESSAGE = "status_message";
 		public static final String GROUP = "roster_group";
 
-		public static final String DEFAULT_SORT_ORDER = STATUS_MODE + " DESC, "
-				+ ALIAS + " COLLATE NOCASE";
+		public static final String DEFAULT_SORT_ORDER = STATUS_MODE + " DESC, " + ALIAS + " COLLATE NOCASE";
 
 		public static ArrayList<String> getRequiredColumns() {
 			ArrayList<String> tmpList = new ArrayList<String>();

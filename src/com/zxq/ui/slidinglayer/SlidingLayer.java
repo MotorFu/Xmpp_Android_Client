@@ -106,26 +106,22 @@ public class SlidingLayer extends FrameLayout {
 		super(context, attrs, defStyle);
 
 		// Style
-		TypedArray ta = context.obtainStyledAttributes(attrs,
-				R.styleable.SlidingLayer);
+		TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.SlidingLayer);
 
 		// Set the side of the screen 从哪一个方向隐藏和显示菜单，默认是从右边显示
 		setStickTo(ta.getInt(R.styleable.SlidingLayer_stickTo, STICK_TO_RIGHT));
 		// Sets the shadow drawable 菜单阴影图片
-		int shadowRes = ta.getResourceId(
-				R.styleable.SlidingLayer_shadow_drawable, -1);
+		int shadowRes = ta.getResourceId(R.styleable.SlidingLayer_shadow_drawable, -1);
 		if (shadowRes != -1) {
 			setShadowDrawable(shadowRes);
 		}
 
 		// Sets the shadow width 阴影宽度
-		setShadowWidth((int) ta.getDimension(
-				R.styleable.SlidingLayer_shadow_width, 0));
+		setShadowWidth((int) ta.getDimension(R.styleable.SlidingLayer_shadow_width, 0));
 
 		// Sets the ability to close the layer by tapping in any empty space
 		// 点击是否允许关闭
-		closeOnTapEnabled = ta.getBoolean(
-				R.styleable.SlidingLayer_close_on_tapEnabled, false);
+		closeOnTapEnabled = ta.getBoolean(R.styleable.SlidingLayer_close_on_tapEnabled, false);
 
 		ta.recycle();
 
@@ -139,8 +135,7 @@ public class SlidingLayer extends FrameLayout {
 		final Context context = getContext();
 		mScroller = new Scroller(context, sMenuInterpolator);
 		final ViewConfiguration configuration = ViewConfiguration.get(context);
-		mTouchSlop = ViewConfigurationCompat
-				.getScaledPagingTouchSlop(configuration);
+		mTouchSlop = ViewConfigurationCompat.getScaledPagingTouchSlop(configuration);
 		mMinimumVelocity = configuration.getScaledMinimumFlingVelocity();
 		mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
 
@@ -180,13 +175,11 @@ public class SlidingLayer extends FrameLayout {
 		switchLayer(false, smoothAnim, forceClose, 0);
 	}
 
-	private void switchLayer(boolean open, boolean smoothAnim,
-			boolean forceSwitch) {
+	private void switchLayer(boolean open, boolean smoothAnim, boolean forceSwitch) {
 		switchLayer(open, smoothAnim, forceSwitch, 0);
 	}
 
-	private void switchLayer(boolean open, boolean smoothAnim,
-			boolean forceSwitch, int velocity) {
+	private void switchLayer(boolean open, boolean smoothAnim, boolean forceSwitch, int velocity) {
 		if (!forceSwitch && open == mIsOpen) {
 			setDrawingCacheEnabled(false);
 			return;
@@ -321,8 +314,7 @@ public class SlidingLayer extends FrameLayout {
 
 		final int action = ev.getAction() & MotionEventCompat.ACTION_MASK;
 
-		if (action == MotionEvent.ACTION_CANCEL
-				|| action == MotionEvent.ACTION_UP) {
+		if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
 			mIsDragging = false;
 			mIsUnableToDrag = false;
 			mActivePointerId = INVALID_POINTER;
@@ -348,8 +340,7 @@ public class SlidingLayer extends FrameLayout {
 				break;
 			}
 
-			final int pointerIndex = MotionEventCompat.findPointerIndex(ev,
-					activePointerId);
+			final int pointerIndex = MotionEventCompat.findPointerIndex(ev, activePointerId);
 			if (pointerIndex == -1) {
 				mActivePointerId = INVALID_POINTER;
 				break;
@@ -370,9 +361,7 @@ public class SlidingLayer extends FrameLayout {
 			break;
 
 		case MotionEvent.ACTION_DOWN:
-			mActivePointerId = ev.getAction()
-					& (Build.VERSION.SDK_INT >= 8 ? MotionEvent.ACTION_POINTER_INDEX_MASK
-							: MotionEvent.ACTION_POINTER_INDEX_MASK);
+			mActivePointerId = ev.getAction() & (Build.VERSION.SDK_INT >= 8 ? MotionEvent.ACTION_POINTER_INDEX_MASK : MotionEvent.ACTION_POINTER_INDEX_MASK);
 			mLastX = mInitialX = MotionEventCompat.getX(ev, mActivePointerId);
 			mLastY = MotionEventCompat.getY(ev, mActivePointerId);
 			if (allowSlidingFromHere(ev)) {
@@ -401,16 +390,13 @@ public class SlidingLayer extends FrameLayout {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
-		if (!mEnabled || !mIsDragging && !mLastTouchAllowed
-				&& !allowSlidingFromHere(ev)) {
+		if (!mEnabled || !mIsDragging && !mLastTouchAllowed && !allowSlidingFromHere(ev)) {
 			return false;
 		}
 
 		final int action = ev.getAction();
 
-		if (action == MotionEvent.ACTION_UP
-				|| action == MotionEvent.ACTION_CANCEL
-				|| action == MotionEvent.ACTION_OUTSIDE) {
+		if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_OUTSIDE) {
 			mLastTouchAllowed = false;
 		} else {
 			mLastTouchAllowed = true;
@@ -431,8 +417,7 @@ public class SlidingLayer extends FrameLayout {
 			break;
 		case MotionEvent.ACTION_MOVE:
 			if (!mIsDragging) {
-				final int pointerIndex = MotionEventCompat.findPointerIndex(ev,
-						mActivePointerId);
+				final int pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
 				if (pointerIndex == -1) {
 					mActivePointerId = INVALID_POINTER;
 					break;
@@ -449,8 +434,7 @@ public class SlidingLayer extends FrameLayout {
 			}
 			if (mIsDragging) {
 				// Scroll to follow the motion event
-				final int activePointerIndex = MotionEventCompat
-						.findPointerIndex(ev, mActivePointerId);
+				final int activePointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
 				if (activePointerIndex == -1) {
 					mActivePointerId = INVALID_POINTER;
 					break;
@@ -460,10 +444,8 @@ public class SlidingLayer extends FrameLayout {
 				mLastX = x;
 				float oldScrollX = getScrollX();
 				float scrollX = oldScrollX + deltaX;
-				final float leftBound = mScreenSide < STICK_TO_RIGHT ? getWidth()
-						: 0;
-				final float rightBound = mScreenSide == STICK_TO_LEFT ? 0
-						: -getWidth();
+				final float leftBound = mScreenSide < STICK_TO_RIGHT ? getWidth() : 0;
+				final float rightBound = mScreenSide == STICK_TO_LEFT ? 0 : -getWidth();
 				if (scrollX > leftBound) {
 					scrollX = leftBound;
 				} else if (scrollX < rightBound) {
@@ -478,15 +460,12 @@ public class SlidingLayer extends FrameLayout {
 			if (mIsDragging) {
 				final VelocityTracker velocityTracker = mVelocityTracker;
 				velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
-				int initialVelocity = (int) VelocityTrackerCompat.getXVelocity(
-						velocityTracker, mActivePointerId);
+				int initialVelocity = (int) VelocityTrackerCompat.getXVelocity(velocityTracker, mActivePointerId);
 				final int scrollX = getScrollX();
-				final int activePointerIndex = MotionEventCompat
-						.findPointerIndex(ev, mActivePointerId);
+				final int activePointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
 				final float x = MotionEventCompat.getX(ev, activePointerIndex);
 				final int totalDelta = (int) (x - mInitialX);
-				boolean nextStateOpened = determineNextStateOpened(mIsOpen,
-						scrollX, initialVelocity, totalDelta);
+				boolean nextStateOpened = determineNextStateOpened(mIsOpen, scrollX, initialVelocity, totalDelta);
 				switchLayer(nextStateOpened, true, true, initialVelocity);
 
 				mActivePointerId = INVALID_POINTER;
@@ -511,8 +490,7 @@ public class SlidingLayer extends FrameLayout {
 		}
 		case MotionEventCompat.ACTION_POINTER_UP:
 			onSecondaryPointerUp(ev);
-			mLastX = MotionEventCompat.getX(ev,
-					MotionEventCompat.findPointerIndex(ev, mActivePointerId));
+			mLastX = MotionEventCompat.getX(ev, MotionEventCompat.findPointerIndex(ev, mActivePointerId));
 			break;
 		}
 		if (mActivePointerId == INVALID_POINTER) {
@@ -526,22 +504,15 @@ public class SlidingLayer extends FrameLayout {
 	}
 
 	private boolean allowDraging(float dx) {
-		return mIsOpen
-				&& (mScreenSide == STICK_TO_RIGHT && dx > 0
-						|| mScreenSide == STICK_TO_LEFT && dx < 0 || mScreenSide == STICK_TO_MIDDLE
-						&& dx != 0);
+		return mIsOpen && (mScreenSide == STICK_TO_RIGHT && dx > 0 || mScreenSide == STICK_TO_LEFT && dx < 0 || mScreenSide == STICK_TO_MIDDLE && dx != 0);
 	}
 
-	private boolean determineNextStateOpened(boolean currentState,
-			float swipeOffset, int velocity, int deltaX) {
+	private boolean determineNextStateOpened(boolean currentState, float swipeOffset, int velocity, int deltaX) {
 		boolean targetState;
 
-		if (Math.abs(deltaX) > mFlingDistance
-				&& Math.abs(velocity) > mMinimumVelocity) {
+		if (Math.abs(deltaX) > mFlingDistance && Math.abs(velocity) > mMinimumVelocity) {
 
-			targetState = mScreenSide == STICK_TO_MIDDLE
-					|| mScreenSide == STICK_TO_RIGHT && velocity < 0
-					|| mScreenSide == STICK_TO_LEFT && velocity > 0;
+			targetState = mScreenSide == STICK_TO_MIDDLE || mScreenSide == STICK_TO_RIGHT && velocity < 0 || mScreenSide == STICK_TO_LEFT && velocity > 0;
 
 		} else {
 			int w = getWidth();
@@ -612,8 +583,7 @@ public class SlidingLayer extends FrameLayout {
 		final int width = getWidth();
 		final int halfWidth = width / 2;
 		final float distanceRatio = Math.min(1f, 1.0f * Math.abs(dx) / width);
-		final float distance = halfWidth + halfWidth
-				* distanceInfluenceForSnapDuration(distanceRatio);
+		final float distance = halfWidth + halfWidth * distanceInfluenceForSnapDuration(distanceRatio);
 
 		int duration = 0;
 		velocity = Math.abs(velocity);
@@ -677,8 +647,7 @@ public class SlidingLayer extends FrameLayout {
 			// active pointer and adjust accordingly.
 			final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
 			mLastX = MotionEventCompat.getX(ev, newPointerIndex);
-			mActivePointerId = MotionEventCompat.getPointerId(ev,
-					newPointerIndex);
+			mActivePointerId = MotionEventCompat.getPointerId(ev, newPointerIndex);
 			if (mVelocityTracker != null) {
 				mVelocityTracker.clear();
 			}
@@ -728,8 +697,7 @@ public class SlidingLayer extends FrameLayout {
 		int height = getDefaultSize(0, heightMeasureSpec);
 		setMeasuredDimension(width, height);
 
-		super.onMeasure(getChildMeasureSpec(widthMeasureSpec, 0, width),
-				getChildMeasureSpec(heightMeasureSpec, 0, height));
+		super.onMeasure(getChildMeasureSpec(widthMeasureSpec, 0, width), getChildMeasureSpec(heightMeasureSpec, 0, height));
 	}
 
 	@Override
@@ -744,8 +712,7 @@ public class SlidingLayer extends FrameLayout {
 
 	// FIXME Draw with lefts and rights instead of paddings
 	@Override
-	protected void onLayout(boolean changed, int left, int top, int right,
-			int bottom) {
+	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 
 		int screenSide = mScreenSide;
 
@@ -753,14 +720,11 @@ public class SlidingLayer extends FrameLayout {
 			setStickTo(screenSide);
 
 			if (mScreenSide == STICK_TO_RIGHT) {
-				setPadding(getPaddingLeft() + mShadowWidth, getPaddingTop(),
-						getPaddingRight(), getPaddingBottom());
+				setPadding(getPaddingLeft() + mShadowWidth, getPaddingTop(), getPaddingRight(), getPaddingBottom());
 			} else if (mScreenSide == STICK_TO_LEFT) {
-				setPadding(getPaddingLeft(), getPaddingTop(), getPaddingRight()
-						+ mShadowWidth, getPaddingBottom());
+				setPadding(getPaddingLeft(), getPaddingTop(), getPaddingRight() + mShadowWidth, getPaddingBottom());
 			} else if (mScreenSide == STICK_TO_MIDDLE) {
-				setPadding(getPaddingLeft() + mShadowWidth, getPaddingTop(),
-						getPaddingRight() + mShadowWidth, getPaddingBottom());
+				setPadding(getPaddingLeft() + mShadowWidth, getPaddingTop(), getPaddingRight() + mShadowWidth, getPaddingBottom());
 			}
 		}
 
@@ -801,8 +765,7 @@ public class SlidingLayer extends FrameLayout {
 				mShadowDrawable.setBounds(0, 0, mShadowWidth, getHeight());
 			}
 			if (mScreenSide < STICK_TO_RIGHT) {
-				mShadowDrawable.setBounds(getWidth() - mShadowWidth, 0,
-						getWidth(), getHeight());
+				mShadowDrawable.setBounds(getWidth() - mShadowWidth, 0, getWidth(), getHeight());
 			}
 			mShadowDrawable.draw(canvas);
 		}

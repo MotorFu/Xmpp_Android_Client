@@ -80,8 +80,7 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 
 		mOrientation = orientation;
 
-		mInflater = (LayoutInflater) context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
 		if (mOrientation == HORIZONTAL) {
 			setRootViewId(R.layout.popup_horizontal);
@@ -124,8 +123,7 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 		// force close that occured
 		// when tapping fastly on a view to show quickaction dialog.
 		// Thanx to zammbi (github.com/zammbi)
-		mRootView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-				LayoutParams.WRAP_CONTENT));
+		mRootView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 
 		setContentView(mRootView);
 	}
@@ -165,8 +163,7 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 		View container;
 
 		if (mOrientation == HORIZONTAL) {
-			container = mInflater
-					.inflate(R.layout.action_item_horizontal, null);
+			container = mInflater.inflate(R.layout.action_item_horizontal, null);
 		} else {
 			container = mInflater.inflate(R.layout.action_item_vertical, null);
 		}
@@ -193,8 +190,7 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 			@Override
 			public void onClick(View v) {
 				if (mItemClickListener != null) {
-					mItemClickListener.onItemClick(QuickAction.this, pos,
-							actionId);
+					mItemClickListener.onItemClick(QuickAction.this, pos, actionId);
 				}
 
 				if (!getActionItem(pos).isSticky()) {
@@ -211,8 +207,7 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 		if (mOrientation == HORIZONTAL && mChildPos != 0) {
 			View separator = mInflater.inflate(R.layout.horiz_separator, null);
 
-			RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-					LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
+			RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
 
 			separator.setLayoutParams(params);
 			separator.setPadding(5, 0, 5, 0);
@@ -244,8 +239,7 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 
 		anchor.getLocationOnScreen(location);
 
-		Rect anchorRect = new Rect(location[0], location[1], location[0]
-				+ anchor.getWidth(), location[1] + anchor.getHeight());
+		Rect anchorRect = new Rect(location[0], location[1], location[0] + anchor.getWidth(), location[1] + anchor.getHeight());
 
 		// mRootView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
 		// LayoutParams.WRAP_CONTENT));
@@ -318,42 +312,33 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 	 *            flag to indicate where the popup should be displayed. Set TRUE
 	 *            if displayed on top of anchor view and vice versa
 	 */
-	private void setAnimationStyle(int screenWidth, int requestedX,
-			boolean onTop) {
+	private void setAnimationStyle(int screenWidth, int requestedX, boolean onTop) {
 		int arrowPos = requestedX - mArrowUp.getMeasuredWidth() / 2;
 
 		switch (mAnimStyle) {
 		case ANIM_GROW_FROM_LEFT:
-			mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Left
-					: R.style.Animations_PopDownMenu_Left);
+			mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Left : R.style.Animations_PopDownMenu_Left);
 			break;
 
 		case ANIM_GROW_FROM_RIGHT:
-			mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Right
-					: R.style.Animations_PopDownMenu_Right);
+			mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Right : R.style.Animations_PopDownMenu_Right);
 			break;
 
 		case ANIM_GROW_FROM_CENTER:
-			mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Center
-					: R.style.Animations_PopDownMenu_Center);
+			mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Center : R.style.Animations_PopDownMenu_Center);
 			break;
 
 		case ANIM_REFLECT:
-			mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Reflect
-					: R.style.Animations_PopDownMenu_Reflect);
+			mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Reflect : R.style.Animations_PopDownMenu_Reflect);
 			break;
 
 		case ANIM_AUTO:
 			if (arrowPos <= screenWidth / 4) {
-				mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Left
-						: R.style.Animations_PopDownMenu_Left);
-			} else if (arrowPos > screenWidth / 4
-					&& arrowPos < 3 * (screenWidth / 4)) {
-				mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Center
-						: R.style.Animations_PopDownMenu_Center);
+				mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Left : R.style.Animations_PopDownMenu_Left);
+			} else if (arrowPos > screenWidth / 4 && arrowPos < 3 * (screenWidth / 4)) {
+				mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Center : R.style.Animations_PopDownMenu_Center);
 			} else {
-				mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Right
-						: R.style.Animations_PopDownMenu_Right);
+				mWindow.setAnimationStyle((onTop) ? R.style.Animations_PopUpMenu_Right : R.style.Animations_PopDownMenu_Right);
 			}
 
 			break;
@@ -369,17 +354,14 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 	 *            distance from left screen
 	 */
 	private void showArrow(int whichArrow, int requestedX) {
-		final View showArrow = (whichArrow == R.id.arrow_up) ? mArrowUp
-				: mArrowDown;
-		final View hideArrow = (whichArrow == R.id.arrow_up) ? mArrowDown
-				: mArrowUp;
+		final View showArrow = (whichArrow == R.id.arrow_up) ? mArrowUp : mArrowDown;
+		final View hideArrow = (whichArrow == R.id.arrow_up) ? mArrowDown : mArrowUp;
 
 		final int arrowWidth = mArrowUp.getMeasuredWidth();
 
 		showArrow.setVisibility(View.VISIBLE);
 
-		ViewGroup.MarginLayoutParams param = (ViewGroup.MarginLayoutParams) showArrow
-				.getLayoutParams();
+		ViewGroup.MarginLayoutParams param = (ViewGroup.MarginLayoutParams) showArrow.getLayoutParams();
 
 		param.leftMargin = requestedX - arrowWidth / 2;
 
@@ -409,8 +391,7 @@ public class QuickAction extends PopupWindows implements OnDismissListener {
 	 * 
 	 */
 	public interface OnActionItemClickListener {
-		public abstract void onItemClick(QuickAction source, int pos,
-				int actionId);
+		public abstract void onItemClick(QuickAction source, int pos, int actionId);
 	}
 
 	/**

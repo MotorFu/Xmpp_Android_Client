@@ -22,11 +22,9 @@ public class ChatProvider extends ContentProvider {
 
 	public static final String AUTHORITY = "com.zxq.xx.provider.Chats";
 	public static final String TABLE_NAME = "chats";
-	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY
-			+ "/" + TABLE_NAME);
+	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + TABLE_NAME);
 
-	private static final UriMatcher URI_MATCHER = new UriMatcher(
-			UriMatcher.NO_MATCH);
+	private static final UriMatcher URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 
 	private static final int MESSAGES = 1;
 	private static final int MESSAGE_ID = 2;
@@ -90,8 +88,7 @@ public class ChatProvider extends ContentProvider {
 			throw new IllegalArgumentException("Cannot insert into URL: " + url);
 		}
 
-		ContentValues values = (initialValues != null) ? new ContentValues(
-				initialValues) : new ContentValues();
+		ContentValues values = (initialValues != null) ? new ContentValues(initialValues) : new ContentValues();
 
 		for (String colName : ChatConstants.getRequiredColumns()) {
 			if (values.containsKey(colName) == false) {
@@ -119,8 +116,7 @@ public class ChatProvider extends ContentProvider {
 	}
 
 	@Override
-	public Cursor query(Uri url, String[] projectionIn, String selection,
-			String[] selectionArgs, String sortOrder) {
+	public Cursor query(Uri url, String[] projectionIn, String selection, String[] selectionArgs, String sortOrder) {
 
 		SQLiteQueryBuilder qBuilder = new SQLiteQueryBuilder();
 		int match = URI_MATCHER.match(url);
@@ -146,8 +142,7 @@ public class ChatProvider extends ContentProvider {
 		}
 
 		SQLiteDatabase db = mOpenHelper.getReadableDatabase();
-		Cursor ret = qBuilder.query(db, projectionIn, selection, selectionArgs,
-				null, null, orderBy);
+		Cursor ret = qBuilder.query(db, projectionIn, selection, selectionArgs, null, null, orderBy);
 
 		if (ret == null) {
 			infoLog("ChatProvider.query: failed");
@@ -159,8 +154,7 @@ public class ChatProvider extends ContentProvider {
 	}
 
 	@Override
-	public int update(Uri url, ContentValues values, String where,
-			String[] whereArgs) {
+	public int update(Uri url, ContentValues values, String where, String[] whereArgs) {
 		int count;
 		long rowId = 0;
 		int match = URI_MATCHER.match(url);
@@ -203,13 +197,7 @@ public class ChatProvider extends ContentProvider {
 		public void onCreate(SQLiteDatabase db) {
 			infoLog("creating new chat table");
 
-			db.execSQL("CREATE TABLE " + TABLE_NAME + " (" + ChatConstants._ID
-					+ " INTEGER PRIMARY KEY AUTOINCREMENT,"
-					+ ChatConstants.DATE + " INTEGER,"
-					+ ChatConstants.DIRECTION + " INTEGER," + ChatConstants.JID
-					+ " TEXT," + ChatConstants.MESSAGE + " TEXT,"
-					+ ChatConstants.DELIVERY_STATUS + " INTEGER,"
-					+ ChatConstants.PACKET_ID + " TEXT);");
+			db.execSQL("CREATE TABLE " + TABLE_NAME + " (" + ChatConstants._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + ChatConstants.DATE + " INTEGER," + ChatConstants.DIRECTION + " INTEGER," + ChatConstants.JID + " TEXT," + ChatConstants.MESSAGE + " TEXT," + ChatConstants.DELIVERY_STATUS + " INTEGER," + ChatConstants.PACKET_ID + " TEXT);");
 		}
 
 		@Override
@@ -219,8 +207,7 @@ public class ChatProvider extends ContentProvider {
 			case 3:
 				db.execSQL("UPDATE " + TABLE_NAME + " SET READ=1");
 			case 4:
-				db.execSQL("ALTER TABLE " + TABLE_NAME + " ADD "
-						+ ChatConstants.PACKET_ID + " TEXT");
+				db.execSQL("ALTER TABLE " + TABLE_NAME + " ADD " + ChatConstants.PACKET_ID + " TEXT");
 				break;
 			default:
 				db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
@@ -260,7 +247,7 @@ public class ChatProvider extends ContentProvider {
 														// but not yet acked, or
 														// it was received and
 														// read
-		//代表该消息已被对方阅读，实际本项目并未用上此状态，有点小问题
+		// 代表该消息已被对方阅读，实际本项目并未用上此状态，有点小问题
 		public static final int DS_ACKED = 2; // < this message was XEP-0184
 												// acknowledged
 

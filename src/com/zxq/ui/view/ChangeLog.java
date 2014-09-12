@@ -70,8 +70,7 @@ public class ChangeLog {
 		this.lastVersion = sp.getString(VERSION_KEY, NO_VERSION);
 		Log.d(TAG, "lastVersion: " + lastVersion);
 		try {
-			this.thisVersion = context.getPackageManager().getPackageInfo(
-					context.getPackageName(), 0).versionName;
+			this.thisVersion = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
 		} catch (NameNotFoundException e) {
 			this.thisVersion = NO_VERSION;
 			Log.e(TAG, "could not get version name from manifest!");
@@ -138,34 +137,24 @@ public class ChangeLog {
 		WebView wv = new WebView(this.mContext);
 
 		wv.setBackgroundColor(Color.WHITE);
-		wv.loadDataWithBaseURL(null, this.getLog(full), "text/html", "UTF-8",
-				null);
+		wv.loadDataWithBaseURL(null, this.getLog(full), "text/html", "UTF-8", null);
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(this.mContext);
-		builder.setTitle(
-				mContext.getResources().getString(
-						full ? R.string.changelog_full_title
-								: R.string.changelog_title))
-				.setView(wv)
-				.setCancelable(false)
-				// OK button
-				.setPositiveButton(
-						mContext.getResources().getString(R.string.ok),
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-								updateVersionInPreferences();
-							}
-						});
+		builder.setTitle(mContext.getResources().getString(full ? R.string.changelog_full_title : R.string.changelog_title)).setView(wv).setCancelable(false)
+		// OK button
+				.setPositiveButton(mContext.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						updateVersionInPreferences();
+					}
+				});
 
 		if (!full) {
 			// "more ..." button
-			builder.setNegativeButton(R.string.more,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							getFullLogDialog().show();
-						}
-					});
+			builder.setNegativeButton(R.string.more, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					getFullLogDialog().show();
+				}
+			});
 		}
 
 		return builder.create();
@@ -173,8 +162,7 @@ public class ChangeLog {
 
 	private void updateVersionInPreferences() {
 		// save new version number to preferences
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(mContext);
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
 		SharedPreferences.Editor editor = sp.edit();
 		editor.putString(VERSION_KEY, thisVersion);
 		// // on SDK-Versions > 9 you should use this:
@@ -214,8 +202,7 @@ public class ChangeLog {
 		// read changelog.txt file
 		sb = new StringBuffer();
 		try {
-			InputStream ins = mContext.getResources().openRawResource(
-					R.raw.changelog);
+			InputStream ins = mContext.getResources().openRawResource(R.raw.changelog);
 			BufferedReader br = new BufferedReader(new InputStreamReader(ins));
 
 			String line = null;
@@ -241,20 +228,17 @@ public class ChangeLog {
 					case '%':
 						// line contains version title
 						this.closeList();
-						sb.append("<div class='title'>"
-								+ line.substring(1).trim() + "</div>\n");
+						sb.append("<div class='title'>" + line.substring(1).trim() + "</div>\n");
 						break;
 					case '_':
 						// line contains version title
 						this.closeList();
-						sb.append("<div class='subtitle'>"
-								+ line.substring(1).trim() + "</div>\n");
+						sb.append("<div class='subtitle'>" + line.substring(1).trim() + "</div>\n");
 						break;
 					case '!':
 						// line contains free text
 						this.closeList();
-						sb.append("<div class='freetext'>"
-								+ line.substring(1).trim() + "</div>\n");
+						sb.append("<div class='freetext'>" + line.substring(1).trim() + "</div>\n");
 						break;
 					case '#':
 						// line contains numbered list item

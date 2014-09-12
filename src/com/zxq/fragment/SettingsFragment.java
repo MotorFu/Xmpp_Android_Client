@@ -30,8 +30,7 @@ import com.zxq.util.PreferenceConstants;
 import com.zxq.util.PreferenceUtils;
 import com.zxq.util.XMPPHelper;
 
-public class SettingsFragment extends Fragment implements OnClickListener,
-		OnCheckedChangeListener {
+public class SettingsFragment extends Fragment implements OnClickListener, OnCheckedChangeListener {
 	private TextView mTitleNameView;
 	private View mAccountSettingView;
 	private ImageView mHeadIcon;
@@ -62,26 +61,21 @@ public class SettingsFragment extends Fragment implements OnClickListener,
 		try {
 			mFragmentCallBack = (FragmentCallBack) activity;
 		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString()
-					+ " must implement OnHeadlineSelectedListener");
+			throw new ClassCastException(activity.toString() + " must implement OnHeadlineSelectedListener");
 		}
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.main_settings_fragment, container,
-				false);
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.main_settings_fragment, container, false);
 	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		mExitMenuView = LayoutInflater.from(getActivity()).inflate(
-				R.layout.common_menu_dialog_2btn_layout, null);
+		mExitMenuView = LayoutInflater.from(getActivity()).inflate(R.layout.common_menu_dialog_2btn_layout, null);
 		mExitCancleBtn = (Button) mExitMenuView.findViewById(R.id.btnCancel);
-		mExitConfirmBtn = (Button) mExitMenuView
-				.findViewById(R.id.btn_exit_comfirm);
+		mExitConfirmBtn = (Button) mExitMenuView.findViewById(R.id.btn_exit_comfirm);
 		mExitConfirmBtn.setText(R.string.exit);
 		mExitCancleBtn.setOnClickListener(this);
 		mExitConfirmBtn.setOnClickListener(this);
@@ -93,30 +87,23 @@ public class SettingsFragment extends Fragment implements OnClickListener,
 		mStatusIcon = (ImageView) view.findViewById(R.id.statusIcon);
 		mStatusView = (TextView) view.findViewById(R.id.status);
 		mNickView = (TextView) view.findViewById(R.id.nick);
-		mShowOfflineRosterSwitch = (Switch) view
-				.findViewById(R.id.show_offline_roster_switch);
+		mShowOfflineRosterSwitch = (Switch) view.findViewById(R.id.show_offline_roster_switch);
 		mShowOfflineRosterSwitch.setOnCheckedChangeListener(this);
-		mNotifyRunBackgroundSwitch = (Switch) view
-				.findViewById(R.id.notify_run_background_switch);
+		mNotifyRunBackgroundSwitch = (Switch) view.findViewById(R.id.notify_run_background_switch);
 		mNotifyRunBackgroundSwitch.setOnCheckedChangeListener(this);
-		mNewMsgSoundSwitch = (Switch) view
-				.findViewById(R.id.new_msg_sound_switch);
+		mNewMsgSoundSwitch = (Switch) view.findViewById(R.id.new_msg_sound_switch);
 		mNewMsgSoundSwitch.setOnCheckedChangeListener(this);
-		mNewMsgVibratorSwitch = (Switch) view
-				.findViewById(R.id.new_msg_vibrator_switch);
+		mNewMsgVibratorSwitch = (Switch) view.findViewById(R.id.new_msg_vibrator_switch);
 		mNewMsgSoundSwitch.setOnCheckedChangeListener(this);
 		mNewMsgLedSwitch = (Switch) view.findViewById(R.id.new_msg_led_switch);
 		mNewMsgLedSwitch.setOnCheckedChangeListener(this);
-		mVisiableNewMsgSwitch = (Switch) view
-				.findViewById(R.id.visiable_new_msg_switch);
+		mVisiableNewMsgSwitch = (Switch) view.findViewById(R.id.visiable_new_msg_switch);
 		mVisiableNewMsgSwitch.setOnCheckedChangeListener(this);
 		mShowHeadSwitch = (Switch) view.findViewById(R.id.show_head_switch);
 		mShowHeadSwitch.setOnCheckedChangeListener(this);
-		mConnectionAutoSwitch = (Switch) view
-				.findViewById(R.id.connection_auto_switch);
+		mConnectionAutoSwitch = (Switch) view.findViewById(R.id.connection_auto_switch);
 		mConnectionAutoSwitch.setOnCheckedChangeListener(this);
-		mPoweronReceiverMsgSwitch = (Switch) view
-				.findViewById(R.id.poweron_receiver_msg_switch);
+		mPoweronReceiverMsgSwitch = (Switch) view.findViewById(R.id.poweron_receiver_msg_switch);
 		mPoweronReceiverMsgSwitch.setOnCheckedChangeListener(this);
 		mSendCrashSwitch = (Switch) view.findViewById(R.id.send_crash_switch);
 		mSendCrashSwitch.setOnCheckedChangeListener(this);
@@ -136,74 +123,46 @@ public class SettingsFragment extends Fragment implements OnClickListener,
 
 	public void readData() {
 		mHeadIcon.setImageResource(R.drawable.login_default_avatar);
-		mStatusIcon.setImageResource(MainActivity.mStatusMap
-				.get(PreferenceUtils.getPrefString(getActivity(),
-						PreferenceConstants.STATUS_MODE,
-						PreferenceConstants.AVAILABLE)));
-		mStatusView.setText(PreferenceUtils.getPrefString(getActivity(),
-				PreferenceConstants.STATUS_MESSAGE,
-				getActivity().getString(R.string.status_available)));
-		mNickView
-				.setText(XMPPHelper.splitJidAndServer(PreferenceUtils
-						.getPrefString(getActivity(),
-								PreferenceConstants.ACCOUNT, "")));
-		mShowOfflineRosterSwitch.setChecked(PreferenceUtils.getPrefBoolean(
-				getActivity(), PreferenceConstants.SHOW_OFFLINE, true));
+		mStatusIcon.setImageResource(MainActivity.mStatusMap.get(PreferenceUtils.getPrefString(getActivity(), PreferenceConstants.STATUS_MODE, PreferenceConstants.AVAILABLE)));
+		mStatusView.setText(PreferenceUtils.getPrefString(getActivity(), PreferenceConstants.STATUS_MESSAGE, getActivity().getString(R.string.status_available)));
+		mNickView.setText(XMPPHelper.splitJidAndServer(PreferenceUtils.getPrefString(getActivity(), PreferenceConstants.ACCOUNT, "")));
+		mShowOfflineRosterSwitch.setChecked(PreferenceUtils.getPrefBoolean(getActivity(), PreferenceConstants.SHOW_OFFLINE, true));
 
-		mNotifyRunBackgroundSwitch.setChecked(PreferenceUtils.getPrefBoolean(
-				getActivity(), PreferenceConstants.FOREGROUND, true));
-		mNewMsgSoundSwitch.setChecked(PreferenceUtils.getPrefBoolean(
-				getActivity(), PreferenceConstants.SCLIENTNOTIFY, false));
-		mNewMsgVibratorSwitch.setChecked(PreferenceUtils.getPrefBoolean(
-				getActivity(), PreferenceConstants.VIBRATIONNOTIFY, true));
-		mNewMsgLedSwitch.setChecked(PreferenceUtils.getPrefBoolean(
-				getActivity(), PreferenceConstants.LEDNOTIFY, true));
-		mVisiableNewMsgSwitch.setChecked(PreferenceUtils.getPrefBoolean(
-				getActivity(), PreferenceConstants.TICKER, true));
-		mShowHeadSwitch.setChecked(PreferenceUtils.getPrefBoolean(
-				getActivity(), PreferenceConstants.SHOW_MY_HEAD, true));
-		mConnectionAutoSwitch.setChecked(PreferenceUtils.getPrefBoolean(
-				getActivity(), PreferenceConstants.AUTO_RECONNECT, true));
-		mPoweronReceiverMsgSwitch.setChecked(PreferenceUtils.getPrefBoolean(
-				getActivity(), PreferenceConstants.AUTO_START, true));
-		mSendCrashSwitch.setChecked(PreferenceUtils.getPrefBoolean(
-				getActivity(), PreferenceConstants.REPORT_CRASH, true));
+		mNotifyRunBackgroundSwitch.setChecked(PreferenceUtils.getPrefBoolean(getActivity(), PreferenceConstants.FOREGROUND, true));
+		mNewMsgSoundSwitch.setChecked(PreferenceUtils.getPrefBoolean(getActivity(), PreferenceConstants.SCLIENTNOTIFY, false));
+		mNewMsgVibratorSwitch.setChecked(PreferenceUtils.getPrefBoolean(getActivity(), PreferenceConstants.VIBRATIONNOTIFY, true));
+		mNewMsgLedSwitch.setChecked(PreferenceUtils.getPrefBoolean(getActivity(), PreferenceConstants.LEDNOTIFY, true));
+		mVisiableNewMsgSwitch.setChecked(PreferenceUtils.getPrefBoolean(getActivity(), PreferenceConstants.TICKER, true));
+		mShowHeadSwitch.setChecked(PreferenceUtils.getPrefBoolean(getActivity(), PreferenceConstants.SHOW_MY_HEAD, true));
+		mConnectionAutoSwitch.setChecked(PreferenceUtils.getPrefBoolean(getActivity(), PreferenceConstants.AUTO_RECONNECT, true));
+		mPoweronReceiverMsgSwitch.setChecked(PreferenceUtils.getPrefBoolean(getActivity(), PreferenceConstants.AUTO_START, true));
+		mSendCrashSwitch.setChecked(PreferenceUtils.getPrefBoolean(getActivity(), PreferenceConstants.REPORT_CRASH, true));
 	}
 
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 		int id = buttonView.getId();
 		if (id == R.id.show_offline_roster_switch) {
-			PreferenceUtils.setPrefBoolean(getActivity(),
-					PreferenceConstants.SHOW_OFFLINE, isChecked);
+			PreferenceUtils.setPrefBoolean(getActivity(), PreferenceConstants.SHOW_OFFLINE, isChecked);
 			mFragmentCallBack.getMainActivity().updateRoster();
 		} else if (id == R.id.notify_run_background_switch) {
-			PreferenceUtils.setPrefBoolean(getActivity(),
-					PreferenceConstants.FOREGROUND, isChecked);
+			PreferenceUtils.setPrefBoolean(getActivity(), PreferenceConstants.FOREGROUND, isChecked);
 		} else if (id == R.id.new_msg_sound_switch) {
-			PreferenceUtils.setPrefBoolean(getActivity(),
-					PreferenceConstants.SCLIENTNOTIFY, isChecked);
+			PreferenceUtils.setPrefBoolean(getActivity(), PreferenceConstants.SCLIENTNOTIFY, isChecked);
 		} else if (id == R.id.new_msg_vibrator_switch) {
-			PreferenceUtils.setPrefBoolean(getActivity(),
-					PreferenceConstants.VIBRATIONNOTIFY, isChecked);
+			PreferenceUtils.setPrefBoolean(getActivity(), PreferenceConstants.VIBRATIONNOTIFY, isChecked);
 		} else if (id == R.id.new_msg_led_switch) {
-			PreferenceUtils.setPrefBoolean(getActivity(),
-					PreferenceConstants.LEDNOTIFY, isChecked);
+			PreferenceUtils.setPrefBoolean(getActivity(), PreferenceConstants.LEDNOTIFY, isChecked);
 		} else if (id == R.id.visiable_new_msg_switch) {
-			PreferenceUtils.setPrefBoolean(getActivity(),
-					PreferenceConstants.TICKER, isChecked);
+			PreferenceUtils.setPrefBoolean(getActivity(), PreferenceConstants.TICKER, isChecked);
 		} else if (id == R.id.show_head_switch) {
-			PreferenceUtils.setPrefBoolean(getActivity(),
-					PreferenceConstants.SHOW_MY_HEAD, isChecked);
+			PreferenceUtils.setPrefBoolean(getActivity(), PreferenceConstants.SHOW_MY_HEAD, isChecked);
 		} else if (id == R.id.connection_auto_switch) {
-			PreferenceUtils.setPrefBoolean(getActivity(),
-					PreferenceConstants.AUTO_RECONNECT, isChecked);
+			PreferenceUtils.setPrefBoolean(getActivity(), PreferenceConstants.AUTO_RECONNECT, isChecked);
 		} else if (id == R.id.poweron_receiver_msg_switch) {
-			PreferenceUtils.setPrefBoolean(getActivity(),
-					PreferenceConstants.AUTO_START, isChecked);
+			PreferenceUtils.setPrefBoolean(getActivity(), PreferenceConstants.AUTO_START, isChecked);
 		} else if (id == R.id.send_crash_switch) {
-			PreferenceUtils.setPrefBoolean(getActivity(),
-					PreferenceConstants.REPORT_CRASH, isChecked);
+			PreferenceUtils.setPrefBoolean(getActivity(), PreferenceConstants.REPORT_CRASH, isChecked);
 		}
 	}
 
@@ -218,8 +177,7 @@ public class SettingsFragment extends Fragment implements OnClickListener,
 			startActivity(new Intent(getActivity(), AboutActivity.class));
 		} else if (id == R.id.exit_app) {
 			if (mExitDialog == null)
-				mExitDialog = DialogUtil.getMenuDialog(getActivity(),
-						mExitMenuView);
+				mExitDialog = DialogUtil.getMenuDialog(getActivity(), mExitMenuView);
 			mExitDialog.show();
 		} else if (id == R.id.btnCancel) {
 			if (mExitDialog != null && mExitDialog.isShowing())
@@ -241,34 +199,22 @@ public class SettingsFragment extends Fragment implements OnClickListener,
 	}
 
 	public void logoutDialog() {
-		new CustomDialog.Builder(getActivity())
-				.setTitle(getActivity().getString(R.string.open_switch_account))
-				.setMessage(
-						getActivity().getString(
-								R.string.open_switch_account_msg))
-				.setPositiveButton(android.R.string.yes,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int which) {
-								XmppService service = mFragmentCallBack
-										.getService();
-								if (service != null) {
-									service.logout();// 注销
-								}
-								dialog.dismiss();
-								startActivity(new Intent(getActivity(),
-										LoginActivity.class));
-								getActivity().finish();
-							}
-						})
-				.setNegativeButton(android.R.string.no,
-						new DialogInterface.OnClickListener() {
+		new CustomDialog.Builder(getActivity()).setTitle(getActivity().getString(R.string.open_switch_account)).setMessage(getActivity().getString(R.string.open_switch_account_msg)).setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				XmppService service = mFragmentCallBack.getService();
+				if (service != null) {
+					service.logout();// 注销
+				}
+				dialog.dismiss();
+				startActivity(new Intent(getActivity(), LoginActivity.class));
+				getActivity().finish();
+			}
+		}).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
 
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-								dialog.dismiss();
-							}
-						}).create().show();
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		}).create().show();
 	}
 }
