@@ -77,7 +77,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         if(id ==R.id.btn_friend_chat){
             mFragementTransaction.replace(R.id.main_fragment_content, friendChatFragment);
         }else if(id ==R.id.btn_group_chat){
-            groupChatFragment = new GroupChatFragment();
+            groupChatFragment = GroupChatFragment.getInstance(mXmppService);
             mFragementTransaction.replace(R.id.main_fragment_content, groupChatFragment);
         }else if(id ==R.id.btn_org_chat){
             orgChatFragment = new OrgChatFragment();
@@ -95,6 +95,10 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
                 String usr = PreferenceUtils.getPrefString(MainActivity.this, PreferenceConstants.ACCOUNT, "");
                 String password = PreferenceUtils.getPrefString(MainActivity.this, PreferenceConstants.PASSWORD, "");
                 mXmppService.Login(usr, password);
+                //夹在服务的数据放在此处初始化，防止服务器没连接的情况
+                if(friendChatFragment == null){
+                    setupFragmentData();
+                }
             } else {
                 mTitleNameView.setText(XMPPHelper.splitJidAndServer(PreferenceUtils.getPrefString(MainActivity.this, PreferenceConstants.ACCOUNT, "")));
                 setStatusImage(true);
@@ -117,7 +121,6 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         setContentView(R.layout.main_center_layout);
         initSlidingMenu();
         initViews();
-        setupFragmentData();
     }
 
 
@@ -135,6 +138,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
     protected void onResume() {
         super.onResume();
         bindXMPPService();
+
         setStatusImage(isConnected());
         XmppBroadcastReceiver.mListeners.add(this);
         if (NetUtil.getNetworkState(this) == NetUtil.NETWORN_NONE)
@@ -145,6 +149,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         if (changeLog != null && changeLog.firstRun()) {
             changeLog.getFullLogDialog().show();
         }
+
     }
 
     @Override
@@ -160,6 +165,8 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         super.onDestroy();
     }
 
+
+    //所有数据都应该放到服务绑定之后，由于绑定是异步的会有所延迟
     private void setupFragmentData() {
         friendChatFragment = FriendChatFragment.getInstance(mXmppService,mainHandler);
         FragmentTransaction mFragementTransaction = getSupportFragmentManager().beginTransaction();
@@ -177,7 +184,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
     }
 
     private void bindXMPPService() {
-        LogUtil.i(LoginActivity.class, "[SERVICE] Unbind");
+        LogUtil.i(LoginActivity.class, "[SERVICE] Bind");
         bindService(new Intent(MainActivity.this, XmppService.class), mServiceConnection, Context.BIND_AUTO_CREATE + Context.BIND_DEBUG_UNBIND);
     }
 
@@ -199,9 +206,6 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         mTitleStatusView = (ImageView) findViewById(R.id.ivTitleStatus);
         mTitleNameView.setText(XMPPHelper.splitJidAndServer(PreferenceUtils.getPrefString(this, PreferenceConstants.ACCOUNT, "")));
         mTitleNameView.setOnClickListener(this);
-
-
-
     }
 
     //发起向好友会话

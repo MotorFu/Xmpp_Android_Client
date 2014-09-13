@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -15,22 +14,20 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ExpandableListView;
+import android.widget.TextView;
 import com.zxq.activity.ChatActivity;
 import com.zxq.activity.MainActivity;
 import com.zxq.adapter.RosterAdapter;
 import com.zxq.db.RosterProvider;
 import com.zxq.service.XmppService;
-import com.zxq.ui.iphonetreeview.IphoneTreeView;
-import com.zxq.ui.pulltorefresh.PullToRefreshBase;
-import com.zxq.ui.pulltorefresh.PullToRefreshScrollView;
 import com.zxq.ui.quickaction.ActionItem;
 import com.zxq.ui.quickaction.QuickAction;
 import com.zxq.ui.view.AddRosterItemDialog;
 import com.zxq.ui.view.GroupNameView;
 import com.zxq.util.LogUtil;
-import com.zxq.util.PreferenceConstants;
-import com.zxq.util.PreferenceUtils;
 import com.zxq.util.ToastUtil;
 import com.zxq.xmpp.R;
 
@@ -41,11 +38,10 @@ import java.util.List;
  * Created by zxq on 2014/9/12.
  */
 public class FriendChatFragment extends Fragment {
-    private IphoneTreeView mIphoneTreeView;
     private RosterAdapter mRosterAdapter;
+    private ExpandableListView mFriendChatTreeView;
     private XmppService mXmppService;
     private Handler mainHandler;
-    private PullToRefreshScrollView mPullRefreshScrollView;
     private int mLongPressGroupId, mLongPressChildId;
     private ContentObserver mRosterObserver = new RosterObserver();
     private static final String[] GROUPS_QUERY = new String[]{RosterProvider.RosterConstants._ID, RosterProvider.RosterConstants.GROUP,};
@@ -80,17 +76,9 @@ public class FriendChatFragment extends Fragment {
     }
 
     private void initViews(View inflate) {
-        mPullRefreshScrollView = (PullToRefreshScrollView) inflate.findViewById(R.id.pull_refresh_scrollview);
-        mPullRefreshScrollView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener<ScrollView>() {
-            @Override
-            public void onRefresh(PullToRefreshBase<ScrollView> refreshView) {
-                new GetDataTask().execute();
-            }
-        });
-        mIphoneTreeView = (IphoneTreeView) inflate.findViewById(R.id.iphone_tree_view);
-        mIphoneTreeView.setHeaderView(this.getActivity().getLayoutInflater().inflate(R.layout.contact_buddy_list_group, mIphoneTreeView, false));
-        mIphoneTreeView.setEmptyView(inflate.findViewById(R.id.empty));
-        mIphoneTreeView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+       mFriendChatTreeView = (ExpandableListView) inflate.findViewById(R.id.friend_chat_tree_view);
+       mFriendChatTreeView.setEmptyView(inflate.findViewById(R.id.empty));
+        mFriendChatTreeView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 int groupPos = (Integer) view.getTag(R.id.xxx01); // 参数值是在setTag时使用的对应资源id号
@@ -107,7 +95,7 @@ public class FriendChatFragment extends Fragment {
                 return false;
             }
         });
-        mIphoneTreeView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+        mFriendChatTreeView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                 String userJid = mRosterAdapter.getChild(groupPosition, childPosition).getJid();
@@ -135,9 +123,11 @@ public class FriendChatFragment extends Fragment {
     }
 
     private void setupData() {
-        mRosterAdapter = new RosterAdapter(this.getActivity(), mIphoneTreeView, mPullRefreshScrollView);
-        mIphoneTreeView.setAdapter(mRosterAdapter);
-        mRosterAdapter.requery();
+        mRosterAdapter = new RosterAdapter(this.getActivity());
+        mFriendChatTreeView.setAdapter(mRosterAdapter);
+//        mRosterAdapter = new RosterAdapter(this.getActivity(), mFriendChatTreeView);
+//        mFriendChatTreeView.setAdapter(mRosterAdapter);
+//        mRosterAdapter.requery();
     }
 
     @Override
@@ -326,37 +316,6 @@ public class FriendChatFragment extends Fragment {
     private boolean isConnected() {
         return mXmppService != null && mXmppService.isAuthenticated();
     }
-
-    //重新获取数据
-    private class GetDataTask extends AsyncTask<Void, Void, String[]> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected String[] doInBackground(Void... params) {
-            if (!isConnected()) {// 如果没有连接重新连接
-                String usr = PreferenceUtils.getPrefString(FriendChatFragment.this.getActivity(), PreferenceConstants.ACCOUNT, "");
-                String password = PreferenceUtils.getPrefString(FriendChatFragment.this.getActivity(), PreferenceConstants.PASSWORD, "");
-                mXmppService.Login(usr, password);
-            }
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String[] result) {
-            mRosterAdapter.requery();// 重新查询一下数据库
-            mPullRefreshScrollView.onRefreshComplete();
-            ToastUtil.showShort(FriendChatFragment.this.getActivity(), "刷新成功!");
-            super.onPostExecute(result);
-        }
-    }
-
 
     private class RosterObserver extends ContentObserver {
         public RosterObserver() {

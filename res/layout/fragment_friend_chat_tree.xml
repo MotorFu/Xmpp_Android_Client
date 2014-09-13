@@ -5,23 +5,13 @@
               android:background="@color/white"
               android:clickable="true"
               android:orientation="vertical">
-    <com.zxq.ui.pulltorefresh.PullToRefreshScrollView
-            xmlns:ptr="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/pull_refresh_scrollview"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:fillViewport="true"
-            ptr:ptrAnimationStyle="flip"
-            ptr:ptrDrawable="@drawable/refresh_arrow_2"
-            ptr:ptrHeaderBackground="@drawable/coversation_bg"
-            ptr:ptrMode="pullDownFromTop">
 
         <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-            <com.zxq.ui.iphonetreeview.IphoneTreeView
-                    android:id="@+id/iphone_tree_view"
+            <ExpandableListView
+                    android:id="@+id/friend_chat_tree_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
@@ -41,5 +31,4 @@
                     android:background="@drawable/contact_user_null_bg"
                     android:visibility="gone"/>
         </FrameLayout>
-    </com.zxq.ui.pulltorefresh.PullToRefreshScrollView>
 </LinearLayout>

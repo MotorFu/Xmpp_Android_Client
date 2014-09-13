@@ -28,6 +28,7 @@ import org.jivesoftware.smackx.ServiceDiscoveryManager;
 import org.jivesoftware.smackx.carbons.Carbon;
 import org.jivesoftware.smackx.carbons.CarbonManager;
 import org.jivesoftware.smackx.forward.Forwarded;
+import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.packet.DelayInfo;
 import org.jivesoftware.smackx.packet.DelayInformation;
 import org.jivesoftware.smackx.ping.PingManager;
@@ -862,6 +863,14 @@ public class SmackImpl implements Smack {
 			return jid;
 		}
 	}
+
+    public void testRoom(){
+     //   MultiUserChat.getHostedRooms(mXMPPConnection,"aaa");
+        //mXMPPConnection.
+    }
+
+
+
 
 	@Override
 	public boolean logout() {// 注销登录

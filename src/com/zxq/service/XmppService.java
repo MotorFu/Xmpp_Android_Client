@@ -359,6 +359,7 @@ public class XmppService extends BaseService implements EventHandler, BackPressH
 			((AlarmManager) getSystemService(Context.ALARM_SERVICE)).cancel(mPAlarmIntent);
 		}
 
+
 	}
 
 	private void postConnectionScuessed() {
