@@ -6,14 +6,14 @@
               android:clickable="true"
               android:orientation="vertical">
 
-    <TextView
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="组织架构"
-            android:id="@+id/textView"/>
+    <include
+            layout="@layout/org_title_bar"
+            android:focusable="true"/>
+
     <ListView
+            android:background="@android:color/transparent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/listView"/>
+            android:id="@+id/org_info_listview"/>
+
 </LinearLayout>

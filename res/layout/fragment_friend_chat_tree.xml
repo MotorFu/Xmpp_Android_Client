@@ -17,9 +17,9 @@
                     android:background="@android:color/transparent"
                     android:cacheColorHint="@android:color/transparent"
                     android:divider="@null"
+                    android:groupIndicator="@null"
                     android:fadingEdge="none"
                     android:focusable="true"
-                    android:groupIndicator="@null"
                     android:scrollingCache="true"
                     android:transcriptMode="normal"/>
 
