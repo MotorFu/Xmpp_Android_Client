@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
+import android.widget.TextView;
 import com.zxq.util.*;
 import com.zxq.xmpp.R;
 import com.zxq.service.IConnectionStatusCallback;
@@ -32,8 +33,12 @@ import com.zxq.util.LogUtil;
 public class LoginActivity extends FragmentActivity implements IConnectionStatusCallback {
     public static final String LOGIN_ACTION = "com.zxq.action.LOGIN";
     private static final int LOGIN_OUT_TIME = 0;
+    private static final int RESULT_FOR_REGISTER = 0X110 ;
+    private static final int RESULT_REGISTER_SUCESS = 0X120 ;
+    private static final String RESULT_REGISTER_KEY = "result_register_key";
     private EditText mAccountEt;
     private EditText mPasswordEt;
+    private TextView mRegister;
     private CheckBox mAutoSavePasswordCK;
     private CheckBox mHideLoginCK;
     private CheckBox mUseTlsCK;
@@ -43,6 +48,7 @@ public class LoginActivity extends FragmentActivity implements IConnectionStatus
     private ConnectionOutTimeProcess mLoginOutTimeProcess;
     private String mAccount;
     private String mPassword;
+
 
     private Handler mHandler = new Handler() {
 
@@ -156,8 +162,6 @@ public class LoginActivity extends FragmentActivity implements IConnectionStatus
         mHideLoginCK = (CheckBox) findViewById(R.id.hide_login);
         mSilenceLoginCK = (CheckBox) findViewById(R.id.silence_login);
         mUseTlsCK = (CheckBox) findViewById(R.id.use_tls);
-        // mTipsViewRoot = findViewById(R.id.login_help_view);
-        // mTipsTextView = (TextView) findViewById(R.id.pulldoor_close_tips);
         mAccountEt = (EditText) findViewById(R.id.account_input);
         mPasswordEt = (EditText) findViewById(R.id.password);
         String account = PreferenceUtils.getPrefString(this, PreferenceConstants.ACCOUNT, "");
@@ -166,6 +170,13 @@ public class LoginActivity extends FragmentActivity implements IConnectionStatus
             mAccountEt.setText(account);
         if (!TextUtils.isEmpty(password))
             mPasswordEt.setText(password);
+        mRegister = (TextView) findViewById(R.id.login_btn_go_to_register);
+        mRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onGoToRegister();
+            }
+        });
         mLoginDialog = DialogUtil.getLoginDialog(this);
         mLoginOutTimeProcess = new ConnectionOutTimeProcess();
     }
@@ -282,5 +293,22 @@ public class LoginActivity extends FragmentActivity implements IConnectionStatus
             finish();
         } else if (connectedState == XmppService.DISCONNECTED)
             ToastUtil.showLong(LoginActivity.this, getString(R.string.request_failed) + reason);
+    }
+
+    public void onGoToRegister(){
+        Intent intent = new Intent();
+        intent.setClass(this,RegisterActivity.class);
+        startActivityForResult(intent,RESULT_FOR_REGISTER);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == RESULT_FOR_REGISTER){
+            if(resultCode == RESULT_REGISTER_SUCESS){
+                String newAccount =data.getStringExtra(RESULT_REGISTER_KEY);
+                mAccountEt.setText(newAccount);
+            }
+        }
     }
 }

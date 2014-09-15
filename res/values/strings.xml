@@ -316,8 +316,10 @@
     <string name="sysmsg_you_are_agree_someone_add_troop">我已同意该申请</string>
     <string name="sysmsg_you_are_refuse_someone_add_troop">我已拒绝该申请</string>
     <string name="login">登 录</string>
+    <string name="register">注 册</string>
     <string name="account">帐号</string>
     <string name="password">密码</string>
+    <string name="again_password">确认密码</string>
     <string name="login_prompt">登录中</string>
     <string name="login_prompt_msg">连接中...</string>
     <string name="login_prompt_no">未连接</string>
@@ -326,6 +328,7 @@
     <string name="gray_prompt">感谢你对QQ for Android内测的关注，很抱歉你的帐号不在本次测试范围之内，请访问<a href="http://a.myapp.com/g/s?aid=newdetails_a&amp;softId=45592">官方网站</a>下载正式版本使用。</string>
     <string name="null_account_prompt">请输入帐号号</string>
     <string name="password_input_prompt">请输入密码</string>
+    <string name="again_password_input_prompt">请再次输入密码</string>
     <string name="verifycode">输入验证码</string>
     <string name="verifycode_input_prompt">输入上图验证码，不区分大小写</string>
     <string name="invalid_account_prompt">帐号不存在，请重新输入。</string>
@@ -1361,4 +1364,5 @@
     <string name="str_login_menu_input_text">请输入服务器IP或者主机名称：</string>
     <string name="str_login_menu_input_ok">确定</string>
     <string name="str_login_menu_input_cancel">取消</string>
+    <string name="go_to_register">注册传送门>>></string>
 </resources>
