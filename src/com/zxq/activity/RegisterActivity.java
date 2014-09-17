@@ -15,6 +15,7 @@ import com.zxq.util.DialogUtil;
 import com.zxq.util.PreferenceConstants;
 import com.zxq.util.PreferenceUtils;
 import com.zxq.xmpp.R;
+import org.jivesoftware.smackx.packet.VCard;
 
 /**
  * Created by zxq on 2014/9/15.

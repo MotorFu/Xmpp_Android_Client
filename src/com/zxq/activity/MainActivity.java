@@ -75,6 +75,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         int id = view.getId();
         FragmentTransaction mFragementTransaction = supportFragmentManager.beginTransaction();
         if(id ==R.id.btn_friend_chat){
+            friendChatFragment = FriendChatFragment.getInstance(mXmppService,mainHandler);
             mFragementTransaction.replace(R.id.main_fragment_content, friendChatFragment);
         }else if(id ==R.id.btn_group_chat){
             groupChatFragment = GroupChatFragment.getInstance(mXmppService);

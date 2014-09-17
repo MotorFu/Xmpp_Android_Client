@@ -16,12 +16,8 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.zxq.activity.*;
 import com.zxq.xmpp.R;
-import com.zxq.activity.AboutActivity;
-import com.zxq.activity.FeedBackActivity;
-import com.zxq.activity.FragmentCallBack;
-import com.zxq.activity.LoginActivity;
-import com.zxq.activity.MainActivity;
 import com.zxq.service.XmppService;
 import com.zxq.ui.switcher.Switch;
 import com.zxq.ui.view.CustomDialog;
@@ -31,7 +27,10 @@ import com.zxq.util.PreferenceUtils;
 import com.zxq.util.XMPPHelper;
 
 public class SettingsFragment extends Fragment implements OnClickListener, OnCheckedChangeListener {
-	private TextView mTitleNameView;
+    private static final int PERSON_INFO_REQUEST = 0X122;
+    private static final int PERSON_INFO_RESULT = 0X132;
+    private static final String PERSON_INFO_KEY= "PERSON_INFO_KEY";
+    private TextView mTitleNameView;
 	private View mAccountSettingView;
 	private ImageView mHeadIcon;
 	private ImageView mStatusIcon;
@@ -50,6 +49,7 @@ public class SettingsFragment extends Fragment implements OnClickListener, OnChe
 	private View mFeedBackView;
 	private View mAboutView;
 	private Button mExitBtn;
+    private Button mLogoutBtn;
 	private View mExitMenuView;
 	private Button mExitCancleBtn;
 	private Button mExitConfirmBtn;
@@ -81,7 +81,7 @@ public class SettingsFragment extends Fragment implements OnClickListener, OnChe
 		mExitConfirmBtn.setOnClickListener(this);
 		mTitleNameView = (TextView) view.findViewById(R.id.ivTitleName);
 		mTitleNameView.setText(R.string.settings_fragment_title);
-		mAccountSettingView = view.findViewById(R.id.accountSetting);
+		mAccountSettingView = view.findViewById(R.id.accountInfo);
 		mAccountSettingView.setOnClickListener(this);
 		mHeadIcon = (ImageView) view.findViewById(R.id.face);
 		mStatusIcon = (ImageView) view.findViewById(R.id.statusIcon);
@@ -110,9 +110,11 @@ public class SettingsFragment extends Fragment implements OnClickListener, OnChe
 		mFeedBackView = view.findViewById(R.id.set_feedback);
 		mAboutView = view.findViewById(R.id.set_about);
 		mExitBtn = (Button) view.findViewById(R.id.exit_app);
+        mLogoutBtn = (Button) view.findViewById(R.id.logout_app);
 		mFeedBackView.setOnClickListener(this);
 		mAboutView.setOnClickListener(this);
 		mExitBtn.setOnClickListener(this);
+        mLogoutBtn.setOnClickListener(this);
 	}
 
 	@Override
@@ -192,13 +194,33 @@ public class SettingsFragment extends Fragment implements OnClickListener, OnChe
 				mExitDialog.cancel();
 			}
 			getActivity().finish();
-		} else if (id == R.id.accountSetting) {
-			logoutDialog();
+		} else if (id == R.id.accountInfo) {
+			onGoToInfoActivity();
 
-		}
+		} else if (id == R.id.logout_app) {
+            logoutDialog();
+
+        }
 	}
 
-	public void logoutDialog() {
+    private void onGoToInfoActivity() {
+        Intent intent = new Intent();
+        intent.setClass(this.getActivity(), PersonInfoActivity.class);
+        startActivityForResult(intent,PERSON_INFO_REQUEST);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == PERSON_INFO_REQUEST){
+            if(requestCode == PERSON_INFO_RESULT){
+                //TODO:返回结果处理
+                data.getStringExtra(PERSON_INFO_KEY);
+            }
+        }
+    }
+
+    public void logoutDialog() {
 		new CustomDialog.Builder(getActivity()).setTitle(getActivity().getString(R.string.open_switch_account)).setMessage(getActivity().getString(R.string.open_switch_account_msg)).setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				XmppService service = mFragmentCallBack.getService();

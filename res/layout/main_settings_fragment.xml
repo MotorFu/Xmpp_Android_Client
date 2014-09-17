@@ -24,7 +24,7 @@
             android:paddingTop="10.0dip" >
 
             <RelativeLayout
-                android:id="@+id/accountSetting"
+                android:id="@+id/accountInfo"
                 android:layout_width="fill_parent"
                 android:layout_height="63.0dip"
                 android:background="@drawable/common_strip_setting_top"
@@ -387,7 +387,6 @@
                         android:text="反馈" />
 
                     <ImageView
-                        android:id="@+id/imageView"
                         android:layout_width="14.0dip"
                         android:layout_height="14.0dip"
                         android:layout_alignParentRight="true"
@@ -416,7 +415,6 @@
                         android:text="关于" />
 
                     <ImageView
-                        android:id="@+id/imageView"
                         android:layout_width="14.0dip"
                         android:layout_height="14.0dip"
                         android:layout_alignParentRight="true"
@@ -428,14 +426,22 @@
             </LinearLayout>
 
             <Button
-                android:id="@+id/exit_app"
+                android:id="@+id/logout_app"
                 style="@style/ButtonRed"
                 android:layout_width="fill_parent"
                 android:layout_height="46.0dip"
-                android:layout_marginBottom="20.0dip"
                 android:layout_marginTop="15.0dip"
-                android:background="@drawable/common_btn_red"
-                android:text="@string/logout_exit_account" />
+                android:background="@drawable/common_btn_green"
+                android:text="@string/logout" />
+            <Button
+                    android:id="@+id/exit_app"
+                    style="@style/ButtonRed"
+                    android:layout_width="fill_parent"
+                    android:layout_height="46.0dip"
+                    android:layout_marginBottom="20.0dip"
+                    android:layout_marginTop="10.0dip"
+                    android:background="@drawable/common_btn_red"
+                    android:text="@string/logout_exit_account" />
         </LinearLayout>
     </com.zxq.ui.scrollview.BounceScrollView>
 

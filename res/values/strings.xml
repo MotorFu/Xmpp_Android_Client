@@ -1365,4 +1365,7 @@
     <string name="str_login_menu_input_ok">确定</string>
     <string name="str_login_menu_input_cancel">取消</string>
     <string name="go_to_register">注册传送门>>></string>
+    <string name="logout">注销</string>
+    <string name="edit_person_info">编辑资料</string>
+    <string name="edit_person_password">修改密码</string>
 </resources>
