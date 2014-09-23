@@ -50,7 +50,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
     private FriendChatFragment friendChatFragment;
     private GroupChatFragment groupChatFragment;
     private OrgChatFragment orgChatFragment;
-    private  FragmentManager supportFragmentManager;
+    private FragmentManager supportFragmentManager;
     private SlidingMenu mSlidingMenu;
     private View mNetErrorView;
     private TextView mTitleNameView;
