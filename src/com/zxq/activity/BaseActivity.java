@@ -14,6 +14,7 @@ public class BaseActivity extends FragmentActivity {
 			for (BackPressHandler handler : mListeners) {
 				handler.activityOnResume();
 			}
+
 	}
 
 	@Override

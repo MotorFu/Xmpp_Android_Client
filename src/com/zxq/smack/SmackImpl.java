@@ -959,10 +959,15 @@ public class SmackImpl {
     public final String VCAED_KEY_ADDRESS="address";
 
 
-    public boolean setValue(){
+    public VCard setValue(String name,int age,String qq,String phone,String email,String address){
         VCard vcard = new VCard();
-        vcard.setProperty("","");
-        return false;
+        vcard.setProperty(VCAED_KEY_NAME,name);
+        vcard.setProperty(VCAED_KEY_AGE,age);
+        vcard.setProperty(VCAED_KEY_QQ,qq);
+        vcard.setProperty(VCAED_KEY_PHONE,phone);
+        vcard.setProperty(VCAED_KEY_EMAIL,email);
+        vcard.setProperty(VCAED_KEY_ADDRESS,address);
+        return vcard;
     }
 
 
@@ -981,7 +986,6 @@ public class SmackImpl {
             return null;
         }
     }
-
 
     /**
      * =================以下这部分为群的操作================
