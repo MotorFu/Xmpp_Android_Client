@@ -1,25 +1,29 @@
 package com.zxq.smack;
 
-import java.util.*;
-
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.*;
+import android.database.Cursor;
+import android.net.Uri;
+import android.util.Log;
+import com.zxq.db.ChatProvider;
+import com.zxq.db.ChatProvider.ChatConstants;
+import com.zxq.db.RosterProvider;
+import com.zxq.db.RosterProvider.RosterConstants;
 import com.zxq.exception.XmppException;
+import com.zxq.service.XmppService;
 import com.zxq.util.LogUtil;
-import org.jivesoftware.smack.ConnectionConfiguration;
-import org.jivesoftware.smack.ConnectionListener;
-import org.jivesoftware.smack.PacketListener;
-import org.jivesoftware.smack.Roster;
-import org.jivesoftware.smack.RosterEntry;
-import org.jivesoftware.smack.RosterGroup;
-import org.jivesoftware.smack.RosterListener;
-import org.jivesoftware.smack.SmackConfiguration;
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.XMPPException;
+import com.zxq.util.PreferenceConstants;
+import com.zxq.util.PreferenceUtils;
+import com.zxq.util.StatusMode;
+import com.zxq.xmpp.R;
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.filter.AndFilter;
+import org.jivesoftware.smack.filter.PacketFilter;
+import org.jivesoftware.smack.filter.PacketIDFilter;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
-import org.jivesoftware.smack.packet.IQ;
+import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.packet.IQ.Type;
-import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.packet.Packet;
-import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.util.StringUtils;
@@ -42,29 +46,9 @@ import org.jivesoftware.smackx.receipts.DeliveryReceipt;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptRequest;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.Cursor;
-import android.net.Uri;
-import android.util.Log;
+import java.util.*;
 
-import com.zxq.xmpp.R;
-import com.zxq.db.ChatProvider;
-import com.zxq.db.RosterProvider;
-import com.zxq.db.ChatProvider.ChatConstants;
-import com.zxq.db.RosterProvider.RosterConstants;
-import com.zxq.service.XmppService;
-import com.zxq.util.PreferenceConstants;
-import com.zxq.util.PreferenceUtils;
-import com.zxq.util.StatusMode;
-
-public class SmackImpl implements Smack {
+public class SmackImpl {
     // 客户端名称和类型。主要是向服务器登记，有点类似QQ显示iphone或者Android手机在线的功能
     public static final String XMPP_IDENTITY_NAME = "XMPP";// 客户端名称
     public static final String XMPP_IDENTITY_TYPE = "phone";// 客户端类型
@@ -149,7 +133,7 @@ public class SmackImpl implements Smack {
         mContentResolver = service.getContentResolver();
     }
 
-    @Override
+
     public boolean login(String account, String password) throws XmppException {// 登陆实现
         try {
             if (mXMPPConnection.isConnected()) {// 首先判断是否还连接着服务器，需要先断开
@@ -678,7 +662,7 @@ public class SmackImpl implements Smack {
         });
     }
 
-    @Override
+
     public void setStatusFromConfig() {// 设置自己的当前状态，供外部服务调用
         boolean messageCarbons = PreferenceUtils.getPrefBoolean(mService, PreferenceConstants.MESSAGE_CARBONS, true);
         String statusMode = PreferenceUtils.getPrefString(mService, PreferenceConstants.STATUS_MODE, PreferenceConstants.AVAILABLE);
@@ -695,7 +679,7 @@ public class SmackImpl implements Smack {
         mXMPPConnection.sendPacket(presence);
     }
 
-    @Override
+
     public boolean isAuthenticated() {// 是否与服务器连接上，供本类和外部服务调用
         if (mXMPPConnection != null) {
             return (mXMPPConnection.isConnected() && mXMPPConnection.isAuthenticated());
@@ -703,7 +687,7 @@ public class SmackImpl implements Smack {
         return false;
     }
 
-    @Override
+
     public void addRosterItem(String user, String alias, String group) throws XmppException {// 添加联系人，供外部服务调用
         addRosterEntry(user, alias, group);
     }
@@ -717,7 +701,7 @@ public class SmackImpl implements Smack {
         }
     }
 
-    @Override
+
     public void removeRosterItem(String user) throws XmppException {// 删除联系人，供外部服务调用
         LogUtil.d("removeRosterItem(" + user + ")");
         removeRosterEntry(user);
@@ -737,7 +721,7 @@ public class SmackImpl implements Smack {
         }
     }
 
-    @Override
+
     public void renameRosterItem(String user, String newName) throws XmppException {// 重命名联系人，供外部服务调用
         mRoster = mXMPPConnection.getRoster();
         RosterEntry rosterEntry = mRoster.getEntry(user);
@@ -748,7 +732,7 @@ public class SmackImpl implements Smack {
         rosterEntry.setName(newName);
     }
 
-    @Override
+
     public void moveRosterItemToGroup(String user, String group) throws XmppException {// 移动好友到其他分组，供外部服务调用
         tryToMoveRosterEntryToGroup(user, group);
     }
@@ -799,7 +783,7 @@ public class SmackImpl implements Smack {
 
     }
 
-    @Override
+
     public void renameRosterGroup(String group, String newGroup) {// 重命名分组
         LogUtil.i("oldgroup=" + group + ", newgroup=" + newGroup);
         mRoster = mXMPPConnection.getRoster();
@@ -810,20 +794,20 @@ public class SmackImpl implements Smack {
         groupToRename.setName(newGroup);
     }
 
-    @Override
+
     public void requestAuthorizationForRosterItem(String user) {// 重新向对方发出添加好友申请
         Presence response = new Presence(Presence.Type.subscribe);
         response.setTo(user);
         mXMPPConnection.sendPacket(response);
     }
 
-    @Override
+
     public void addRosterGroup(String group) {// 增加联系人组
         mRoster = mXMPPConnection.getRoster();
         mRoster.createGroup(group);
     }
 
-    @Override
+
     public void sendMessage(String toJID, String message) {// 发送消息
         final Message newMessage = new Message(toJID, Message.Type.chat);
         newMessage.setBody(message);
@@ -837,7 +821,7 @@ public class SmackImpl implements Smack {
         }
     }
 
-    @Override
+
     public void sendServerPing() {
         if (mPingID != null) {// 此时说明上一次ping服务器还未回应，直接返回，直到连接超时
             LogUtil.d("Ping: requested, but still waiting for " + mPingID);
@@ -855,7 +839,7 @@ public class SmackImpl implements Smack {
         ((AlarmManager) mService.getSystemService(Context.ALARM_SERVICE)).set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + PACKET_TIMEOUT + 3000, mPongTimeoutAlarmPendIntent);// 此时需要启动超时判断的闹钟了，时间间隔为30+3秒
     }
 
-    @Override
+
     public String getNameForJID(String jid) {
         if (null != this.mRoster.getEntry(jid) && null != this.mRoster.getEntry(jid).getName() && this.mRoster.getEntry(jid).getName().length() > 0) {
             return this.mRoster.getEntry(jid).getName();
@@ -865,7 +849,6 @@ public class SmackImpl implements Smack {
     }
 
 
-    @Override
     public boolean logout() {// 注销登录
         LogUtil.d("unRegisterCallback()");
         // remove callbacks _before_ tossing old connection
@@ -910,17 +893,99 @@ public class SmackImpl implements Smack {
     //                                                新添加的功能
     //====================================================================
 
+    /**
+     * =================以下这部分为用户注册================
+     */
+    //此函数返回值解释 1：注册成功 0：服务器没有返回结果 2：这个账号已经存在 3.注册失败
+    public int registerAccount(String account, String password) {
+        if (isConnecting()) return 0;
+        Registration reg = new Registration();
+        reg.setType(Type.SET);
+        reg.setTo(mXMPPConnection.getServiceName());
+        reg.setUsername(account);
+        reg.setPassword(password);
+        reg.addAttribute("android", "xmpp_createUser_android");
+        PacketFilter filter = new AndFilter(new PacketIDFilter(reg.getPacketID()), new PacketTypeFilter(IQ.class));
+        PacketCollector collector = mXMPPConnection.createPacketCollector(filter);
+        mXMPPConnection.sendPacket(reg);
+        IQ result = (IQ) collector.nextResult(SmackConfiguration.getPacketReplyTimeout());
+        collector.cancel();
+        if (result == null) {
+            LogUtil.e("RegisterActivity", "服务器没响应！");
+            return 0;
+        } else if (result.getType() == Type.RESULT) {
+            return 1;
+        } else {
+            if (result.getError().toString().equalsIgnoreCase("conflict(409)")) {
+                LogUtil.e("RegisterActivity", "IQ.TYPE.ERROR:" + result.getError().toString());
+                return 2;
+            } else {
+                LogUtil.e("RegisterActivity", "IQ.TYPE.ERROR:" + result.getError().toString());
+                return 3;
+            }
+        }
+    }
 
+    private boolean isConnecting() {
+        if (mXMPPConnection == null)
+            return true;
+        return false;
+    }
+
+
+    /**
+     * =================以下这部分为用户信息修改================
+     */
+//保存信息
+    public boolean saveVcardInfo(VCard vcard) {
+        try {
+            if (isConnecting() && vcard != null) {
+                vcard.save(mXMPPConnection);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (XMPPException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public final String VCAED_KEY_NAME="name";
+    public final String VCAED_KEY_AGE="age";
+    public final String VCAED_KEY_QQ="qq";
+    public final String VCAED_KEY_PHONE="phone";
+    public final String VCAED_KEY_EMAIL="email";
+    public final String VCAED_KEY_ADDRESS="address";
+
+
+    public boolean setValue(){
+        VCard vcard = new VCard();
+        vcard.setProperty("","");
+        return false;
+    }
+
+
+    //获取用户信息
     public VCard getVcardInfo(String user) {//获得用户信息
         VCard vcard = new VCard();
         try {
-            vcard.load(mXMPPConnection, user);
-            return vcard;
+            if (isConnecting()) {
+                vcard.load(mXMPPConnection, user);
+                return vcard;
+            } else {
+                return null;
+            }
         } catch (XMPPException e) {
             e.printStackTrace();
             return null;
         }
     }
+
+
+    /**
+     * =================以下这部分为群的操作================
+     */
 
     public List<RoomInfo> getUserJoinGroupChatRoom(String user) {//获取所有用户加入的聊天室
         List<RoomInfo> list = new ArrayList<RoomInfo>();

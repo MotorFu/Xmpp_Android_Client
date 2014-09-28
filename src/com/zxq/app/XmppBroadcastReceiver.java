@@ -26,15 +26,15 @@ public class XmppBroadcastReceiver extends BroadcastReceiver {
 				for (EventHandler handler : mListeners) {
 					handler.onNetChange();
 				}
-		} else if (intent.getAction().equals(Intent.ACTION_SHUTDOWN)) {
+		} else if (intent.getAction().equals(Intent.ACTION_SHUTDOWN)) {//系统结束时停止XMPP服务
 			LogUtil.d("System shutdown, stopping service.");
 			Intent xmppServiceIntent = new Intent(context, XmppService.class);
 			context.stopService(xmppServiceIntent);
-		} else {
+		} else {//自动登录
 			if (!TextUtils.isEmpty(PreferenceUtils.getPrefString(context, PreferenceConstants.PASSWORD, "")) && PreferenceUtils.getPrefBoolean(context, PreferenceConstants.AUTO_START, true)) {
-				Intent i = new Intent(context, XmppService.class);
-				i.setAction(BOOT_COMPLETED_ACTION);
-				context.startService(i);
+				Intent xmppServiceIntent = new Intent(context, XmppService.class);
+				xmppServiceIntent.setAction(BOOT_COMPLETED_ACTION);
+				context.startService(xmppServiceIntent);
 			}
 		}
 	}

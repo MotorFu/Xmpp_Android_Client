@@ -37,7 +37,7 @@ public class XmppApplication extends Application {
 		return null;
 	}
 
-	private void initFaceMap() {
+	private void initFaceMap() {//此处给图片做缓存
 		mFaceMap.put("[呲牙]", R.drawable.f_static_000);
 		mFaceMap.put("[调皮]", R.drawable.f_static_001);
 		mFaceMap.put("[流汗]", R.drawable.f_static_002);

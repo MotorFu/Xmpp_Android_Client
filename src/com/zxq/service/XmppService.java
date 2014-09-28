@@ -220,13 +220,6 @@ public class XmppService extends BaseService implements EventHandler, BackPressH
 		return isLogout;
 	}
 
-	// 发送消息
-	public void sendMessage(String user, String message) {
-		if (mSmackable != null)
-			mSmackable.sendMessage(user, message);
-		else
-			SmackImpl.saveAsOfflineMessage(getContentResolver(), user, message);
-	}
 
 	// 是否连接上服务器
 	public boolean isAuthenticated() {
@@ -449,13 +442,11 @@ public class XmppService extends BaseService implements EventHandler, BackPressH
 				// 如果在后台运行并且连接上了
 				if (!isAppOnForeground()) {
 					LogUtil.i("app run in background...");
-					// if (isAuthenticated())
 					updateServiceNotification(getString(R.string.run_bg_ticker));
 					return;
 				} else {
 					stopForeground(true);
 				}
-				// mMainHandler.postDelayed(monitorStatus, 1000L);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -467,20 +458,6 @@ public class XmppService extends BaseService implements EventHandler, BackPressH
 		if (taskInfos.size() > 0 && TextUtils.equals(getPackageName(), taskInfos.get(0).topActivity.getPackageName())) {
 			return true;
 		}
-
-		// List<RunningAppProcessInfo> appProcesses = mActivityManager
-		// .getRunningAppProcesses();
-		// if (appProcesses == null)
-		// return false;
-		// for (RunningAppProcessInfo appProcess : appProcesses) {
-		// // L.i("liweiping", appProcess.processName);
-		// // The name of the process that this object is associated with.
-		// if (appProcess.processName.equals(mPackageName)
-		// && appProcess.importance ==
-		// RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
-		// return true;
-		// }
-		// }
 		return false;
 	}
 
@@ -533,4 +510,33 @@ public class XmppService extends BaseService implements EventHandler, BackPressH
 		LogUtil.i("activity onPause ...");
 		mMainHandler.postDelayed(monitorStatus, 1000L);
 	}
+
+    //============FriendChat功能区=============
+    // 发送消息
+    public void sendMessage(String user, String message) {
+        if (mSmackable != null)
+            mSmackable.sendMessage(user, message);
+        else
+            SmackImpl.saveAsOfflineMessage(getContentResolver(), user, message);
+    }
+
+
+
+
+
+
+
+
+    //============GroupChat功能区================
+
+
+
+
+
+
+
+
+
+
+
 }
