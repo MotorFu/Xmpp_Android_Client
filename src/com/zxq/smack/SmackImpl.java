@@ -187,6 +187,10 @@ public class SmackImpl {
         return mXMPPConnection.isAuthenticated();
     }
 
+    private void registerGroupListener(String account) {
+        getUserJoinGroupChatRoom(account);
+    }
+
     /**
      * 注册所有的监听
      */
@@ -538,7 +542,6 @@ public class SmackImpl {
      */
     private void updateRosterEntryInDB(final RosterEntry entry) {
         final ContentValues values = getContentValuesForRosterEntry(entry);
-
         if (mContentResolver.update(RosterProvider.CONTENT_URI, values, RosterConstants.JID + " = ?", new String[]{entry.getUser()}) == 0)// 如果数据库无此好友
             addRosterEntryToDB(entry);// 则添加到数据库
     }
@@ -897,37 +900,42 @@ public class SmackImpl {
      * =================以下这部分为用户注册================
      */
     //此函数返回值解释 1：注册成功 0：服务器没有返回结果 2：这个账号已经存在 3.注册失败
-    public int registerAccount(String account, String password) {
-        if (isConnecting()) return 0;
-        Registration reg = new Registration();
-        reg.setType(Type.SET);
-        reg.setTo(mXMPPConnection.getServiceName());
-        reg.setUsername(account);
-        reg.setPassword(password);
-        reg.addAttribute("android", "xmpp_createUser_android");
-        PacketFilter filter = new AndFilter(new PacketIDFilter(reg.getPacketID()), new PacketTypeFilter(IQ.class));
-        PacketCollector collector = mXMPPConnection.createPacketCollector(filter);
-        mXMPPConnection.sendPacket(reg);
-        IQ result = (IQ) collector.nextResult(SmackConfiguration.getPacketReplyTimeout());
-        collector.cancel();
-        if (result == null) {
-            LogUtil.e("RegisterActivity", "服务器没响应！");
-            return 0;
-        } else if (result.getType() == Type.RESULT) {
+    public int registerAccount(String account, String password)  {
+        try {
+            if (mXMPPConnection.isConnected()) {// 首先判断是否还连接着服务器，需要先断开
+                try {
+                    mXMPPConnection.disconnect();
+                } catch (Exception e) {
+                    LogUtil.d("conn.disconnect() failed: " + e);
+                }
+            }
+            mXMPPConnection.connect();
+            if (!mXMPPConnection.isConnected()) {
+                throw new XmppException("SMACK connect failed without exception!");
+            }
+            if (!isConnecting()) return -1;
+            LogUtil.e("RegisterSevice", "link:" + isConnecting());
+            mXMPPConnection.getAccountManager().createAccount(account, password);
             return 1;
-        } else {
-            if (result.getError().toString().equalsIgnoreCase("conflict(409)")) {
-                LogUtil.e("RegisterActivity", "IQ.TYPE.ERROR:" + result.getError().toString());
-                return 2;
-            } else {
-                LogUtil.e("RegisterActivity", "IQ.TYPE.ERROR:" + result.getError().toString());
+        } catch (XMPPException e) {
+            String errorMsg = e.getMessage();
+            if("conflict(409)".equals(errorMsg)){
+                    return 2;
+            }else if("bad-request(404)".equals(errorMsg)){
+                     return 0;
+            }else{
                 return 3;
             }
+
+        } catch (Exception e) {
+            // actually we just care for IllegalState or NullPointer or XMPPEx.
+            LogUtil.e(SmackImpl.class, "login(): " + Log.getStackTraceString(e));
         }
+        return -1;
     }
 
     private boolean isConnecting() {
-        if (mXMPPConnection == null)
+        if (mXMPPConnection != null)
             return true;
         return false;
     }
@@ -951,22 +959,22 @@ public class SmackImpl {
         return false;
     }
 
-    public final String VCAED_KEY_NAME="name";
-    public final String VCAED_KEY_AGE="age";
-    public final String VCAED_KEY_QQ="qq";
-    public final String VCAED_KEY_PHONE="phone";
-    public final String VCAED_KEY_EMAIL="email";
-    public final String VCAED_KEY_ADDRESS="address";
+    public final String VCAED_KEY_NAME = "name";
+    public final String VCAED_KEY_AGE = "age";
+    public final String VCAED_KEY_QQ = "qq";
+    public final String VCAED_KEY_PHONE = "phone";
+    public final String VCAED_KEY_EMAIL = "email";
+    public final String VCAED_KEY_ADDRESS = "address";
 
 
-    public VCard setValue(String name,int age,String qq,String phone,String email,String address){
+    public VCard setValue(String name, int age, String qq, String phone, String email, String address) {
         VCard vcard = new VCard();
-        vcard.setProperty(VCAED_KEY_NAME,name);
-        vcard.setProperty(VCAED_KEY_AGE,age);
-        vcard.setProperty(VCAED_KEY_QQ,qq);
-        vcard.setProperty(VCAED_KEY_PHONE,phone);
-        vcard.setProperty(VCAED_KEY_EMAIL,email);
-        vcard.setProperty(VCAED_KEY_ADDRESS,address);
+        vcard.setProperty(VCAED_KEY_NAME, name);
+        vcard.setProperty(VCAED_KEY_AGE, age);
+        vcard.setProperty(VCAED_KEY_QQ, qq);
+        vcard.setProperty(VCAED_KEY_PHONE, phone);
+        vcard.setProperty(VCAED_KEY_EMAIL, email);
+        vcard.setProperty(VCAED_KEY_ADDRESS, address);
         return vcard;
     }
 

@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.zxq.util.LogUtil;
+import com.zxq.util.ToastUtil;
 import com.zxq.xmpp.R;
 import com.zxq.activity.ChatActivity;
 import com.zxq.activity.FragmentCallBack;
@@ -117,6 +118,7 @@ public class RecentChatFragment extends Fragment implements OnClickListener {
 			clickCursor.moveToPosition(position);
 			String jid = clickCursor.getString(clickCursor.getColumnIndex(ChatConstants.JID));
 			Uri userNameUri = Uri.parse(jid);
+            ToastUtil.showShort(RecentChatFragment.this.getActivity(),"jid:"+jid);
 			Intent toChatIntent = new Intent(getActivity(), ChatActivity.class);
 			toChatIntent.setData(userNameUri);
 			toChatIntent.putExtra(ChatActivity.INTENT_EXTRA_USERNAME, XMPPHelper.splitJidAndServer(jid));

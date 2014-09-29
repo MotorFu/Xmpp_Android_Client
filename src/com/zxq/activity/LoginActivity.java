@@ -10,15 +10,11 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.v4.app.FragmentActivity;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -33,9 +29,9 @@ import com.zxq.util.LogUtil;
 public class LoginActivity extends FragmentActivity implements IConnectionStatusCallback {
     public static final String LOGIN_ACTION = "com.zxq.action.LOGIN";
     private static final int LOGIN_OUT_TIME = 0;
-    private static final int RESULT_FOR_REGISTER = 0X110 ;
-    private static final int RESULT_REGISTER_SUCESS = 0X120 ;
-    private static final String RESULT_REGISTER_KEY = "result_register_key";
+    public static final int RESULT_FOR_REGISTER = 0X110 ;
+    public static final int RESULT_REGISTER_SUCESS = 0X120 ;
+    public static final String RESULT_REGISTER_KEY = "result_register_key";
     private EditText mAccountEt;
     private EditText mPasswordEt;
     private TextView mRegister;
@@ -197,7 +193,7 @@ public class LoginActivity extends FragmentActivity implements IConnectionStatus
         if (mLoginDialog != null && !mLoginDialog.isShowing())
             mLoginDialog.show();
         if (mXmppService != null) {
-            mXmppService.Login(mAccount, mPassword);
+            mXmppService.login(mAccount, mPassword);
         }
     }
 

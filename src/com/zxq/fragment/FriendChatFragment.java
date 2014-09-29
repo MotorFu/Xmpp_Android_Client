@@ -100,6 +100,7 @@ public class FriendChatFragment extends Fragment {
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                 String userJid = mRosterAdapter.getChild(groupPosition, childPosition).getJid();
                 String userName = mRosterAdapter.getChild(groupPosition, childPosition).getAlias();
+                ToastUtil.showShort(FriendChatFragment.this.getActivity(),userJid+"====="+userName);
                 startChatActivity(userJid, userName);
                 return false;
             }

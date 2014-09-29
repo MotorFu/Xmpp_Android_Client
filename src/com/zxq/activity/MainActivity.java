@@ -15,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
-import com.zxq.adapter.RosterAdapter;
 import com.zxq.app.XmppBroadcastReceiver;
 import com.zxq.app.XmppBroadcastReceiver.EventHandler;
 import com.zxq.db.ChatProvider;
@@ -95,7 +94,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
             if (!mXmppService.isAuthenticated()) {    // 开始连接xmpp服务器
                 String usr = PreferenceUtils.getPrefString(MainActivity.this, PreferenceConstants.ACCOUNT, "");
                 String password = PreferenceUtils.getPrefString(MainActivity.this, PreferenceConstants.PASSWORD, "");
-                mXmppService.Login(usr, password);
+                mXmppService.login(usr, password);
                 //夹在服务的数据放在此处初始化，防止服务器没连接的情况
                 if(friendChatFragment == null){
                     setupFragmentData();

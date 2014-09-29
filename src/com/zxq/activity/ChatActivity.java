@@ -96,7 +96,7 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener, 
 			if (!mXmppService.isAuthenticated()) {
 				String usr = PreferenceUtils.getPrefString(ChatActivity.this, PreferenceConstants.ACCOUNT, "");
 				String password = PreferenceUtils.getPrefString(ChatActivity.this, PreferenceConstants.PASSWORD, "");
-				mXmppService.Login(usr, password);
+				mXmppService.login(usr, password);
 			}
 		}
 
