@@ -12,10 +12,7 @@ import com.zxq.db.RosterProvider;
 import com.zxq.db.RosterProvider.RosterConstants;
 import com.zxq.exception.XmppException;
 import com.zxq.service.XmppService;
-import com.zxq.util.LogUtil;
-import com.zxq.util.PreferenceConstants;
-import com.zxq.util.PreferenceUtils;
-import com.zxq.util.StatusMode;
+import com.zxq.util.*;
 import com.zxq.xmpp.R;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.AndFilter;
@@ -42,6 +39,7 @@ import org.jivesoftware.smackx.ping.packet.Ping;
 import org.jivesoftware.smackx.ping.provider.PingProvider;
 import org.jivesoftware.smackx.provider.DelayInfoProvider;
 import org.jivesoftware.smackx.provider.DiscoverInfoProvider;
+import org.jivesoftware.smackx.provider.VCardProvider;
 import org.jivesoftware.smackx.receipts.DeliveryReceipt;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptRequest;
@@ -934,6 +932,17 @@ public class SmackImpl {
         return -1;
     }
 
+    public void putPersonInfoInVcardAndSaved(String account,String name,String signature,String qq,String phone,String email) throws XMPPException {
+        VCard vCard = getMyVcardInfo();
+        vCard.setField(VCardConstants.KEY_ACCOUNT,account);
+        vCard.setField(VCardConstants.KEY_NIKENAME,name);
+        vCard.setField(VCardConstants.KEY_SIGNATURE,signature);
+        vCard.setField(VCardConstants.KEY_QQ,qq);
+        vCard.setField(VCardConstants.KEY_PHONE,phone);
+        vCard.setField(VCardConstants.KEY_EMAIL,email);
+        vCard.save(mXMPPConnection);
+    }
+
     private boolean isConnecting() {
         if (mXMPPConnection != null)
             return true;
@@ -984,7 +993,11 @@ public class SmackImpl {
         VCard vcard = new VCard();
         try {
             if (isConnecting()) {
-                vcard.load(mXMPPConnection, user);
+                ProviderManager.getInstance().addIQProvider("vCard", "vcard-temp",
+                        new org.jivesoftware.smackx.provider.VCardProvider());
+                //vCard.load(mXMPPConnection); // load own VCard
+                //vcard.load(connection, user+"@"+connection.getServiceName());
+                vcard.load(mXMPPConnection, user+"@"+mXMPPConnection.getServiceName());
                 return vcard;
             } else {
                 return null;
@@ -993,6 +1006,22 @@ public class SmackImpl {
             e.printStackTrace();
             return null;
         }
+    }
+    //获取用户信息
+    public VCard getMyVcardInfo() {//获得用户信息
+        VCard vCard = new VCard();
+        try {
+           // vCard.load(mXMPPConnection,mXMPPConnection.getUser().substring(0,mXMPPConnection.getUser().indexOf("@")) + " - XMPP"); // load own VCard
+            // 加入这句代码，解决No VCard for(真他妈操蛋！)
+            ProviderManager.getInstance().addIQProvider("vCard", "vcard-temp",
+                    new org.jivesoftware.smackx.provider.VCardProvider());
+            vCard.load(mXMPPConnection); // load own VCard
+            //vcard.load(connection, user+"@"+connection.getServiceName());
+            LogUtil.e("获取个人的信息", vCard.getNickName()+"=======");
+        } catch (XMPPException e) {
+            e.printStackTrace();
+        }
+        return vCard;
     }
 
     /**

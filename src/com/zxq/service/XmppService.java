@@ -29,6 +29,7 @@ import com.zxq.activity.BaseActivity.BackPressHandler;
 import com.zxq.app.XmppBroadcastReceiver.EventHandler;
 import com.zxq.smack.SmackImpl;
 import com.zxq.util.LogUtil;
+import org.jivesoftware.smackx.packet.VCard;
 
 public class XmppService extends BaseService implements EventHandler, BackPressHandler {
     public static final int CONNECTED = 0;
@@ -536,6 +537,11 @@ public class XmppService extends BaseService implements EventHandler, BackPressH
         LogUtil.i("activity onPause ...");
         mMainHandler.postDelayed(monitorStatus, 1000L);
     }
+    //=============个人信息区===============
+    public VCard getMyInfo(){
+        return mSmackable.getMyVcardInfo();
+    }
+
 
     //============FriendChat功能区=============
     // 发送消息

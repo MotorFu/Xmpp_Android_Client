@@ -2,19 +2,19 @@ package com.zxq.activity;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
-import com.zxq.util.DialogUtil;
-import com.zxq.util.PreferenceConstants;
-import com.zxq.util.PreferenceUtils;
+import android.widget.*;
+import com.zxq.service.XmppService;
+import com.zxq.util.*;
 import com.zxq.vo.PersonEntityInfo;
 import com.zxq.xmpp.R;
 import org.jivesoftware.smackx.packet.VCard;
@@ -38,12 +38,63 @@ public class PersonInfoActivity extends Activity {
     private TextView textEmail;
     private Button btnEditInfo;
     private Button btnEditPassword;
+    private XmppService mXmppService;
+
+    ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mXmppService = ((XmppService.XXBinder) service).getService();
+            setupData();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mXmppService = null;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_person_info);
         initView();
+
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        bindXMPPService();
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unbindXMPPService();
+    }
+
+
+    private void bindXMPPService() {
+        LogUtil.i(RegisterActivity.class, "[SERVICE] Unbind");
+        Intent mServiceIntent = new Intent(this, XmppService.class);
+        bindService(mServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE + Context.BIND_DEBUG_UNBIND);
+    }
+
+    private void unbindXMPPService() {
+        try {
+            unbindService(mServiceConnection);
+            LogUtil.i(RegisterActivity.class, "[SERVICE] Unbind");
+        } catch (IllegalArgumentException e) {
+            LogUtil.e(RegisterActivity.class, "Service wasn't bound!");
+        }
+    }
+
+    private void setupData() {
+        VCard myInfo = mXmppService.getMyInfo();
+        ToastUtil.showLong(this,myInfo.getLastName());
     }
 
 
@@ -95,15 +146,6 @@ public class PersonInfoActivity extends Activity {
         startActivityForResult(intent, PERSON_INFO_REQUEST_CODE);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
 
     @Override
     protected void onStop() {
