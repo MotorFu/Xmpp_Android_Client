@@ -542,6 +542,14 @@ public class XmppService extends BaseService implements EventHandler, BackPressH
         return mSmackable.getMyVcardInfo();
     }
 
+    public String getXmppUserName(){
+        return mSmackable.getXmppUserName();
+    }
+
+    public boolean saveMyInfo(String name,String signature,String qq,String phone,String email){
+        return mSmackable.putPersonInfoInVcardAndSaved(name,signature,qq,phone,email);
+    }
+
 
     //============FriendChat功能区=============
     // 发送消息

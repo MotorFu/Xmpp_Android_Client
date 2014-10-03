@@ -1,16 +1,12 @@
 package com.zxq.activity;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
 import com.zxq.service.XmppService;
@@ -28,7 +24,7 @@ public class PersonInfoActivity extends Activity {
     private static final String PERSON_INFO_REQUEST_KEY = "info_entity";
     private ImageView actionBarBack;
     private TextView acitonBarTitle;
-
+    private PersonEntityInfo personEntityInfo;
     private ImageView imageIcon;
     private TextView textAccount;
     private TextView textName;
@@ -39,6 +35,7 @@ public class PersonInfoActivity extends Activity {
     private Button btnEditInfo;
     private Button btnEditPassword;
     private XmppService mXmppService;
+    private String account;
 
     ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -94,7 +91,19 @@ public class PersonInfoActivity extends Activity {
 
     private void setupData() {
         VCard myInfo = mXmppService.getMyInfo();
-        ToastUtil.showLong(this,myInfo.getLastName());
+        personEntityInfo = new PersonEntityInfo();
+        personEntityInfo.setName(myInfo.getField(VCardConstants.KEY_NIKENAME));
+        personEntityInfo.setSignature(myInfo.getField(VCardConstants.KEY_SIGNATURE));
+        personEntityInfo.setQq(myInfo.getField(VCardConstants.KEY_QQ));
+        personEntityInfo.setPhone(myInfo.getField(VCardConstants.KEY_PHONE));
+        personEntityInfo.setEmail(myInfo.getField(VCardConstants.KEY_EMAIL));
+        account = mXmppService.getXmppUserName();
+        textAccount.setText(account);
+        textName.setText(personEntityInfo.getName() == null?"(空)":personEntityInfo.getName());
+        textSignature.setText(personEntityInfo.getSignature() == null?"(空)":personEntityInfo.getSignature());
+        textQQ.setText(personEntityInfo.getQq() == null?"(空)":personEntityInfo.getQq());
+        textPhone.setText(personEntityInfo.getPhone() == null?"(空)":personEntityInfo.getPhone());
+        textEmail.setText(personEntityInfo.getEmail() == null?"(空)":personEntityInfo.getEmail());
     }
 
 
@@ -105,7 +114,7 @@ public class PersonInfoActivity extends Activity {
             if (resultCode == PERSON_INFO_REQUEST_OK) {
                 PersonEntityInfo personInfo = (PersonEntityInfo) data.getSerializableExtra(PERSON_INFO_REQUEST_KEY);
                 textName.setText(personInfo.getName());
-                textSignature.setText(personInfo.getSignaturn());
+                textSignature.setText(personInfo.getSignature());
                 textQQ.setText(personInfo.getQq());
                 textPhone.setText(personInfo.getPhone());
                 textEmail.setText(personInfo.getEmail());

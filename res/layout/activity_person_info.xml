@@ -80,7 +80,7 @@
                             style="@style/B4_Font_white"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="admin"
+                            android:text="（空）"
                             android:id="@+id/person_info_text_account"
                             android:layout_marginLeft="100dp"
                             android:layout_centerVertical="true"
@@ -109,7 +109,7 @@
                             style="@style/B4_Font_white"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="郑潇乾"
+                            android:text="（空）"
                             android:id="@+id/person_info_text_name"
                             android:layout_marginLeft="100dp"
                             android:layout_centerVertical="true"/>
@@ -137,7 +137,7 @@
                             style="@style/B4_Font_white"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="no zuo no die!!!"
+                            android:text="（空）"
                             android:id="@+id/person_info_text_signature"
                             android:layout_marginLeft="100dp"
                             android:layout_centerVertical="true"/>
@@ -165,7 +165,7 @@
                             style="@style/B4_Font_white"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="853294317"
+                            android:text="（空）"
                             android:id="@+id/person_info_text_qq"
                             android:layout_marginLeft="100dp"
                             android:layout_centerVertical="true"/>
@@ -191,7 +191,7 @@
                             style="@style/B4_Font_white"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="1994685465"
+                            android:text="（空）"
                             android:id="@+id/person_info_text_phone"
                             android:layout_marginLeft="100dp"
                             android:layout_centerVertical="true"/>
@@ -219,7 +219,7 @@
                             style="@style/B4_Font_white"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="853294317@qq.com"
+                            android:text="（空）"
                             android:id="@+id/person_info_text_email"
                             android:layout_marginLeft="100dp"
                             android:layout_centerVertical="true"/>

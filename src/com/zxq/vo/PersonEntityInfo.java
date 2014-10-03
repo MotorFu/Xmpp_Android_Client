@@ -10,7 +10,7 @@ public class PersonEntityInfo implements Serializable{
     private String qq;
     private String phone;
     private String email;
-    private String signaturn;
+    private String signature;
 
     public PersonEntityInfo() {
     }
@@ -31,8 +31,8 @@ public class PersonEntityInfo implements Serializable{
         this.email = email;
     }
 
-    public void setSignaturn(String signaturn) {
-        this.signaturn = signaturn;
+    public void setSignature(String signature) {
+        this.signature = signature;
     }
 
     public String getName() {
@@ -51,7 +51,7 @@ public class PersonEntityInfo implements Serializable{
         return email;
     }
 
-    public String getSignaturn() {
-        return signaturn;
+    public String getSignature() {
+        return signature;
     }
 }

@@ -932,15 +932,14 @@ public class SmackImpl {
         return -1;
     }
 
-    public void putPersonInfoInVcardAndSaved(String account,String name,String signature,String qq,String phone,String email) throws XMPPException {
+    public boolean putPersonInfoInVcardAndSaved(String name,String signature,String qq,String phone,String email) {
         VCard vCard = getMyVcardInfo();
-        vCard.setField(VCardConstants.KEY_ACCOUNT,account);
         vCard.setField(VCardConstants.KEY_NIKENAME,name);
         vCard.setField(VCardConstants.KEY_SIGNATURE,signature);
         vCard.setField(VCardConstants.KEY_QQ,qq);
         vCard.setField(VCardConstants.KEY_PHONE,phone);
         vCard.setField(VCardConstants.KEY_EMAIL,email);
-        vCard.save(mXMPPConnection);
+        return saveVcardInfo(vCard);
     }
 
     private boolean isConnecting() {
@@ -968,25 +967,10 @@ public class SmackImpl {
         return false;
     }
 
-    public final String VCAED_KEY_NAME = "name";
-    public final String VCAED_KEY_AGE = "age";
-    public final String VCAED_KEY_QQ = "qq";
-    public final String VCAED_KEY_PHONE = "phone";
-    public final String VCAED_KEY_EMAIL = "email";
-    public final String VCAED_KEY_ADDRESS = "address";
 
-
-    public VCard setValue(String name, int age, String qq, String phone, String email, String address) {
-        VCard vcard = new VCard();
-        vcard.setProperty(VCAED_KEY_NAME, name);
-        vcard.setProperty(VCAED_KEY_AGE, age);
-        vcard.setProperty(VCAED_KEY_QQ, qq);
-        vcard.setProperty(VCAED_KEY_PHONE, phone);
-        vcard.setProperty(VCAED_KEY_EMAIL, email);
-        vcard.setProperty(VCAED_KEY_ADDRESS, address);
-        return vcard;
+    public String getXmppUserName(){
+        return mXMPPConnection.getUser().substring(0,mXMPPConnection.getUser().indexOf("/"));
     }
-
 
     //获取用户信息
     public VCard getVcardInfo(String user) {//获得用户信息
