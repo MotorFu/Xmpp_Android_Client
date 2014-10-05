@@ -133,13 +133,19 @@ public class PersonInfoActivity extends Activity {
         textPhone = (TextView) findViewById(R.id.person_info_text_phone);
         textEmail = (TextView) findViewById(R.id.person_info_text_email);
         btnEditInfo = (Button) findViewById(R.id.person_info_btn_edit_info);
+        btnEditPassword = (Button) findViewById(R.id.person_info_btn_edit_password);
         btnEditInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onGoToEditInfoActivity();
             }
         });
-        btnEditPassword = (Button) findViewById(R.id.person_info_btn_edit_password);
+        btnEditPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onGoToAlterPasswordActivity();
+            }
+        });
         acitonBarTitle.setText("个人信息");
         actionBarBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -147,6 +153,12 @@ public class PersonInfoActivity extends Activity {
                 PersonInfoActivity.this.finish();
             }
         });
+    }
+
+    private void onGoToAlterPasswordActivity() {
+        Intent intent = new Intent();
+        intent.setClass(this, EditPersonPasswordActivity.class);
+        startActivity(intent);
     }
 
     private void onGoToEditInfoActivity() {

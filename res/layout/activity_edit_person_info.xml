@@ -32,15 +32,13 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:background="@null"
-                        android:imeActionLabel="@string/next"
                         android:maxLength="50"
                         android:paddingBottom="6.0dip"
                         android:paddingLeft="90dip"
                         android:paddingTop="6.0dip"
                         android:singleLine="true"
                         android:textColor="#ff333333"
-                        android:textSize="20sp"
-                        android:imeOptions="actionNext|flagNoExtractUi" />
+                        android:textSize="20sp" />
 
                 <TextView
                         android:layout_width="90dp"
@@ -48,7 +46,7 @@
                         android:layout_alignBaseline="@id/edit_person_info_text_name"
                         android:layout_centerVertical="true"
                         android:gravity="center"
-                        android:text="用户姓名"
+                        android:text="用户姓名:"
                         android:textColor="#ff333333"
                         android:textSize="20sp" />
             </RelativeLayout>
@@ -66,15 +64,13 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:background="@null"
-                        android:imeActionLabel="@string/next"
                         android:maxLength="50"
                         android:paddingBottom="6.0dip"
                         android:paddingLeft="90dip"
                         android:paddingTop="6.0dip"
                         android:singleLine="true"
                         android:textColor="#ff333333"
-                        android:textSize="20sp"
-                        android:imeOptions="actionNext|flagNoExtractUi" />
+                        android:textSize="20sp" />
 
                 <TextView
                         android:layout_width="90dp"
@@ -82,7 +78,7 @@
                         android:layout_alignBaseline="@id/edit_person_info_text_signature"
                         android:layout_centerVertical="true"
                         android:gravity="center"
-                        android:text="个性签名"
+                        android:text="个性签名:"
                         android:textColor="#ff333333"
                         android:textSize="20sp" />
             </RelativeLayout>
@@ -101,15 +97,13 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:background="@null"
-                        android:imeActionLabel="@string/next"
                         android:maxLength="50"
                         android:paddingBottom="6.0dip"
                         android:paddingLeft="90dip"
                         android:paddingTop="6.0dip"
                         android:singleLine="true"
                         android:textColor="#ff333333"
-                        android:textSize="20sp"
-                        android:imeOptions="actionNext|flagNoExtractUi" />
+                        android:textSize="20sp" />
 
                 <TextView
                         android:layout_width="90dp"
@@ -117,7 +111,7 @@
                         android:layout_alignBaseline="@id/edit_person_info_text_qq"
                         android:layout_centerVertical="true"
                         android:gravity="center"
-                        android:text="QQ"
+                        android:text="QQ:"
                         android:textColor="#ff333333"
                         android:textSize="20sp" />
             </RelativeLayout>
@@ -134,15 +128,13 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:background="@null"
-                        android:imeActionLabel="@string/next"
                         android:maxLength="50"
                         android:paddingBottom="6.0dip"
                         android:paddingLeft="90dip"
                         android:paddingTop="6.0dip"
                         android:singleLine="true"
                         android:textColor="#ff333333"
-                        android:textSize="20sp"
-                        android:imeOptions="actionNext|flagNoExtractUi" />
+                        android:textSize="20sp" />
 
                 <TextView
                         android:layout_width="90dp"
@@ -150,7 +142,7 @@
                         android:layout_alignBaseline="@id/edit_person_info_text_phone"
                         android:layout_centerVertical="true"
                         android:gravity="center"
-                        android:text="联系电话"
+                        android:text="联系电话:"
                         android:textColor="#ff333333"
                         android:textSize="20sp" />
             </RelativeLayout>
@@ -167,15 +159,13 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:background="@null"
-                        android:imeActionLabel="@string/next"
                         android:maxLength="50"
                         android:paddingBottom="6.0dip"
                         android:paddingLeft="90dip"
                         android:paddingTop="6.0dip"
                         android:singleLine="true"
                         android:textColor="#ff333333"
-                        android:textSize="20sp"
-                        android:imeOptions="actionNext|flagNoExtractUi" />
+                        android:textSize="20sp" />
 
                 <TextView
                         android:layout_width="90dp"
@@ -183,7 +173,7 @@
                         android:layout_alignBaseline="@id/edit_person_info_text_email"
                         android:layout_centerVertical="true"
                         android:gravity="center"
-                        android:text="邮件"
+                        android:text="邮件:"
                         android:textColor="#ff333333"
                         android:textSize="20sp" />
             </RelativeLayout>

@@ -162,11 +162,16 @@ public class RegisterActivity extends Activity {
                             ToastUtil.showShort(RegisterActivity.this, "确认密码不能为空！");
                             return;
                         } else {
-                            if (!password.equals(passwordAgain)) {
-                                ToastUtil.showShort(RegisterActivity.this, "密码与确认密码不一致！");
+                            if(password.length() < 6){
+                                ToastUtil.showShort(RegisterActivity.this, "密码长度必须大于6位！");
                                 return;
-                            } else {
-                                mXmppService.registerAccount(account, password, iRegisterCallBack);
+                            }else{
+                                if (!password.equals(passwordAgain)) {
+                                    ToastUtil.showShort(RegisterActivity.this, "密码与确认密码不一致！");
+                                    return;
+                                } else {
+                                    mXmppService.registerAccount(account, password, iRegisterCallBack);
+                                }
                             }
                         }
                     }

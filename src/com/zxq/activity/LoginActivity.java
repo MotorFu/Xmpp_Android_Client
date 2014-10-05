@@ -219,11 +219,11 @@ public class LoginActivity extends FragmentActivity implements IConnectionStatus
         boolean isSilenceLogin = mSilenceLoginCK.isChecked();
         boolean isHideLogin = mHideLoginCK.isChecked();
         PreferenceUtils.setPrefString(this, PreferenceConstants.ACCOUNT, mAccount);// 帐号是一直保存的
-        if (isAutoSavePassword)
-            PreferenceUtils.setPrefString(this, PreferenceConstants.PASSWORD, mPassword);
-        else
-            PreferenceUtils.setPrefString(this, PreferenceConstants.PASSWORD, "");
-
+        PreferenceUtils.setPrefString(this, PreferenceConstants.PASSWORD, mPassword);
+//        if (isAutoSavePassword)
+//            PreferenceUtils.setPrefString(this, PreferenceConstants.PASSWORD, mPassword);
+//        else
+//            PreferenceUtils.setPrefString(this, PreferenceConstants.PASSWORD, "");
         PreferenceUtils.setPrefBoolean(this, PreferenceConstants.REQUIRE_TLS, isUseTls);
         PreferenceUtils.setPrefBoolean(this, PreferenceConstants.SCLIENTNOTIFY, isSilenceLogin);
         if (isHideLogin)

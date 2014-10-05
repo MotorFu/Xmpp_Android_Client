@@ -942,6 +942,16 @@ public class SmackImpl {
         return saveVcardInfo(vCard);
     }
 
+    public boolean alterPassword(String newPassword){
+        try {
+            mXMPPConnection.getAccountManager().changePassword(newPassword);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+
     private boolean isConnecting() {
         if (mXMPPConnection != null)
             return true;

@@ -174,6 +174,8 @@ public class XmppService extends BaseService implements EventHandler, BackPressH
                     mSmackable = new SmackImpl(XmppService.this);
                     if (mSmackable.login(account, password)) {
                         // 登陆成功
+                        PreferenceUtils.setPrefString(XmppService.this, PreferenceConstants.ACCOUNT, account);// 帐号是一直保存的
+                        PreferenceUtils.setPrefString(XmppService.this, PreferenceConstants.PASSWORD, password);
                         postConnectionScuessed();
                     } else {
                         // 登陆失败
@@ -537,17 +539,51 @@ public class XmppService extends BaseService implements EventHandler, BackPressH
         LogUtil.i("activity onPause ...");
         mMainHandler.postDelayed(monitorStatus, 1000L);
     }
+
     //=============个人信息区===============
-    public VCard getMyInfo(){
+    public VCard getMyInfo() {
         return mSmackable.getMyVcardInfo();
     }
 
-    public String getXmppUserName(){
+    public String getXmppUserName() {
         return mSmackable.getXmppUserName();
     }
 
-    public boolean saveMyInfo(String name,String signature,String qq,String phone,String email){
-        return mSmackable.putPersonInfoInVcardAndSaved(name,signature,qq,phone,email);
+    public boolean saveMyInfo(String name, String signature, String qq, String phone, String email) {
+        return mSmackable.putPersonInfoInVcardAndSaved(name, signature, qq, phone, email);
+    }
+
+
+    public int alterPersonPassword(String oldPassword, String newPassword, String againNewPassword) {
+        String recordPassword = PreferenceUtils.getPrefString(XmppService.this, PreferenceConstants.PASSWORD, "");
+
+        if("".equals(oldPassword.trim())){
+            return -4;//原密码不能为空
+        }
+        if("".equals(newPassword.trim())){
+            return -5;//新不能为空
+        }
+        if("".equals(againNewPassword.trim())){
+            return -6;//确认不能为空
+        }
+        if(newPassword.trim().length() <6){
+            return -7;//密码长度必须大于6位不能为空
+        }
+        if (newPassword == null && !(newPassword.trim().equals(againNewPassword.trim()))) {
+            return -2;//新密码和确认密码不一致
+        }
+        if (!recordPassword.trim().equals(oldPassword.trim())) {
+            return -1;//原密码不正确
+        }
+        if (newPassword.trim().equals(oldPassword.trim())) {
+            return 0;//新密码和旧密码不能相同
+        }
+        boolean ok = mSmackable.alterPassword(newPassword);
+        if (ok) {
+            return 1;//修改成功
+        } else {
+            return -3;//未知异常
+        }
     }
 
 
