@@ -34,9 +34,9 @@ public class EditPersonInfoActivity extends Activity {
     private EditText inputEmail;
     private Button btnSaveInfo;
 
-
     private PersonEntityInfo personEntityInfo;
     private XmppService mXmppService;
+
 
 
     ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -143,4 +143,7 @@ public class EditPersonInfoActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
     }
+
+
+
 }
