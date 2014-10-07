@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.*;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -17,15 +18,13 @@ import android.widget.TextView;
 import com.zxq.service.XmppService;
 import com.zxq.util.ImageTools;
 import com.zxq.util.LogUtil;
+import com.zxq.util.ToastUtil;
 import com.zxq.util.VCardConstants;
 import com.zxq.vo.PersonEntityInfo;
 import com.zxq.xmpp.R;
 import org.jivesoftware.smackx.packet.VCard;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * Created by zxq on 2014/9/15.
@@ -47,13 +46,76 @@ public class PersonInfoActivity extends Activity {
     private XmppService mXmppService;
     private String account;
 
+   private AsynLoadImageThread asynLoadImageThread;
+
 
     private static final int TAKE_PICTURE = 0;
     private static final int CHOOSE_PICTURE = 1;
     private static final int CROP = 2;
     private static final int CROP_PICTURE = 3;
 
-    ServiceConnection mServiceConnection = new ServiceConnection() {
+    private interface IInitImageCallBack{
+        void onSucessInitImage(Drawable userAvatar);
+        void onFailInitImage();
+    }
+
+    private class AsynLoadImageThread extends Thread {
+        String filePath;
+        Bitmap photo;
+        public AsynLoadImageThread(String filePath,Bitmap photo) {
+            super();
+            this.filePath = filePath;
+            this.photo = photo;
+        }
+
+        @Override
+        public void run() {
+            super.run();
+            //Runnable通知主线程更新UI，修改用户更改后头像
+            mXmppService.changeImage(PersonInfoActivity.this,filePath,new Runnable(){
+                @Override
+                public void run() {
+                   //这样子做是为了在UI里面更新控件，防止报在其他线程更新主UI控件的问题
+                    PersonInfoActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            imageIcon.setImageBitmap(photo);
+                        }
+                    });
+                }
+            },new Runnable(){
+                @Override
+                public void run() {
+                    ToastUtil.showShort(PersonInfoActivity.this,"图片修改不成功，请检查网络！");
+                }
+            });
+        }
+    }
+
+    private class AsynInitImageThread extends Thread {
+        VCard vCard;
+        IInitImageCallBack iInitImageCallBack;
+        public AsynInitImageThread(VCard vCard,IInitImageCallBack iInitImageCallBack){
+            this.vCard = vCard;
+            this.iInitImageCallBack = iInitImageCallBack;
+        }
+        @Override
+        public void run() {
+            super.run();
+            byte[] userAvatarByte = vCard.getAvatar();
+            if(userAvatarByte == null){
+                return;
+            }
+            Drawable userAvatar =  ImageTools.byteToDrawable(vCard.getAvatar());
+            if(userAvatar != null) {
+                iInitImageCallBack.onSucessInitImage(userAvatar);
+            } else{
+                iInitImageCallBack.onFailInitImage();
+            }
+        }
+    }
+
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -91,7 +153,7 @@ public class PersonInfoActivity extends Activity {
 
 
     private void bindXMPPService() {
-        LogUtil.i(RegisterActivity.class, "[SERVICE] Unbind");
+        LogUtil.i(RegisterActivity.class, "[SERVICE] Bind");
         Intent mServiceIntent = new Intent(this, XmppService.class);
         bindService(mServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE + Context.BIND_DEBUG_UNBIND);
     }
@@ -114,6 +176,21 @@ public class PersonInfoActivity extends Activity {
         personEntityInfo.setPhone(myInfo.getField(VCardConstants.KEY_PHONE));
         personEntityInfo.setEmail(myInfo.getField(VCardConstants.KEY_EMAIL));
         account = mXmppService.getXmppUserName();
+        AsynInitImageThread asynInitImageThread = new AsynInitImageThread(myInfo,new IInitImageCallBack() {
+            @Override
+            public void onSucessInitImage(final Drawable userAvatar) {
+                PersonInfoActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        imageIcon.setImageDrawable(userAvatar);
+                    }
+                });
+            }
+            @Override
+            public void onFailInitImage() {
+            }
+        });
+        asynInitImageThread.start();
         textAccount.setText(account);
         textName.setText(personEntityInfo.getName() == null ? "(空)" : personEntityInfo.getName());
         textSignature.setText(personEntityInfo.getSignature() == null ? "(空)" : personEntityInfo.getSignature());
@@ -201,12 +278,15 @@ public class PersonInfoActivity extends Activity {
                         String fileName = getSharedPreferences("temp", Context.MODE_WORLD_WRITEABLE).getString("tempName", "");
                         uri = Uri.fromFile(new File(Environment.getExternalStorageDirectory(), fileName));
                     }
+                    // uri.getPath();
                     cropImage(uri, 320, 320, CROP_PICTURE);
                     break;
 
                 case CROP_PICTURE:
+                    //这里开个线程，先上传图片到Vcard在更新UI
                     Bitmap photo = null;
                     Uri photoUri = data.getData();
+                    String filePath = "";
                     if (photoUri != null) {
                         photo = BitmapFactory.decodeFile(photoUri.getPath());
                     }
@@ -214,11 +294,15 @@ public class PersonInfoActivity extends Activity {
                         Bundle extra = data.getExtras();
                         if (extra != null) {
                             photo = (Bitmap) extra.get("data");
+                            filePath = ImageTools.savePhotoToSDCard(photo, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath(), "icon");
                             ByteArrayOutputStream stream = new ByteArrayOutputStream();
                             photo.compress(Bitmap.CompressFormat.JPEG, 100, stream);
                         }
                     }
-                    imageIcon.setImageBitmap(photo);
+                    LogUtil.e("头像文件存储位置",filePath);
+                    asynLoadImageThread = new AsynLoadImageThread(filePath,photo);
+                    asynLoadImageThread.start();
+                  //  imageIcon.setImageBitmap(photo);
                     break;
                 default:
                     break;
@@ -227,7 +311,7 @@ public class PersonInfoActivity extends Activity {
     }
 
 
-//============个人头像图片显示和截取=======================
+    //============个人头像图片显示和截取=======================
     public void showPicturePicker(Context context) {
         // final boolean crop = isCrop;
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -268,6 +352,7 @@ public class PersonInfoActivity extends Activity {
         });
         builder.create().show();
     }
+
     //截取图片
     public void cropImage(Uri uri, int outputX, int outputY, int requestCode) {
         Intent intent = new Intent("com.android.camera.action.CROP");

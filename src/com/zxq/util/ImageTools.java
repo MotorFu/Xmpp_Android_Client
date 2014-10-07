@@ -102,12 +102,7 @@ public final class ImageTools {
 		return Drawable.createFromStream(ins, null);
 	}
 
-	/**
-	 * Bitmap transfer to bytes
-	 * 
-	 * @param byteArray
-	 * @return
-	 */
+
 	public static byte[] bitmapToBytes(Bitmap bm) {
 		byte[] bytes = null;
 		if (bm != null) {
@@ -277,11 +272,7 @@ public final class ImageTools {
 		return android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
 	}
 	
-	/**
-	 * Get image from SD card by path and the name of image
-	 * @param fileName
-	 * @return
-	 */
+
 	public static boolean findPhotoFromSDCard(String path,String photoName){
 		boolean flag = false;
 		
@@ -318,14 +309,16 @@ public final class ImageTools {
 	 * @param photoName
 	 * @param path
 	 */
-	public static void savePhotoToSDCard(Bitmap photoBitmap,String path,String photoName){
-		if (checkSDCardAvailable()) {
+	public static String savePhotoToSDCard(Bitmap photoBitmap,String path,String photoName){
+        String photoPath = null;
+        if (checkSDCardAvailable()) {
 			File dir = new File(path);
 			if (!dir.exists()){
 				dir.mkdirs();
 			}
 			
 			File photoFile = new File(path , photoName + ".png");
+
 			FileOutputStream fileOutputStream = null;
 			try {
 				fileOutputStream = new FileOutputStream(photoFile);
@@ -333,6 +326,7 @@ public final class ImageTools {
 					if (photoBitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)) {
 						fileOutputStream.flush();
 //						fileOutputStream.close();
+                        photoPath = photoFile.getPath();
 					}
 				}
 			} catch (FileNotFoundException e) {
@@ -348,15 +342,11 @@ public final class ImageTools {
 					e.printStackTrace();
 				}
 			}
-		} 
+		}
+        return photoPath;
 	}
 	
-	/**
-	 * Delete the image from SD card
-	 * @param context
-	 * @param path
-	 * file:///sdcard/temp.jpg
-	 */
+
 	public static void deleteAllPhoto(String path){
 		if (checkSDCardAvailable()) {
 			File folder = new File(path);

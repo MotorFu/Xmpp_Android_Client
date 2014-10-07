@@ -1,19 +1,21 @@
 package com.zxq.service;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
 
-import android.app.ActivityManager;
+import android.app.*;
 import android.app.ActivityManager.RunningTaskInfo;
-import android.app.AlarmManager;
-import android.app.Notification;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.text.TextUtils;
@@ -29,6 +31,7 @@ import com.zxq.activity.BaseActivity.BackPressHandler;
 import com.zxq.app.XmppBroadcastReceiver.EventHandler;
 import com.zxq.smack.SmackImpl;
 import com.zxq.util.LogUtil;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.packet.VCard;
 
 public class XmppService extends BaseService implements EventHandler, BackPressHandler {
@@ -586,6 +589,19 @@ public class XmppService extends BaseService implements EventHandler, BackPressH
         }
     }
 
+    public void changeImage(Activity activity,String filePath,Runnable successRunnable,Runnable failRunnable){//此方法需要异步加载，加载完成再更新主UI线程
+        File file = new File(filePath);
+        try {
+            mSmackable.changeImage(file);
+            activity.runOnUiThread(successRunnable);
+        } catch (XMPPException e) {
+            e.printStackTrace();
+            activity.runOnUiThread(failRunnable);
+        } catch (IOException e) {
+            e.printStackTrace();
+            activity.runOnUiThread(failRunnable);
+        }
+    }
 
     //============FriendChat功能区=============
     // 发送消息

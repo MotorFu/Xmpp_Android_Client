@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.*;
 import android.database.Cursor;
+import android.media.Image;
 import android.net.Uri;
 import android.util.Log;
 import com.zxq.db.ChatProvider;
@@ -44,6 +45,7 @@ import org.jivesoftware.smackx.receipts.DeliveryReceipt;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptRequest;
 
+import java.io.*;
 import java.util.*;
 
 public class SmackImpl {
@@ -898,7 +900,7 @@ public class SmackImpl {
      * =================以下这部分为用户注册================
      */
     //此函数返回值解释 1：注册成功 0：服务器没有返回结果 2：这个账号已经存在 3.注册失败
-    public int registerAccount(String account, String password)  {
+    public int registerAccount(String account, String password) {
         try {
             if (mXMPPConnection.isConnected()) {// 首先判断是否还连接着服务器，需要先断开
                 try {
@@ -917,11 +919,11 @@ public class SmackImpl {
             return 1;
         } catch (XMPPException e) {
             String errorMsg = e.getMessage();
-            if("conflict(409)".equals(errorMsg)){
-                    return 2;
-            }else if("bad-request(404)".equals(errorMsg)){
-                     return 0;
-            }else{
+            if ("conflict(409)".equals(errorMsg)) {
+                return 2;
+            } else if ("bad-request(404)".equals(errorMsg)) {
+                return 0;
+            } else {
                 return 3;
             }
 
@@ -932,17 +934,17 @@ public class SmackImpl {
         return -1;
     }
 
-    public boolean putPersonInfoInVcardAndSaved(String name,String signature,String qq,String phone,String email) {
+    public boolean putPersonInfoInVcardAndSaved(String name, String signature, String qq, String phone, String email) {
         VCard vCard = getMyVcardInfo();
-        vCard.setField(VCardConstants.KEY_NIKENAME,name);
-        vCard.setField(VCardConstants.KEY_SIGNATURE,signature);
-        vCard.setField(VCardConstants.KEY_QQ,qq);
-        vCard.setField(VCardConstants.KEY_PHONE,phone);
-        vCard.setField(VCardConstants.KEY_EMAIL,email);
+        vCard.setField(VCardConstants.KEY_NIKENAME, name);
+        vCard.setField(VCardConstants.KEY_SIGNATURE, signature);
+        vCard.setField(VCardConstants.KEY_QQ, qq);
+        vCard.setField(VCardConstants.KEY_PHONE, phone);
+        vCard.setField(VCardConstants.KEY_EMAIL, email);
         return saveVcardInfo(vCard);
     }
 
-    public boolean alterPassword(String newPassword){
+    public boolean alterPassword(String newPassword) {
         try {
             mXMPPConnection.getAccountManager().changePassword(newPassword);
             return true;
@@ -978,8 +980,8 @@ public class SmackImpl {
     }
 
 
-    public String getXmppUserName(){
-        return mXMPPConnection.getUser().substring(0,mXMPPConnection.getUser().indexOf("/"));
+    public String getXmppUserName() {
+        return mXMPPConnection.getUser().substring(0, mXMPPConnection.getUser().indexOf("/"));
     }
 
     //获取用户信息
@@ -991,7 +993,7 @@ public class SmackImpl {
                         new org.jivesoftware.smackx.provider.VCardProvider());
                 //vCard.load(mXMPPConnection); // load own VCard
                 //vcard.load(connection, user+"@"+connection.getServiceName());
-                vcard.load(mXMPPConnection, user+"@"+mXMPPConnection.getServiceName());
+                vcard.load(mXMPPConnection, user + "@" + mXMPPConnection.getServiceName());
                 return vcard;
             } else {
                 return null;
@@ -1001,21 +1003,57 @@ public class SmackImpl {
             return null;
         }
     }
+
     //获取用户信息
     public VCard getMyVcardInfo() {//获得用户信息
         VCard vCard = new VCard();
         try {
-           // vCard.load(mXMPPConnection,mXMPPConnection.getUser().substring(0,mXMPPConnection.getUser().indexOf("@")) + " - XMPP"); // load own VCard
+            // vCard.load(mXMPPConnection,mXMPPConnection.getUser().substring(0,mXMPPConnection.getUser().indexOf("@")) + " - XMPP"); // load own VCard
             // 加入这句代码，解决No VCard for(真他妈操蛋！)
             ProviderManager.getInstance().addIQProvider("vCard", "vcard-temp",
                     new org.jivesoftware.smackx.provider.VCardProvider());
             vCard.load(mXMPPConnection); // load own VCard
             //vcard.load(connection, user+"@"+connection.getServiceName());
-            LogUtil.e("获取个人的信息", vCard.getNickName()+"=======");
+            LogUtil.e("获取个人的信息", vCard.getNickName() + "=======");
         } catch (XMPPException e) {
             e.printStackTrace();
         }
         return vCard;
+    }
+
+    public void changeImage(File f) throws XMPPException, IOException {
+
+        VCard vcard = new VCard();
+        vcard.load(mXMPPConnection);
+        byte[] bytes = getFileBytes(f);
+        String encodedImage = StringUtils.encodeBase64(bytes);
+        vcard.setAvatar(bytes, encodedImage);
+        vcard.setEncodedImage(encodedImage);
+        vcard.setField("PHOTO", "<TYPE>image/jpg</TYPE><BINVAL>" + encodedImage + "</BINVAL>", true);
+//              这里应该是做显示的
+//        ByteArrayInputStream bais = new ByteArrayInputStream(
+//                vcard.getAvatar());
+//        Image image = ImageIO.read(bais);
+//        ImageIcon ic = new ImageIcon(image);
+        vcard.save(mXMPPConnection);
+    }
+
+    private static byte[] getFileBytes(File file) throws IOException {//同上做图片处理的 mark一下
+        BufferedInputStream bis = null;
+        try {
+            bis = new BufferedInputStream(new FileInputStream(file));
+            int bytes = (int) file.length();
+            byte[] buffer = new byte[bytes];
+            int readBytes = bis.read(buffer);
+            if (readBytes != buffer.length) {
+                throw new IOException("Entire file not read");
+            }
+            return buffer;
+        } finally {
+            if (bis != null) {
+                bis.close();
+            }
+        }
     }
 
     /**
