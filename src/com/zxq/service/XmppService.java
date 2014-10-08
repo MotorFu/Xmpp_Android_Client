@@ -556,6 +556,9 @@ public class XmppService extends BaseService implements EventHandler, BackPressH
         return mSmackable.putPersonInfoInVcardAndSaved(name, signature, qq, phone, email);
     }
 
+    public VCard getUserAvatarByName(String name) {
+        return mSmackable.getVcardInfo(name);
+    }
 
     public int alterPersonPassword(String oldPassword, String newPassword, String againNewPassword) {
         String recordPassword = PreferenceUtils.getPrefString(XmppService.this, PreferenceConstants.PASSWORD, "");

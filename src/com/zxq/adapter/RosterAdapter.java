@@ -3,6 +3,7 @@ package com.zxq.adapter;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -13,11 +14,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.zxq.db.RosterProvider;
 import com.zxq.db.RosterProvider.RosterConstants;
-import com.zxq.util.LogUtil;
-import com.zxq.util.PreferenceConstants;
-import com.zxq.util.PreferenceUtils;
-import com.zxq.util.StatusMode;
+import com.zxq.service.XmppService;
+import com.zxq.util.*;
 import com.zxq.xmpp.R;
+import org.jivesoftware.smackx.packet.VCard;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,15 +38,17 @@ public class RosterAdapter extends BaseExpandableListAdapter {
     private List<Group> mGroupList;
     private boolean mIsShowOffline;// 是否显示离线联系人
     private LayoutInflater mInflater;
+    private XmppService mXmppService;
     private HashMap<Integer, Integer> groupStatusMap;
 
-    public RosterAdapter(Context context) {
-        mContext = context;
-        mInflater = LayoutInflater.from(context);
-        mContentResolver = context.getContentResolver();
-        mGroupList = new ArrayList<Group>();
-        groupStatusMap = new HashMap<Integer, Integer>();
-        mIsShowOffline = PreferenceUtils.getPrefBoolean(mContext, PreferenceConstants.SHOW_OFFLINE, true);
+    public RosterAdapter(Context context,XmppService mXmppService) {
+        this.mContext = context;
+        this.mXmppService = mXmppService;
+        this.mInflater = LayoutInflater.from(context);
+        this.mContentResolver = context.getContentResolver();
+        this.mGroupList = new ArrayList<Group>();
+        this.groupStatusMap = new HashMap<Integer, Integer>();
+        this.mIsShowOffline = PreferenceUtils.getPrefBoolean(mContext, PreferenceConstants.SHOW_OFFLINE, true);
     }
 
     public void requery() {
@@ -187,6 +189,15 @@ public class RosterAdapter extends BaseExpandableListAdapter {
 
         convertView.setTag(R.id.xxx01, groupPosition);
         convertView.setTag(R.id.xxx02, childPosition);
+        VCard vCard = mXmppService.getUserAvatarByName(roster.getJid());
+        vCard.getAvatar();
+        byte[] userAvatarByte = vCard.getAvatar();
+        if (userAvatarByte == null) {
+            holder.headView.setImageResource(R.drawable.login_default_avatar);
+        }else{
+            Drawable userAvatar = ImageTools.byteToDrawable(vCard.getAvatar());
+            holder.headView.setImageDrawable(userAvatar);
+        }
         return convertView;
     }
 

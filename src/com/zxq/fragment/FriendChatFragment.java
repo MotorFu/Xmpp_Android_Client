@@ -1,11 +1,13 @@
 package com.zxq.fragment;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Service;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 import com.zxq.activity.ChatActivity;
+import com.zxq.activity.FragmentCallBack;
 import com.zxq.activity.MainActivity;
 import com.zxq.adapter.RosterAdapter;
 import com.zxq.db.RosterProvider;
@@ -47,6 +50,18 @@ public class FriendChatFragment extends Fragment {
     private static final String[] GROUPS_QUERY = new String[]{RosterProvider.RosterConstants._ID, RosterProvider.RosterConstants.GROUP,};
     private static final String[] ROSTER_QUERY = new String[]{RosterProvider.RosterConstants._ID, RosterProvider.RosterConstants.JID, RosterProvider.RosterConstants.ALIAS, RosterProvider.RosterConstants.STATUS_MODE, RosterProvider.RosterConstants.STATUS_MESSAGE,};
     private static FriendChatFragment friendChatFragment;
+
+//    private FragmentCallBack mFragmentCallBack;
+//
+//    @Override
+//    public void onAttach(Activity activity) {
+//        super.onAttach(activity);
+//        try {
+//            mFragmentCallBack = (FragmentCallBack) activity;
+//        } catch (ClassCastException e) {
+//            throw new ClassCastException(activity.toString() + " must implement OnHeadlineSelectedListener");
+//        }
+//    }
 
     private FriendChatFragment(XmppService mXmppService,Handler mainHandler) {
         this.mXmppService = mXmppService;
@@ -124,7 +139,7 @@ public class FriendChatFragment extends Fragment {
     }
 
     private void setupData() {
-        mRosterAdapter = new RosterAdapter(this.getActivity());
+        mRosterAdapter = new RosterAdapter(this.getActivity(),mXmppService);
         mFriendChatTreeView.setAdapter(mRosterAdapter);
 //        mRosterAdapter = new RosterAdapter(this.getActivity(), mFriendChatTreeView);
 //        mFriendChatTreeView.setAdapter(mRosterAdapter);

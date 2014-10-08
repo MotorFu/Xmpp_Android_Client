@@ -993,7 +993,11 @@ public class SmackImpl {
                         new org.jivesoftware.smackx.provider.VCardProvider());
                 //vCard.load(mXMPPConnection); // load own VCard
                 //vcard.load(connection, user+"@"+connection.getServiceName());
-                vcard.load(mXMPPConnection, user + "@" + mXMPPConnection.getServiceName());
+                if (user.contains("@")) {
+                    vcard.load(mXMPPConnection, user);
+                } else {
+                    vcard.load(mXMPPConnection, user + "@" + mXMPPConnection.getServiceName());
+                }
                 return vcard;
             } else {
                 return null;
