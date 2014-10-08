@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -17,14 +18,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.zxq.activity.*;
+import com.zxq.util.*;
 import com.zxq.xmpp.R;
 import com.zxq.service.XmppService;
 import com.zxq.ui.switcher.Switch;
 import com.zxq.ui.view.CustomDialog;
-import com.zxq.util.DialogUtil;
-import com.zxq.util.PreferenceConstants;
-import com.zxq.util.PreferenceUtils;
-import com.zxq.util.XMPPHelper;
+import org.jivesoftware.smackx.packet.VCard;
+
+import java.util.logging.Handler;
 
 public class SettingsFragment extends Fragment implements OnClickListener, OnCheckedChangeListener {
     private static final int PERSON_INFO_REQUEST = 0X122;
@@ -55,6 +56,7 @@ public class SettingsFragment extends Fragment implements OnClickListener, OnChe
 	private Button mExitConfirmBtn;
 	private FragmentCallBack mFragmentCallBack;
 
+    private Drawable userAvatar;
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
@@ -111,6 +113,7 @@ public class SettingsFragment extends Fragment implements OnClickListener, OnChe
 		mAboutView = view.findViewById(R.id.set_about);
 		mExitBtn = (Button) view.findViewById(R.id.exit_app);
         mLogoutBtn = (Button) view.findViewById(R.id.logout_app);
+
 		mFeedBackView.setOnClickListener(this);
 		mAboutView.setOnClickListener(this);
 		mExitBtn.setOnClickListener(this);
@@ -123,8 +126,40 @@ public class SettingsFragment extends Fragment implements OnClickListener, OnChe
 		readData();
 	}
 
+    private class AsynInitImageThread extends Thread {
+        public AsynInitImageThread(){
+        }
+        @Override
+        public void run() {
+            super.run();
+            try {
+                Thread.sleep(400);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            XmppService xmppService = mFragmentCallBack.getService();
+            VCard vCard = xmppService.getMyInfo();
+            byte[] userAvatarByte = vCard.getAvatar();
+            if(userAvatarByte == null){
+                return;
+            }
+            userAvatar =  ImageTools.byteToDrawable(vCard.getAvatar());
+            if(userAvatar != null) {
+               SettingsFragment.this.getActivity().runOnUiThread(new Runnable() {
+                   @Override
+                   public void run() {
+                       mHeadIcon.setImageDrawable(userAvatar);
+                   }
+               });
+            }
+        }
+    }
+
 	public void readData() {
 		mHeadIcon.setImageResource(R.drawable.login_default_avatar);
+            AsynInitImageThread asynInitImageThread = new AsynInitImageThread();
+            asynInitImageThread.start();
+
 		mStatusIcon.setImageResource(MainActivity.mStatusMap.get(PreferenceUtils.getPrefString(getActivity(), PreferenceConstants.STATUS_MODE, PreferenceConstants.AVAILABLE)));
 		mStatusView.setText(PreferenceUtils.getPrefString(getActivity(), PreferenceConstants.STATUS_MESSAGE, getActivity().getString(R.string.status_available)));
 		mNickView.setText(XMPPHelper.splitJidAndServer(PreferenceUtils.getPrefString(getActivity(), PreferenceConstants.ACCOUNT, "")));
