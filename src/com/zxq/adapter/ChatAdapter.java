@@ -49,9 +49,9 @@ public class ChatAdapter extends SimpleCursorAdapter {
 		ViewHolder viewHolder;
 		if (convertView == null || convertView.getTag(R.drawable.ic_launcher + come) == null) {
 			if (come == ChatConstants.OUTGOING) {
-				convertView = mInflater.inflate(R.layout.chat_item_right, parent, false);
+				convertView = mInflater.inflate(R.layout.activity_chat_item_right, parent, false);
 			} else {
-				convertView = mInflater.inflate(R.layout.chat_item_left, null);
+				convertView = mInflater.inflate(R.layout.activity_chat_item_left, null);
 			}
 			viewHolder = buildHolder(convertView);
 			convertView.setTag(R.drawable.ic_launcher + come, viewHolder);

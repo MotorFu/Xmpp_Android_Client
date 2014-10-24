@@ -1,5 +1,6 @@
 package com.zxq.fragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,8 +11,11 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import com.zxq.activity.FragmentCallBack;
 import com.zxq.adapter.RosterAdapter;
 import com.zxq.service.XmppService;
+import com.zxq.util.LogUtil;
+import com.zxq.vo.GroupEntry;
 import com.zxq.xmpp.R;
 
 import java.awt.font.TextAttribute;
@@ -28,14 +32,24 @@ public class GroupChatFragment extends Fragment {
     private static GroupChatFragment groupChatFragment;
     private GroupChatAdapter groupChatAdapter;
 
-    private GroupChatFragment(XmppService mXmppService) {
-        this.mXmppService = mXmppService;
+    private FragmentCallBack mFragmentCallBack;
+
+
+    public static GroupChatFragment getInstance() {
+        if (groupChatFragment == null)
+            groupChatFragment = new GroupChatFragment();
+        return groupChatFragment;
     }
 
-    public static GroupChatFragment getInstance(XmppService mXmppService) {
-        if (groupChatFragment == null)
-            groupChatFragment = new GroupChatFragment(mXmppService);
-        return groupChatFragment;
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mFragmentCallBack = (FragmentCallBack) activity;
+
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnHeadlineSelectedListener");
+        }
     }
 
     @Override
@@ -53,14 +67,10 @@ public class GroupChatFragment extends Fragment {
     }
 
     private void setupData() {
-        ArrayList<GroupEntry> groupEntries = new ArrayList<GroupEntry>();
-        groupEntries.add(new GroupEntry("", "这是第一个群"));
-        groupEntries.add(new GroupEntry("", "这是第二个群"));
-        groupEntries.add(new GroupEntry("", "这是第三个群"));
-        groupEntries.add(new GroupEntry("", "这是第四个群"));
-        groupEntries.add(new GroupEntry("", "这是第五个群"));
-        groupEntries.add(new GroupEntry("", "这是第六个群"));
-        groupChatAdapter = new GroupChatAdapter(groupEntries,this.getActivity());
+        XmppService xmppService = mFragmentCallBack.getService();
+        String username = xmppService.getXmppUserName();
+        List<GroupEntry> groupEntryList = xmppService.getGroupEntryList(username.substring(0,username.indexOf("@")+1)+"conference.192.168.56.1");
+        groupChatAdapter = new GroupChatAdapter(groupEntryList, this.getActivity());
         listView.setAdapter(groupChatAdapter);
     }
 
@@ -139,34 +149,5 @@ public class GroupChatFragment extends Fragment {
         }
     }
 
-    private class GroupEntry {
-        private String iconUrl;
-        private String title;
-
-        private GroupEntry() {
-        }
-
-        private GroupEntry(String iconUrl, String title) {
-            this.iconUrl = iconUrl;
-            this.title = title;
-        }
-
-        public void setIconUrl(String iconUrl) {
-            this.iconUrl = iconUrl;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
-        }
-
-        public String getIconUrl() {
-
-            return iconUrl;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-    }
 
 }

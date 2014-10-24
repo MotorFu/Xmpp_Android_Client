@@ -21,7 +21,7 @@ public class PreferenceConstants {
 	public final static String XA = "xa";
 	public final static String AWAY = "away";
 	public final static String AVAILABLE = "available";
-	public final static String CHAT = "chat";
+	public final static String CHAT = "activity_chat";
 	
 	public final static String JID = "account_jabberID";
 	public final static String CUSTOM_SERVER = "account_customserver";

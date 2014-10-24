@@ -132,7 +132,7 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener, 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.chat);
+		setContentView(R.layout.activity_chat);
 		initData();// 初始化数据
 		initView();// 初始化view
 		// initFacePage();// 初始化表情

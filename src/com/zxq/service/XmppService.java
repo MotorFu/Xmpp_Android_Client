@@ -3,8 +3,7 @@ package com.zxq.service;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import android.app.*;
 import android.app.ActivityManager.RunningTaskInfo;
@@ -23,6 +22,7 @@ import android.text.TextUtils;
 import com.zxq.app.XmppBroadcastReceiver;
 import com.zxq.exception.XmppException;
 import com.zxq.util.*;
+import com.zxq.vo.GroupEntry;
 import com.zxq.xmpp.R;
 import com.zxq.activity.BaseActivity;
 import com.zxq.activity.LoginActivity;
@@ -32,6 +32,9 @@ import com.zxq.app.XmppBroadcastReceiver.EventHandler;
 import com.zxq.smack.SmackImpl;
 import com.zxq.util.LogUtil;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smackx.muc.HostedRoom;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.muc.RoomInfo;
 import org.jivesoftware.smackx.packet.VCard;
 
 public class XmppService extends BaseService implements EventHandler, BackPressHandler {
@@ -545,7 +548,10 @@ public class XmppService extends BaseService implements EventHandler, BackPressH
 
     //=============个人信息区===============
     public VCard getMyInfo() {
-        return mSmackable.getMyVcardInfo();
+        if(mSmackable != null){
+            return mSmackable.getMyVcardInfo();
+        }
+return null;
     }
 
     public String getXmppUserName() {
@@ -618,5 +624,19 @@ public class XmppService extends BaseService implements EventHandler, BackPressH
 
     //============GroupChat功能区================
 
+    public List<GroupEntry> getGroupEntryList(String user){
+
+
+
+        List<GroupEntry> groupEntryList = new ArrayList<GroupEntry>();
+        List<RoomInfo> userJoinGroupChatRoom = mSmackable.getUserJoinGroupChatRoom(user);
+        Iterator<RoomInfo> iterator = userJoinGroupChatRoom.iterator();
+        while (iterator.hasNext()){
+            RoomInfo roomInfo = iterator.next();
+            GroupEntry groupEntry = new GroupEntry("",roomInfo.getSubject());
+            groupEntryList.add(groupEntry);
+        }
+        return groupEntryList;
+    }
 
 }

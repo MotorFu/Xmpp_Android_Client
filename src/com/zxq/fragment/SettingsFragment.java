@@ -135,30 +135,32 @@ public class SettingsFragment extends Fragment implements OnClickListener, OnChe
         public void run() {
             super.run();
             try {
-                Thread.sleep(400);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             XmppService xmppService = mFragmentCallBack.getService();
             VCard vCard = xmppService.getMyInfo();
-            byte[] userAvatarByte = vCard.getAvatar();
-            if (userAvatarByte == null) {
-                SettingsFragment.this.getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mHeadIcon.setImageResource(R.drawable.login_default_avatar);
-                    }
-                });
-                return;
-            }
-            userAvatar = ImageTools.byteToDrawable(vCard.getAvatar());
-            if (userAvatar != null) {
-                SettingsFragment.this.getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mHeadIcon.setImageDrawable(userAvatar);
-                    }
-                });
+            if(vCard != null) {
+                byte[] userAvatarByte = vCard.getAvatar();
+                if (userAvatarByte == null) {
+                    SettingsFragment.this.getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mHeadIcon.setImageResource(R.drawable.login_default_avatar);
+                        }
+                    });
+                    return;
+                }
+                userAvatar = ImageTools.byteToDrawable(vCard.getAvatar());
+                if (userAvatar != null) {
+                    SettingsFragment.this.getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mHeadIcon.setImageDrawable(userAvatar);
+                        }
+                    });
+                }
             }
         }
     }

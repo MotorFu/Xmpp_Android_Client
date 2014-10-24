@@ -48,7 +48,6 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
 
     private FriendChatFragment friendChatFragment;
     private GroupChatFragment groupChatFragment;
-    private OrgChatFragment orgChatFragment;
     private FragmentManager supportFragmentManager;
     private SlidingMenu mSlidingMenu;
     private View mNetErrorView;
@@ -77,11 +76,8 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
             friendChatFragment = FriendChatFragment.getInstance(mXmppService,mainHandler);
             mFragementTransaction.replace(R.id.main_fragment_content, friendChatFragment);
         }else if(id ==R.id.btn_group_chat){
-            groupChatFragment = GroupChatFragment.getInstance(mXmppService);
+            groupChatFragment = GroupChatFragment.getInstance();
             mFragementTransaction.replace(R.id.main_fragment_content, groupChatFragment);
-        }else if(id ==R.id.btn_org_chat){
-            orgChatFragment = new OrgChatFragment();
-            mFragementTransaction.replace(R.id.main_fragment_content, orgChatFragment);
         }
         mFragementTransaction.commit();
     }

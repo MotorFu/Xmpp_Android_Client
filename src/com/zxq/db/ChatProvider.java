@@ -186,7 +186,7 @@ public class ChatProvider extends ContentProvider {
 
 	private static class ChatDatabaseHelper extends SQLiteOpenHelper {
 
-		private static final String DATABASE_NAME = "chat.db";
+		private static final String DATABASE_NAME = "activity_chat.db";
 		private static final int DATABASE_VERSION = 6;
 
 		public ChatDatabaseHelper(Context context) {
@@ -195,7 +195,7 @@ public class ChatProvider extends ContentProvider {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			infoLog("creating new chat table");
+			infoLog("creating new activity_chat table");
 
 			db.execSQL("CREATE TABLE " + TABLE_NAME + " (" + ChatConstants._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + ChatConstants.DATE + " INTEGER," + ChatConstants.DIRECTION + " INTEGER," + ChatConstants.JID + " TEXT," + ChatConstants.MESSAGE + " TEXT," + ChatConstants.DELIVERY_STATUS + " INTEGER," + ChatConstants.PACKET_ID + " TEXT);");
 		}
@@ -222,8 +222,8 @@ public class ChatProvider extends ContentProvider {
 		private ChatConstants() {
 		}
 
-		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.yaxim.chat";
-		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.yaxim.chat";
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.yaxim.activity_chat";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.yaxim.activity_chat";
 		public static final String DEFAULT_SORT_ORDER = "_id ASC"; // sort by
 																	// auto-id
 

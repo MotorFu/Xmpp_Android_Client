@@ -26,21 +26,19 @@ import org.jivesoftware.smack.packet.Presence.Mode;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.ServiceDiscoveryManager;
+import org.jivesoftware.smackx.bytestreams.socks5.provider.BytestreamsProvider;
 import org.jivesoftware.smackx.carbons.Carbon;
 import org.jivesoftware.smackx.carbons.CarbonManager;
 import org.jivesoftware.smackx.forward.Forwarded;
+import org.jivesoftware.smackx.muc.HostedRoom;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.Occupant;
 import org.jivesoftware.smackx.muc.RoomInfo;
-import org.jivesoftware.smackx.packet.DelayInfo;
-import org.jivesoftware.smackx.packet.DelayInformation;
-import org.jivesoftware.smackx.packet.VCard;
+import org.jivesoftware.smackx.packet.*;
 import org.jivesoftware.smackx.ping.PingManager;
 import org.jivesoftware.smackx.ping.packet.Ping;
 import org.jivesoftware.smackx.ping.provider.PingProvider;
-import org.jivesoftware.smackx.provider.DelayInfoProvider;
-import org.jivesoftware.smackx.provider.DiscoverInfoProvider;
-import org.jivesoftware.smackx.provider.VCardProvider;
+import org.jivesoftware.smackx.provider.*;
 import org.jivesoftware.smackx.receipts.DeliveryReceipt;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptRequest;
@@ -80,7 +78,46 @@ public class SmackImpl {
         pm.addExtensionProvider(DeliveryReceiptRequest.ELEMENT, DeliveryReceipt.NAMESPACE, new DeliveryReceiptRequest.Provider());
         // add XMPP Ping (XEP-0199)
         pm.addIQProvider("ping", "urn:xmpp:ping", new PingProvider());
+        pm.addIQProvider("query", "http://jabber.org/protocol/disco#items", new DiscoverItemsProvider());
+        // Service Discovery # Info
+        pm.addIQProvider("query", "http://jabber.org/protocol/disco#info", new DiscoverInfoProvider());
 
+        // Service Discovery # Items
+        pm.addIQProvider("query", "http://jabber.org/protocol/disco#items", new DiscoverItemsProvider());
+        // Service Discovery # Info
+        pm.addIQProvider("query", "http://jabber.org/protocol/disco#info", new DiscoverInfoProvider());
+
+        //Offline Message Requests
+        pm.addIQProvider("offline","http://jabber.org/protocol/offline", new OfflineMessageRequest.Provider());
+        //Offline Message Indicator
+        pm.addExtensionProvider("offline","http://jabber.org/protocol/offline", new OfflineMessageInfo.Provider());
+
+        //vCard
+        pm.addIQProvider("vCard","vcard-temp", new VCardProvider());
+
+        //FileTransfer
+        pm.addIQProvider("si","http://jabber.org/protocol/si", new StreamInitiationProvider());
+        pm.addIQProvider("query","http://jabber.org/protocol/bytestreams", new BytestreamsProvider());
+
+        //Data Forms
+        pm.addExtensionProvider("x", "jabber:x:data", new DataFormProvider());
+        //Html
+        pm.addExtensionProvider("html", "http://jabber.org/protocol/xhtml-im", new XHTMLExtensionProvider());
+        //Ad-Hoc Command
+        pm.addIQProvider("command", "http://jabber.org/protocol/commands", new AdHocCommandDataProvider());
+        // Chat State
+        ChatStateExtension.Provider chatState = new ChatStateExtension.Provider();
+        pm.addExtensionProvider("active", "http://jabber.org/protocol/chatstates", chatState);
+        pm.addExtensionProvider("composing", "http://jabber.org/protocol/chatstates",
+                chatState);
+        pm.addExtensionProvider("paused", "http://jabber.org/protocol/chatstates", chatState);
+        pm.addExtensionProvider("inactive", "http://jabber.org/protocol/chatstates", chatState);
+        pm.addExtensionProvider("gone", "http://jabber.org/protocol/chatstates", chatState);
+        //MUC User,Admin,Owner
+        pm.addExtensionProvider("x", "http://jabber.org/protocol/muc#user", new MUCUserProvider());
+        pm.addIQProvider("query", "http://jabber.org/protocol/muc#admin", new MUCAdminProvider());
+        pm.addIQProvider("query", "http://jabber.org/protocol/muc#owner", new MUCOwnerProvider());
+        pm.addIQProvider("vCard", "vcard-temp",new org.jivesoftware.smackx.provider.VCardProvider());
         ServiceDiscoveryManager.setIdentityName(XMPP_IDENTITY_NAME);
         ServiceDiscoveryManager.setIdentityType(XMPP_IDENTITY_TYPE);
     }
@@ -989,8 +1026,7 @@ public class SmackImpl {
         VCard vcard = new VCard();
         try {
             if (isConnecting()) {
-                ProviderManager.getInstance().addIQProvider("vCard", "vcard-temp",
-                        new org.jivesoftware.smackx.provider.VCardProvider());
+
                 //vCard.load(mXMPPConnection); // load own VCard
                 //vcard.load(connection, user+"@"+connection.getServiceName());
                 if (user.contains("@")) {
@@ -1014,8 +1050,7 @@ public class SmackImpl {
         try {
             // vCard.load(mXMPPConnection,mXMPPConnection.getUser().substring(0,mXMPPConnection.getUser().indexOf("@")) + " - XMPP"); // load own VCard
             // 加入这句代码，解决No VCard for(真他妈操蛋！)
-            ProviderManager.getInstance().addIQProvider("vCard", "vcard-temp",
-                    new org.jivesoftware.smackx.provider.VCardProvider());
+
             vCard.load(mXMPPConnection); // load own VCard
             //vcard.load(connection, user+"@"+connection.getServiceName());
             LogUtil.e("获取个人的信息", vCard.getNickName() + "=======");
@@ -1065,18 +1100,39 @@ public class SmackImpl {
      */
 
     public List<RoomInfo> getUserJoinGroupChatRoom(String user) {//获取所有用户加入的聊天室
-        List<RoomInfo> list = new ArrayList<RoomInfo>();
-        Iterator<String> joinedRooms = MultiUserChat.getJoinedRooms(mXMPPConnection, user);
+       List<RoomInfo> list = new ArrayList<RoomInfo>();
+       List<String> col = null;
         try {
-            while (joinedRooms.hasNext()) {
-                RoomInfo roomInfo = MultiUserChat.getRoomInfo(mXMPPConnection, joinedRooms.next());
-                list.add(roomInfo);
+            col = getConferenceServices(mXMPPConnection.getServiceName(), mXMPPConnection);
+        for (String aCol : col) {
+            String service = aCol;
+            Collection<HostedRoom> rooms = MultiUserChat.getHostedRooms(mXMPPConnection, service);
+            for (HostedRoom room : rooms) {
+                //查看Room消息
+                RoomInfo roomInfo = MultiUserChat.getRoomInfo(mXMPPConnection, room.getJid());
+                if (roomInfo != null) {
+                    // roomInfo.get
+                    list.add(roomInfo);
+                    LogUtil.e(roomInfo.getSubject() + " : " + roomInfo.getRoom() + " : " + roomInfo.getDescription() + " : " + roomInfo.getOccupantsCount());
+                }
             }
-        } catch (XMPPException e) {
+        }
+        } catch (Exception e) {
             e.printStackTrace();
         }
+//        try {
+//            while (joinedRooms.hasNext()) {
+//                RoomInfo roomInfo = MultiUserChat.getRoomInfo(mXMPPConnection, joinedRooms.next());
+//                list.add(roomInfo);
+//            }
+//        } catch (XMPPException e) {
+//            e.printStackTrace();
+//        }
         return list;
     }
+
+
+
 
     public void deleteUserCreatedGroupChatRoom() {//删除用户所创建的聊天室
     }
@@ -1108,4 +1164,27 @@ public class SmackImpl {
 //        }
     }
 
+
+    public List<String> getConferenceServices(String server, XMPPConnection connection) throws Exception {
+        List<String> answer = new ArrayList<String>();
+        ServiceDiscoveryManager discoManager = ServiceDiscoveryManager.getInstanceFor(connection);
+        DiscoverItems items = discoManager.discoverItems(server);
+        for (Iterator<DiscoverItems.Item> it = items.getItems(); it.hasNext();) {
+            DiscoverItems.Item item = (DiscoverItems.Item)it.next();
+            if (item.getEntityID().startsWith("conference") || item.getEntityID().startsWith("private")) {
+                answer.add(item.getEntityID());
+            }
+            else {
+                try {
+                    DiscoverInfo info = discoManager.discoverInfo(item.getEntityID());
+                    if (info.containsFeature("http://jabber.org/protocol/muc")) {
+                        answer.add(item.getEntityID());
+                    }
+                }
+                catch (XMPPException e) {
+                }
+            }
+        }
+        return answer;
+    }
 }

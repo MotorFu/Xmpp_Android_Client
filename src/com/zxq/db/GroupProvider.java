@@ -181,7 +181,7 @@ public class GroupProvider extends ContentProvider {
 
     private static class GroupDatabaseHelper extends SQLiteOpenHelper {
 
-        private static final String DATABASE_NAME = "chat.db";
+        private static final String DATABASE_NAME = "activity_chat.db";
         private static final int DATABASE_VERSION = 6;
 
         public GroupDatabaseHelper(Context context) {
@@ -190,7 +190,7 @@ public class GroupProvider extends ContentProvider {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            infoLog("creating new chat table");
+            infoLog("creating new activity_chat table");
 
             db.execSQL("CREATE TABLE " + TABLE_NAME + " ("
                     + GroupConstants._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -218,8 +218,8 @@ public class GroupProvider extends ContentProvider {
         private GroupConstants() {
         }
 
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.yaxim.chat";
-        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.yaxim.chat";
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.yaxim.activity_chat";
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.yaxim.activity_chat";
         public static final String DEFAULT_SORT_ORDER = "_id ASC"; // sort by
         // auto-id
 
