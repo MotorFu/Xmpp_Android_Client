@@ -624,19 +624,13 @@ return null;
 
     //============GroupChat功能区================
 
-    public List<GroupEntry> getGroupEntryList(String user){
+    public List<GroupEntry> getGroupEntryList(){
+        List<GroupEntry> userJoinGroupChatRoom = mSmackable.getUserJoinGroupChatRoom();
+        return userJoinGroupChatRoom;
+    }
 
-
-
-        List<GroupEntry> groupEntryList = new ArrayList<GroupEntry>();
-        List<RoomInfo> userJoinGroupChatRoom = mSmackable.getUserJoinGroupChatRoom(user);
-        Iterator<RoomInfo> iterator = userJoinGroupChatRoom.iterator();
-        while (iterator.hasNext()){
-            RoomInfo roomInfo = iterator.next();
-            GroupEntry groupEntry = new GroupEntry("",roomInfo.getSubject());
-            groupEntryList.add(groupEntry);
-        }
-        return groupEntryList;
+    public RoomInfo queryGroupChatRoomInfoByJID(String jid){
+        return  mSmackable.queryGroupChatRoomInfoByJID(jid);
     }
 
 }

@@ -54,7 +54,7 @@
                     android:paddingBottom="2dip"
                     android:paddingTop="7dip"
                     android:scaleType="matrix"
-                    android:text="会话"
+                    android:text="好友通讯录"
                     android:textColor="@color/main_botton_text_color"
                     android:textSize="12sp" />
 
@@ -86,7 +86,7 @@
                     android:onClick="onClickTabButtun"
                     android:paddingTop="7dip"
                     android:scaleType="matrix"
-                    android:text="群聊"
+                    android:text="群组聊天"
                     android:textColor="@color/main_botton_text_color"
                     android:textSize="12sp" />
 

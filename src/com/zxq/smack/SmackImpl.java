@@ -14,6 +14,7 @@ import com.zxq.db.RosterProvider.RosterConstants;
 import com.zxq.exception.XmppException;
 import com.zxq.service.XmppService;
 import com.zxq.util.*;
+import com.zxq.vo.GroupEntry;
 import com.zxq.xmpp.R;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.AndFilter;
@@ -224,9 +225,7 @@ public class SmackImpl {
         return mXMPPConnection.isAuthenticated();
     }
 
-    private void registerGroupListener(String account) {
-        getUserJoinGroupChatRoom(account);
-    }
+
 
     /**
      * 注册所有的监听
@@ -1099,8 +1098,8 @@ public class SmackImpl {
      * =================以下这部分为群的操作================
      */
 
-    public List<RoomInfo> getUserJoinGroupChatRoom(String user) {//获取所有用户加入的聊天室
-       List<RoomInfo> list = new ArrayList<RoomInfo>();
+    public List<GroupEntry> getUserJoinGroupChatRoom() {//获取所有用户加入的聊天室
+        List<GroupEntry> list = new ArrayList<GroupEntry>();
        List<String> col = null;
         try {
             col = getConferenceServices(mXMPPConnection.getServiceName(), mXMPPConnection);
@@ -1112,27 +1111,33 @@ public class SmackImpl {
                 RoomInfo roomInfo = MultiUserChat.getRoomInfo(mXMPPConnection, room.getJid());
                 if (roomInfo != null) {
                     // roomInfo.get
-                    list.add(roomInfo);
                     LogUtil.e(roomInfo.getSubject() + " : " + roomInfo.getRoom() + " : " + roomInfo.getDescription() + " : " + roomInfo.getOccupantsCount());
+                    GroupEntry groupEntry = new GroupEntry(room.getJid(),"",roomInfo.getSubject());
+                    list.add(groupEntry);
+                    }
                 }
             }
-        }
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        try {
-//            while (joinedRooms.hasNext()) {
-//                RoomInfo roomInfo = MultiUserChat.getRoomInfo(mXMPPConnection, joinedRooms.next());
-//                list.add(roomInfo);
-//            }
-//        } catch (XMPPException e) {
-//            e.printStackTrace();
-//        }
         return list;
     }
 
-
-
+       public RoomInfo queryGroupChatRoomInfoByJID(String JID){
+           //查看Room消息
+           RoomInfo roomInfo = null;
+           try {
+               roomInfo = MultiUserChat.getRoomInfo(mXMPPConnection, JID);
+           if (roomInfo != null) {
+               LogUtil.e(roomInfo.getSubject() + " : " + roomInfo.getRoom() + " : " + roomInfo.getDescription() + " : " + roomInfo.getOccupantsCount());
+               return roomInfo;
+           }
+           } catch (XMPPException e) {
+               e.printStackTrace();
+               return null;
+           }
+           return roomInfo;
+       }
 
     public void deleteUserCreatedGroupChatRoom() {//删除用户所创建的聊天室
     }

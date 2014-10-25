@@ -37,6 +37,7 @@ import com.zxq.app.XmppApplication;
 import com.zxq.db.ChatProvider;
 import com.zxq.db.ChatProvider.ChatConstants;
 import com.zxq.db.RosterProvider;
+import com.zxq.fragment.GroupChatFragment;
 import com.zxq.service.IConnectionStatusCallback;
 import com.zxq.service.XmppService;
 import com.zxq.ui.emoji.EmojiKeyboard;
@@ -47,6 +48,7 @@ import com.zxq.ui.xlistview.MsgListView;
 import com.zxq.ui.xlistview.MsgListView.IXListViewListener;
 import com.zxq.util.*;
 import com.zxq.xmpp.R;
+import org.jivesoftware.smackx.muc.RoomInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,6 +87,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 				String password = PreferenceUtils.getPrefString(GroupChatActivity.this, PreferenceConstants.PASSWORD, "");
 				mXmppService.login(usr, password);
 			}
+            initData();// 初始化数据
 		}
 
 		@Override
@@ -94,8 +97,9 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 		}
 
 	};
+    private String roomName;
 
-	/**
+    /**
 	 * 解绑服务
 	 */
 	private void unbindXMPPService() {
@@ -111,8 +115,9 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 	 */
 	private void bindXMPPService() {
 		Intent mServiceIntent = new Intent(this, XmppService.class);
-		Uri chatURI = Uri.parse(mWithJabberID);
-		mServiceIntent.setData(chatURI);
+//		Uri chatURI = Uri.parse(mWithJabberID);
+//		mServiceIntent.setData(chatURI);
+
 		bindService(mServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 	}
 
@@ -120,17 +125,17 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_group_chat);
-		initData();// 初始化数据
+
 		initView();// 初始化view
-		// initFacePage();// 初始化表情
-		setChatWindowAdapter();// 初始化对话数据
-		getContentResolver().registerContentObserver(RosterProvider.CONTENT_URI, true, mContactObserver);// 开始监听联系人数据库
+        //initFacePage();// 初始化表情
+		//setChatWindowAdapter();// 初始化对话数据
+//		getContentResolver().registerContentObserver(RosterProvider.CONTENT_URI, true, mContactObserver);// 开始监听联系人数据库
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		updateContactStatus();// 更新联系人状态
+	//	updateContactStatus();// 更新联系人状态
 	}
 
 	@Override
@@ -187,7 +192,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 		super.onDestroy();
 		if (hasWindowFocus())
 			unbindXMPPService();// 解绑服务
-		getContentResolver().unregisterContentObserver(mContactObserver);
+		//getContentResolver().unregisterContentObserver(mContactObserver);
 	}
 
 	@Override
@@ -201,8 +206,14 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 	}
 
 	private void initData() {
-		mWithJabberID = getIntent().getDataString().toLowerCase();// 获取聊天对象的id
-		// 将表情map的key保存在数组中
+        //TODO:通过intent获取聊天室名称还有JID
+        String jid = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_JID);
+        RoomInfo roomInfo = mXmppService.queryGroupChatRoomInfoByJID(jid);
+        roomName = roomInfo.getSubject();
+        ToastUtil.showShort(this,getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_JID));
+        mTitleNameView.setText(roomName);
+//		mWithJabberID = getIntent().getDataString().toLowerCase();// 获取聊天对象的id
+	// 将表情map的key保存在数组中
 		Set<String> keySet = XmppApplication.getInstance().getFaceMap().keySet();
 		mFaceMapKeys = new ArrayList<String>();
 		mFaceMapKeys.addAll(keySet);
@@ -247,7 +258,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 		mMsgListView.setXListViewListener(this);
 		mSendMsgBtn = (Button) findViewById(R.id.send);
 		mFaceSwitchBtn = (ImageButton) findViewById(R.id.face_switch_btn);
-		mChatEditText = (EditText) findViewById(R.id.input);
+		mChatEditText = (EditText) findViewById(R.id.group_input);
 		mFaceRoot = (EmojiKeyboard) findViewById(R.id.face_ll);
 		mFaceRoot.setEventListener(new EventListener() {
 
@@ -261,7 +272,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 				EmojiKeyboard.backspace(mChatEditText);
 			}
 		});
-		// mFaceViewPager = (ViewPager) findViewById(R.id.face_pager);
+		//mFaceViewPager = (ViewPager) findViewById(R.id.face_pager);
 		mChatEditText.setOnTouchListener(this);
 		mTitleNameView = (TextView) findViewById(R.id.ivTitleName);
 		mTitleStatusView = (ImageView) findViewById(R.id.ivTitleStatus);
@@ -301,6 +312,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 		});
 		mFaceSwitchBtn.setOnClickListener(this);
 		mSendMsgBtn.setOnClickListener(this);
+
 	}
 
 	@Override
@@ -334,7 +346,8 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 				mIsFaceShow = false;
 			}
 		} else if (id == R.id.send) {// 发送消息
-			sendMessageIfNotNull();
+			//TODO:处理群聊天的发送操作
+			//sendMessageIfNotNull();
 		}
 	}
 

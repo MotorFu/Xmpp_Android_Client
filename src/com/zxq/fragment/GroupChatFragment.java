@@ -2,16 +2,15 @@ package com.zxq.fragment;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.*;
 import com.zxq.activity.FragmentCallBack;
+import com.zxq.activity.GroupChatActivity;
 import com.zxq.adapter.RosterAdapter;
 import com.zxq.service.XmppService;
 import com.zxq.util.LogUtil;
@@ -31,9 +30,11 @@ public class GroupChatFragment extends Fragment {
     private XmppService mXmppService;
     private static GroupChatFragment groupChatFragment;
     private GroupChatAdapter groupChatAdapter;
+    private  List<GroupEntry> groupEntryList;
 
     private FragmentCallBack mFragmentCallBack;
 
+    public static String GROUP_CHAT_ROOM_JID = "GCRJ";
 
     public static GroupChatFragment getInstance() {
         if (groupChatFragment == null)
@@ -69,9 +70,20 @@ public class GroupChatFragment extends Fragment {
     private void setupData() {
         XmppService xmppService = mFragmentCallBack.getService();
         String username = xmppService.getXmppUserName();
-        List<GroupEntry> groupEntryList = xmppService.getGroupEntryList(username.substring(0,username.indexOf("@")+1)+"conference.192.168.56.1");
+        groupEntryList = xmppService.getGroupEntryList();
         groupChatAdapter = new GroupChatAdapter(groupEntryList, this.getActivity());
         listView.setAdapter(groupChatAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                GroupEntry groupEntry = groupEntryList.get(position);
+                Intent intent = new Intent();
+                intent.putExtra(GROUP_CHAT_ROOM_JID,groupEntry.getJid());
+                intent.setClass( GroupChatFragment.this.getActivity(),GroupChatActivity.class);
+                GroupChatFragment.this.startActivity(intent);
+                //GroupChatActivity
+            }
+        });
     }
 
     @Override
@@ -139,7 +151,6 @@ public class GroupChatFragment extends Fragment {
                 groupHolder = (GroupHolder) convertView.getTag();
             }
             groupHolder.groupTitle.setText(groupEntry.getTitle());
-
             return convertView;
         }
 

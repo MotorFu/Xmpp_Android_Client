@@ -1,13 +1,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
-              android:layout_height="60dp"
-              android:background="@color/gray"
+              android:layout_height="40dp"
+              android:background="@drawable/common_list_group_item_background"
               android:orientation="horizontal">
     <ImageView
             android:id="@+id/group_chat_item_icon"
             android:layout_width="wrap_content"
-            android:padding="10dp"
+            android:padding="1dp"
             android:layout_height="match_parent"
             android:src="@drawable/group_item_icon"
             android:scaleType="fitCenter"/>
