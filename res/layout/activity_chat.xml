@@ -81,7 +81,7 @@
                     </FrameLayout>
 
                     <com.zxq.ui.emoji.EmojiEditText
-                        android:id="@+id/input"
+                        android:id="@+id/chat_input"
                         android:layout_width="fill_parent"
                         android:layout_height="40dip"
                         android:layout_alignParentLeft="true"

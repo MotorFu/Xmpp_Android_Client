@@ -33,9 +33,10 @@ import android.widget.AdapterView.OnItemClickListener;
 import com.zxq.adapter.ChatAdapter;
 import com.zxq.adapter.FaceAdapter;
 import com.zxq.adapter.FacePageAdeapter;
+import com.zxq.adapter.GroupChatAdapter;
 import com.zxq.app.XmppApplication;
-import com.zxq.db.ChatProvider;
-import com.zxq.db.ChatProvider.ChatConstants;
+import com.zxq.db.GroupChatProvider.GroupChatConstants;
+import com.zxq.db.GroupChatProvider;
 import com.zxq.db.RosterProvider;
 import com.zxq.fragment.GroupChatFragment;
 import com.zxq.service.IConnectionStatusCallback;
@@ -48,6 +49,14 @@ import com.zxq.ui.xlistview.MsgListView;
 import com.zxq.ui.xlistview.MsgListView.IXListViewListener;
 import com.zxq.util.*;
 import com.zxq.xmpp.R;
+import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.MessageListener;
+import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smackx.muc.DiscussionHistory;
+import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.RoomInfo;
 
 import java.util.ArrayList;
@@ -57,23 +66,37 @@ import java.util.Set;
 public class GroupChatActivity extends SwipeBackActivity implements OnTouchListener, OnClickListener, IXListViewListener, IConnectionStatusCallback {
 	public static final String INTENT_EXTRA_USERNAME = GroupChatActivity.class.getName() + ".username";// 昵称对应的key
 	private MsgListView mMsgListView;// 对话ListView
-	private ViewPager mFaceViewPager;// 表情选择ViewPager
-	private int mCurrentPage = 0;// 当前表情页
 	private boolean mIsFaceShow = false;// 是否显示表情
 	private Button mSendMsgBtn;// 发送消息button
 	private ImageButton mFaceSwitchBtn;// 切换键盘和表情的button
 	private TextView mTitleNameView;// 标题栏
-	private ImageView mTitleStatusView;
 	private EditText mChatEditText;// 消息输入框
 	private EmojiKeyboard mFaceRoot;// 表情父容器
 	private WindowManager.LayoutParams mWindowNanagerParams;
 	private InputMethodManager mInputMethodManager;
 	private List<String> mFaceMapKeys;// 表情对应的字符串数组
-	private String mWithJabberID = null;// 当前聊天用户的ID
+	private String mRoomName = null;
+    private String mRoomJID = null;// 当前聊天用户的ID
+    private MultiUserChat multiUserChat;
 
-	private static final String[] PROJECTION_FROM = new String[] { ChatConstants._ID, ChatConstants.DATE, ChatConstants.DIRECTION, ChatConstants.JID, ChatConstants.MESSAGE, ChatConstants.DELIVERY_STATUS };// 查询字段
 
-	private ContentObserver mContactObserver = new ContactObserver();// 联系人数据监听，主要是监听对方在线状态
+//    //加入聊天室(使用昵称喝醉的毛毛虫 ,使用密码ddd)并且获取聊天室里最后5条信息，
+//    //注：addMessageListener监听器必须在此join方法之前，否则无法监听到需要的5条消息
+//    muc = new MultiUserChat(connection, "ddd@conference.pc2010102716");
+//    DiscussionHistory history = new DiscussionHistory();
+//    history.setMaxStanzas(5);
+//    muc.join("喝醉的毛毛虫", "ddd", history, SmackConfiguration.getPacketReplyTimeout());
+//
+//    //监听拒绝加入聊天室的用户
+//    muc.addInvitationRejectionListener(new InvitationRejectionListener() {
+//        @Override
+//        public void invitationDeclined(String invitee, String reason) {
+//            System.out.println(invitee + " reject invitation, reason is " + reason);
+//        }
+//    });
+
+    private static final String[] PROJECTION_FROM = new String[] {GroupChatConstants._ID, GroupChatConstants.DATE, GroupChatConstants.DIRECTION, GroupChatConstants.JID, GroupChatConstants.RoomJID, GroupChatConstants.MESSAGE};// 查询字段
+
 	private XmppService mXmppService;// Main服务
 	ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -97,7 +120,6 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 		}
 
 	};
-    private String roomName;
 
     /**
 	 * 解绑服务
@@ -115,9 +137,6 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 	 */
 	private void bindXMPPService() {
 		Intent mServiceIntent = new Intent(this, XmppService.class);
-//		Uri chatURI = Uri.parse(mWithJabberID);
-//		mServiceIntent.setData(chatURI);
-
 		bindService(mServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 	}
 
@@ -127,15 +146,11 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 		setContentView(R.layout.activity_group_chat);
 
 		initView();// 初始化view
-        //initFacePage();// 初始化表情
-		//setChatWindowAdapter();// 初始化对话数据
-//		getContentResolver().registerContentObserver(RosterProvider.CONTENT_URI, true, mContactObserver);// 开始监听联系人数据库
-	}
+  	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-	//	updateContactStatus();// 更新联系人状态
 	}
 
 	@Override
@@ -143,56 +158,14 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 		super.onPause();
 	}
 
-	// 查询联系人数据库字段
-	private static final String[] STATUS_QUERY = new String[] { RosterProvider.RosterConstants.STATUS_MODE, RosterProvider.RosterConstants.STATUS_MESSAGE, };
 
-	private void updateContactStatus() {
-		Cursor cursor = getContentResolver().query(RosterProvider.CONTENT_URI, STATUS_QUERY, RosterProvider.RosterConstants.JID + " = ?", new String[] { mWithJabberID }, null);
-		int MODE_IDX = cursor.getColumnIndex(RosterProvider.RosterConstants.STATUS_MODE);
-		int MSG_IDX = cursor.getColumnIndex(RosterProvider.RosterConstants.STATUS_MESSAGE);
 
-		if (cursor.getCount() == 1) {
-			cursor.moveToFirst();
-			int status_mode = cursor.getInt(MODE_IDX);
-			String status_message = cursor.getString(MSG_IDX);
-			LogUtil.d("contact status changed: " + status_mode + " " + status_message);
-			mTitleNameView.setText(XMPPHelper.splitJidAndServer(getIntent().getStringExtra(INTENT_EXTRA_USERNAME)));
-			int statusId = StatusMode.values()[status_mode].getDrawableId();
-			if (statusId != -1) {// 如果对应离线状态
-				// Drawable icon = getResources().getDrawable(statusId);
-				// mTitleNameView.setCompoundDrawablesWithIntrinsicBounds(icon,
-				// null,
-				// null, null);
-				mTitleStatusView.setImageResource(statusId);
-				mTitleStatusView.setVisibility(View.VISIBLE);
-			} else {
-				mTitleStatusView.setVisibility(View.GONE);
-			}
-		}
-		cursor.close();
-	}
-
-	/**
-	 * 联系人数据库变化监听
-	 * 
-	 */
-	private class ContactObserver extends ContentObserver {
-		public ContactObserver() {
-			super(new Handler());
-		}
-
-		public void onChange(boolean selfChange) {
-			LogUtil.d("ContactObserver.onChange: " + selfChange);
-			updateContactStatus();// 联系人状态变化时，刷新界面
-		}
-	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		if (hasWindowFocus())
 			unbindXMPPService();// 解绑服务
-		//getContentResolver().unregisterContentObserver(mContactObserver);
 	}
 
 	@Override
@@ -209,42 +182,76 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
         //TODO:通过intent获取聊天室名称还有JID
         String jid = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_JID);
         RoomInfo roomInfo = mXmppService.queryGroupChatRoomInfoByJID(jid);
-        roomName = roomInfo.getSubject();
-        ToastUtil.showShort(this,getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_JID));
-        mTitleNameView.setText(roomName);
-//		mWithJabberID = getIntent().getDataString().toLowerCase();// 获取聊天对象的id
-	// 将表情map的key保存在数组中
+        mRoomName = roomInfo.getSubject();
+        multiUserChat = mXmppService.getMultiUserChatByRoomJID(jid);
+       // ToastUtil.showShort(this,getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_JID));
+        mTitleNameView.setText(mRoomName);
+        multiUserChat.addMessageListener(new PacketListener() {
+            @Override
+            public void processPacket(Packet packet) {
+                final Message message = (Message) packet;
+                System.out.println(message.getFrom() + " : " + message.getBody());
+                GroupChatActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //TODO:更新聊天LIST
+                        ToastUtil.showShort(GroupChatActivity.this,message.getBody());
+                        //TODO:这里利用Adapter进行更新，适当要做些缓存。考虑存入数据库
+                    }
+                });
+            }
+        });
+        DiscussionHistory history = new DiscussionHistory();
+        history.setMaxStanzas(0);
+        try {
+            String name = mXmppService.getXmppUserName();
+            name = name.substring(0,name.indexOf("@"));
+            multiUserChat.join(name,"",history,3000);
+
+        } catch (XMPPException e) {
+            e.printStackTrace();
+        }
+        // 将表情map的key保存在数组中
 		Set<String> keySet = XmppApplication.getInstance().getFaceMap().keySet();
 		mFaceMapKeys = new ArrayList<String>();
 		mFaceMapKeys.addAll(keySet);
-	}
+
+      //  ToastUtil.showShort(this,multiUserChat.get()+"zzzzz");
+
+//        try {
+//            multiUserChat.join("逗比们");
+//            //这是一种发送方法，使用Message，不过还是用字符串方便
+////            Message msg = new Message();
+////            msg.getSubject("zzzzzz");
+////            msg.setTo(multiUserChat.getRoom());
+////            msg.setType(Message.Type.groupchat);
+////            msg.setBody("hahahahahahahazzzzz");
+////            multiUserChat.sendMessage(msg);
+//            multiUserChat.sendMessage("aaaaaaaaaaaaa");
+//            ToastUtil.showShort(this,"multiUserChat成功发送");
+//        } catch (XMPPException e) {
+//            e.printStackTrace();
+//            ToastUtil.showShort(this,"multiUserChat："+e.getMessage());
+//        }
+
+    }
 
 	/**
 	 * 设置聊天的Adapter
 	 */
 	private void setChatWindowAdapter() {
-		String selection = ChatConstants.JID + "='" + mWithJabberID + "'";
+		String selection = GroupChatConstants.RoomJID + "='" + mRoomJID + "'";
 		// 异步查询数据库
 		new AsyncQueryHandler(getContentResolver()) {
 
 			@Override
 			protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
-				// ListAdapter adapter = new ChatWindowAdapter(cursor,
-				// PROJECTION_FROM, PROJECTION_TO, mWithJabberID);
-				ListAdapter adapter = new ChatAdapter(GroupChatActivity.this, cursor, PROJECTION_FROM);
+				ListAdapter adapter = new GroupChatAdapter(GroupChatActivity.this, cursor, PROJECTION_FROM);
 				mMsgListView.setAdapter(adapter);
 				mMsgListView.setSelection(adapter.getCount() - 1);
 			}
 
-		}.startQuery(0, null, ChatProvider.CONTENT_URI, PROJECTION_FROM, selection, null, null);
-		// 同步查询数据库，建议停止使用,如果数据庞大时，导致界面失去响应
-		// Cursor cursor = managedQuery(ChatProvider.CONTENT_URI,
-		// PROJECTION_FROM,
-		// selection, null, null);
-		// ListAdapter adapter = new ChatWindowAdapter(cursor, PROJECTION_FROM,
-		// PROJECTION_TO, mWithJabberID);
-		// mMsgListView.setAdapter(adapter);
-		// mMsgListView.setSelection(adapter.getCount() - 1);
+		}.startQuery(0, null, GroupChatProvider.CONTENT_URI, PROJECTION_FROM, selection, null, null);
 	}
 
 	private void initView() {
@@ -272,10 +279,8 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 				EmojiKeyboard.backspace(mChatEditText);
 			}
 		});
-		//mFaceViewPager = (ViewPager) findViewById(R.id.face_pager);
 		mChatEditText.setOnTouchListener(this);
 		mTitleNameView = (TextView) findViewById(R.id.ivTitleName);
-		mTitleStatusView = (ImageView) findViewById(R.id.ivTitleStatus);
 		mChatEditText.setOnKeyListener(new OnKeyListener() {
 
 			@Override
@@ -346,22 +351,21 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 				mIsFaceShow = false;
 			}
 		} else if (id == R.id.send) {// 发送消息
-			//TODO:处理群聊天的发送操作
-			//sendMessageIfNotNull();
+			sendMessageIfNotNull();
 		}
 	}
 
-	private void sendMessageIfNotNull() {
-		if (mChatEditText.getText().length() >= 1) {
-			if (mXmppService != null) {
-				mXmppService.sendMessage(mWithJabberID, mChatEditText.getText().toString());
-				if (!mXmppService.isAuthenticated())
-					ToastUtil.showShort(this, "消息已经保存随后发送");
-			}
-			mChatEditText.setText("");
-			mSendMsgBtn.setEnabled(false);
-		}
-	}
+    private void sendMessageIfNotNull() {
+        if (mChatEditText.getText().length() >= 1) {
+            if (mXmppService != null) {
+                mXmppService.sendGroupChat(multiUserChat,mChatEditText.getText().toString());
+                if (!mXmppService.isAuthenticated())
+                    ToastUtil.showShort(this, "消息已经保存随后发送");
+            }
+            mChatEditText.setText("");
+            mSendMsgBtn.setEnabled(false);
+        }
+    }
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
@@ -380,129 +384,9 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 		return false;
 	}
 
-	private void initFacePage() {
-		List<View> lv = new ArrayList<View>();
-		for (int i = 0; i < XmppApplication.NUM_PAGE; ++i)
-			lv.add(getGridView(i));
-		FacePageAdeapter adapter = new FacePageAdeapter(lv);
-		mFaceViewPager.setAdapter(adapter);
-		mFaceViewPager.setCurrentItem(mCurrentPage);
-		CirclePageIndicator indicator = (CirclePageIndicator) findViewById(R.id.indicator);
-		indicator.setViewPager(mFaceViewPager);
-		adapter.notifyDataSetChanged();
-		mFaceRoot.setVisibility(View.GONE);
-		indicator.setOnPageChangeListener(new OnPageChangeListener() {
-
-			@Override
-			public void onPageSelected(int arg0) {
-				mCurrentPage = arg0;
-			}
-
-			@Override
-			public void onPageScrolled(int arg0, float arg1, int arg2) {
-				// do nothing
-			}
-
-			@Override
-			public void onPageScrollStateChanged(int arg0) {
-				// do nothing
-			}
-		});
-
-	}
-
-	private GridView getGridView(int i) {
-		GridView gv = new GridView(this);
-		gv.setNumColumns(7);
-		gv.setSelector(new ColorDrawable(Color.TRANSPARENT));// 屏蔽GridView默认点击效果
-		gv.setBackgroundColor(Color.TRANSPARENT);
-		gv.setCacheColorHint(Color.TRANSPARENT);
-		gv.setHorizontalSpacing(1);
-		gv.setVerticalSpacing(1);
-		gv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-		gv.setGravity(Gravity.CENTER);
-		gv.setAdapter(new FaceAdapter(this, i));
-		gv.setOnTouchListener(forbidenScroll());
-		gv.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				if (arg2 == XmppApplication.NUM) {// 删除键的位置
-					int selection = mChatEditText.getSelectionStart();
-					String text = mChatEditText.getText().toString();
-					if (selection > 0) {
-						String text2 = text.substring(selection - 1);
-						if ("]".equals(text2)) {
-							int start = text.lastIndexOf("[");
-							int end = selection;
-							mChatEditText.getText().delete(start, end);
-							return;
-						}
-						mChatEditText.getText().delete(selection - 1, selection);
-					}
-				} else {
-					int count = mCurrentPage * XmppApplication.NUM + arg2;
-					// 注释的部分，在EditText中显示字符串
-					// String ori = msgEt.getText().toString();
-					// int index = msgEt.getSelectionStart();
-					// StringBuilder stringBuilder = new StringBuilder(ori);
-					// stringBuilder.insert(index, keys.get(count));
-					// msgEt.setText(stringBuilder.toString());
-					// msgEt.setSelection(index + keys.get(count).length());
-
-					// 下面这部分，在EditText中显示表情
-					Bitmap bitmap = BitmapFactory.decodeResource(getResources(), (Integer) XmppApplication.getInstance().getFaceMap().values().toArray()[count]);
-					if (bitmap != null) {
-						int rawHeigh = bitmap.getHeight();
-						int rawWidth = bitmap.getHeight();
-						int newHeight = 40;
-						int newWidth = 40;
-						// 计算缩放因子
-						float heightScale = ((float) newHeight) / rawHeigh;
-						float widthScale = ((float) newWidth) / rawWidth;
-						// 新建立矩阵
-						Matrix matrix = new Matrix();
-						matrix.postScale(heightScale, widthScale);
-						// 设置图片的旋转角度
-						// matrix.postRotate(-30);
-						// 设置图片的倾斜
-						// matrix.postSkew(0.1f, 0.1f);
-						// 将图片大小压缩
-						// 压缩后图片的宽和高以及kB大小均会变化
-						Bitmap newBitmap = Bitmap.createBitmap(bitmap, 0, 0, rawWidth, rawHeigh, matrix, true);
-						ImageSpan imageSpan = new ImageSpan(GroupChatActivity.this, newBitmap);
-						String emojiStr = mFaceMapKeys.get(count);
-						SpannableString spannableString = new SpannableString(emojiStr);
-						spannableString.setSpan(imageSpan, emojiStr.indexOf('['), emojiStr.indexOf(']') + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-						mChatEditText.append(spannableString);
-					} else {
-						String ori = mChatEditText.getText().toString();
-						int index = mChatEditText.getSelectionStart();
-						StringBuilder stringBuilder = new StringBuilder(ori);
-						stringBuilder.insert(index, mFaceMapKeys.get(count));
-						mChatEditText.setText(stringBuilder.toString());
-						mChatEditText.setSelection(index + mFaceMapKeys.get(count).length());
-					}
-				}
-			}
-		});
-		return gv;
-	}
-
-	// 防止乱pageview乱滚动
-	private OnTouchListener forbidenScroll() {
-		return new OnTouchListener() {
-			public boolean onTouch(View v, MotionEvent event) {
-				if (event.getAction() == MotionEvent.ACTION_MOVE) {
-					return true;
-				}
-				return false;
-			}
-		};
-	}
-
 	@Override
 	public void connectionStatusChanged(int connectedState, String reason) {
 	}
+
 
 }

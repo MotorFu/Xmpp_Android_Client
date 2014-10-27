@@ -12,7 +12,7 @@ import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import com.zxq.db.ChatProvider;
-import com.zxq.db.ChatProvider.ChatConstants;
+import com.zxq.db.GroupChatProvider.GroupChatConstants;
 import com.zxq.util.LogUtil;
 import com.zxq.util.PreferenceConstants;
 import com.zxq.util.PreferenceUtils;
@@ -26,8 +26,6 @@ public class GroupChatAdapter extends SimpleCursorAdapter {
 	private LayoutInflater mInflater;
 
 	public GroupChatAdapter(Context context, Cursor cursor, String[] from) {
-		// super(context, android.R.layout.simple_list_item_1, cursor, from,
-		// to);
 		super(context, 0, cursor, from, null);
 		mContext = context;
 		mInflater = LayoutInflater.from(context);
@@ -38,18 +36,16 @@ public class GroupChatAdapter extends SimpleCursorAdapter {
 		Cursor cursor = this.getCursor();
 		cursor.moveToPosition(position);
 
-		long dateMilliseconds = cursor.getLong(cursor.getColumnIndex(ChatConstants.DATE));
-
-		int _id = cursor.getInt(cursor.getColumnIndex(ChatConstants._ID));
+		long dateMilliseconds = cursor.getLong(cursor.getColumnIndex(GroupChatConstants.DATE));
 		String date = TimeUtil.getChatTime(dateMilliseconds);
-		String message = cursor.getString(cursor.getColumnIndex(ChatConstants.MESSAGE));
-		int come = cursor.getInt(cursor.getColumnIndex(ChatConstants.DIRECTION));// 消息来自
-		boolean from_me = (come == ChatConstants.OUTGOING);
-		String jid = cursor.getString(cursor.getColumnIndex(ChatConstants.JID));
-		int delivery_status = cursor.getInt(cursor.getColumnIndex(ChatConstants.DELIVERY_STATUS));
+		String message = cursor.getString(cursor.getColumnIndex(GroupChatConstants.MESSAGE));
+		int come = cursor.getInt(cursor.getColumnIndex(GroupChatConstants.DIRECTION));// 消息来自
+		boolean from_me = (come == GroupChatConstants.OUTGOING);
+		String jid = cursor.getString(cursor.getColumnIndex(GroupChatConstants.JID));
+        String roomJid = cursor.getString(cursor.getColumnIndex(GroupChatConstants.RoomJID));
 		ViewHolder viewHolder;
 		if (convertView == null || convertView.getTag(R.drawable.ic_launcher + come) == null) {
-			if (come == ChatConstants.OUTGOING) {
+			if (come == GroupChatConstants.OUTGOING) {
 				convertView = mInflater.inflate(R.layout.activity_chat_item_right, parent, false);
 			} else {
 				convertView = mInflater.inflate(R.layout.activity_chat_item_left, null);
@@ -61,44 +57,18 @@ public class GroupChatAdapter extends SimpleCursorAdapter {
 			viewHolder = (ViewHolder) convertView.getTag(R.drawable.ic_launcher + come);
 		}
 
-		if (!from_me && delivery_status == ChatConstants.DS_NEW) {
-			markAsReadDelayed(_id, DELAY_NEWMSG);
-		}
-
-		bindViewData(viewHolder, date, from_me, jid, message, delivery_status);
+		bindViewData(viewHolder, date, from_me,jid, message);
 		return convertView;
 	}
 
-	private void markAsReadDelayed(final int id, int delay) {
-		new Handler().postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				markAsRead(id);
-			}
-		}, delay);
-	}
 
-	/**
-	 * 标记为已读消息
-	 * 
-	 * @param id
-	 */
-	private void markAsRead(int id) {
-		Uri rowuri = Uri.parse("content://" + ChatProvider.AUTHORITY + "/" + ChatProvider.TABLE_NAME + "/" + id);
-		LogUtil.d("markAsRead: " + rowuri);
-		ContentValues values = new ContentValues();
-		values.put(ChatConstants.DELIVERY_STATUS, ChatConstants.DS_SENT_OR_READ);
-		mContext.getContentResolver().update(rowuri, values, null, null);
-	}
-
-	private void bindViewData(ViewHolder holder, String date, boolean from_me, String from, String message, int delivery_status) {
+	private void bindViewData(ViewHolder holder, String date, boolean from_me,String jid, String message) {
 		holder.avatar.setBackgroundResource(R.drawable.login_default_avatar);
 		if (from_me && !PreferenceUtils.getPrefBoolean(mContext, PreferenceConstants.SHOW_MY_HEAD, true)) {
 			holder.avatar.setVisibility(View.GONE);
 		}
 		holder.content.setText(message);
 		holder.time.setText(date);
-
 	}
 
 	private ViewHolder buildHolder(View convertView) {

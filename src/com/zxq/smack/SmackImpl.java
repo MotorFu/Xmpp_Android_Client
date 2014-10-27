@@ -58,6 +58,7 @@ public class SmackImpl {
     // 发送离线消息的搜索数据库条件，自己发出去的OUTGOING，并且状态为DS_NEW
     final static private String SEND_OFFLINE_SELECTION = ChatConstants.DIRECTION + " = " + ChatConstants.OUTGOING + " AND " + ChatConstants.DELIVERY_STATUS + " = " + ChatConstants.DS_NEW;
 
+
     static {
         registerSmackProviders();
     }
@@ -307,9 +308,12 @@ public class SmackImpl {
                         addChatMessageToDB(ChatConstants.INCOMING, fromJID, chatMessage, ChatConstants.DS_NEW, ts, msg.getPacketID());// 存入数据库，并标记为新消息DS_NEW
                         mService.newMessage(fromJID, chatMessage);// 通知service，处理是否需要显示通知栏，
                     }
+
+                    if (packet instanceof Message) {// 如果是消息类型
+                        //TODO:对群聊信息做处理
+                    }
                 } catch (Exception e) {
-                    // SMACK silently discards exceptions dropped from
-                    // processPacket :(
+
                     LogUtil.e("failed to process packet:");
                     e.printStackTrace();
                 }
@@ -1139,6 +1143,27 @@ public class SmackImpl {
            return roomInfo;
        }
 
+
+
+    public   MultiUserChat getMultiUserChatByRoomJID(String jid){
+        MultiUserChat muc = new MultiUserChat(mXMPPConnection, jid);
+        return muc;
+    }
+
+    public void sendMultiUserChatMessage(MultiUserChat nowRoom, String message) {// 根据聊天室发送群聊消息
+        try {
+        Message msg = new Message();
+        msg.setType(Message.Type.groupchat);
+        msg.setBody(message);
+            nowRoom.sendMessage(message);
+        } catch (XMPPException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+
     public void deleteUserCreatedGroupChatRoom() {//删除用户所创建的聊天室
     }
 
@@ -1153,20 +1178,12 @@ public class SmackImpl {
         return list;
     }
 
-    public void sendGroupMessage(String roomName, String message) {// 根据聊天室发送群聊消息
-        MultiUserChat multiUserChat = new MultiUserChat(mXMPPConnection, roomName);
+    public void sendGroupChat(MultiUserChat nowRoomChat, String msg) {// 根据聊天室发送群聊消息
         try {
-            multiUserChat.sendMessage(message);
+            nowRoomChat.sendMessage(msg);
         } catch (XMPPException e) {
             e.printStackTrace();
         }
-//        if (isAuthenticated()) {
-//            addChatMessageToDB(ChatConstants.OUTGOING, toJID, message, ChatConstants.DS_SENT_OR_READ, System.currentTimeMillis(), newMessage.getPacketID());
-//            mXMPPConnection.sendPacket(newMessage);
-//        } else {
-//            // send offline -> store to DB
-//            addChatMessageToDB(ChatConstants.OUTGOING, toJID, message, ChatConstants.DS_NEW, System.currentTimeMillis(), newMessage.getPacketID());
-//        }
     }
 
 

@@ -633,4 +633,13 @@ return null;
         return  mSmackable.queryGroupChatRoomInfoByJID(jid);
     }
 
+    public MultiUserChat getMultiUserChatByRoomJID(String jid){
+        return  mSmackable.getMultiUserChatByRoomJID(jid);
+    }
+
+    public void sendGroupChat(MultiUserChat nowRoomChat,String msg){
+       mSmackable.sendGroupChat(nowRoomChat,msg);
+    }
+
+
 }

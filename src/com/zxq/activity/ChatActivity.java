@@ -82,6 +82,8 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener, 
 	private List<String> mFaceMapKeys;// 表情对应的字符串数组
 	private String mWithJabberID = null;// 当前聊天用户的ID
 
+
+
 	private static final String[] PROJECTION_FROM = new String[] { ChatProvider.ChatConstants._ID, ChatProvider.ChatConstants.DATE, ChatProvider.ChatConstants.DIRECTION, ChatProvider.ChatConstants.JID, ChatProvider.ChatConstants.MESSAGE, ChatProvider.ChatConstants.DELIVERY_STATUS };// 查询字段
 
 	private ContentObserver mContactObserver = new ContactObserver();// 联系人数据监听，主要是监听对方在线状态
@@ -135,7 +137,6 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener, 
 		setContentView(R.layout.activity_chat);
 		initData();// 初始化数据
 		initView();// 初始化view
-		// initFacePage();// 初始化表情
 		setChatWindowAdapter();// 初始化对话数据
 		getContentResolver().registerContentObserver(RosterProvider.CONTENT_URI, true, mContactObserver);// 开始监听联系人数据库
 	}
@@ -167,10 +168,6 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener, 
 			mTitleNameView.setText(XMPPHelper.splitJidAndServer(getIntent().getStringExtra(INTENT_EXTRA_USERNAME)));
 			int statusId = StatusMode.values()[status_mode].getDrawableId();
 			if (statusId != -1) {// 如果对应离线状态
-				// Drawable icon = getResources().getDrawable(statusId);
-				// mTitleNameView.setCompoundDrawablesWithIntrinsicBounds(icon,
-				// null,
-				// null, null);
 				mTitleStatusView.setImageResource(statusId);
 				mTitleStatusView.setVisibility(View.VISIBLE);
 			} else {
@@ -231,22 +228,12 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener, 
 
 			@Override
 			protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
-				// ListAdapter adapter = new ChatWindowAdapter(cursor,
-				// PROJECTION_FROM, PROJECTION_TO, mWithJabberID);
 				ListAdapter adapter = new ChatAdapter(ChatActivity.this, cursor, PROJECTION_FROM);
 				mMsgListView.setAdapter(adapter);
 				mMsgListView.setSelection(adapter.getCount() - 1);
 			}
 
 		}.startQuery(0, null, ChatProvider.CONTENT_URI, PROJECTION_FROM, selection, null, null);
-		// 同步查询数据库，建议停止使用,如果数据庞大时，导致界面失去响应
-		// Cursor cursor = managedQuery(ChatProvider.CONTENT_URI,
-		// PROJECTION_FROM,
-		// selection, null, null);
-		// ListAdapter adapter = new ChatWindowAdapter(cursor, PROJECTION_FROM,
-		// PROJECTION_TO, mWithJabberID);
-		// mMsgListView.setAdapter(adapter);
-		// mMsgListView.setSelection(adapter.getCount() - 1);
 	}
 
 	private void initView() {
@@ -260,7 +247,7 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener, 
 		mMsgListView.setXListViewListener(this);
 		mSendMsgBtn = (Button) findViewById(R.id.send);
 		mFaceSwitchBtn = (ImageButton) findViewById(R.id.face_switch_btn);
-		mChatEditText = (EditText) findViewById(R.id.input);
+		mChatEditText = (EditText) findViewById(R.id.chat_input);
 		mFaceRoot = (EmojiKeyboard) findViewById(R.id.face_ll);
 		mFaceRoot.setEventListener(new EventListener() {
 
@@ -274,7 +261,6 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener, 
 				EmojiKeyboard.backspace(mChatEditText);
 			}
 		});
-		// mFaceViewPager = (ViewPager) findViewById(R.id.face_pager);
 		mChatEditText.setOnTouchListener(this);
 		mTitleNameView = (TextView) findViewById(R.id.ivTitleName);
 		mTitleStatusView = (ImageView) findViewById(R.id.ivTitleStatus);
@@ -321,12 +307,12 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener, 
 		mMsgListView.stopRefresh();
 	}
 
-	@Override
-	public void onLoadMore() {
-		// do nothing
-	}
+    @Override
+    public void onLoadMore() {
 
-	@Override
+    }
+
+    @Override
 	public void onClick(View v) {
 		int id = v.getId();
 		if (id == R.id.face_switch_btn) {
@@ -378,127 +364,6 @@ public class ChatActivity extends SwipeBackActivity implements OnTouchListener, 
 			mIsFaceShow = false;
 		}
 		return false;
-	}
-
-	private void initFacePage() {
-		List<View> lv = new ArrayList<View>();
-		for (int i = 0; i < XmppApplication.NUM_PAGE; ++i)
-			lv.add(getGridView(i));
-		FacePageAdeapter adapter = new FacePageAdeapter(lv);
-		mFaceViewPager.setAdapter(adapter);
-		mFaceViewPager.setCurrentItem(mCurrentPage);
-		CirclePageIndicator indicator = (CirclePageIndicator) findViewById(R.id.indicator);
-		indicator.setViewPager(mFaceViewPager);
-		adapter.notifyDataSetChanged();
-		mFaceRoot.setVisibility(View.GONE);
-		indicator.setOnPageChangeListener(new OnPageChangeListener() {
-
-			@Override
-			public void onPageSelected(int arg0) {
-				mCurrentPage = arg0;
-			}
-
-			@Override
-			public void onPageScrolled(int arg0, float arg1, int arg2) {
-				// do nothing
-			}
-
-			@Override
-			public void onPageScrollStateChanged(int arg0) {
-				// do nothing
-			}
-		});
-
-	}
-
-	private GridView getGridView(int i) {
-		GridView gv = new GridView(this);
-		gv.setNumColumns(7);
-		gv.setSelector(new ColorDrawable(Color.TRANSPARENT));// 屏蔽GridView默认点击效果
-		gv.setBackgroundColor(Color.TRANSPARENT);
-		gv.setCacheColorHint(Color.TRANSPARENT);
-		gv.setHorizontalSpacing(1);
-		gv.setVerticalSpacing(1);
-		gv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-		gv.setGravity(Gravity.CENTER);
-		gv.setAdapter(new FaceAdapter(this, i));
-		gv.setOnTouchListener(forbidenScroll());
-		gv.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				if (arg2 == XmppApplication.NUM) {// 删除键的位置
-					int selection = mChatEditText.getSelectionStart();
-					String text = mChatEditText.getText().toString();
-					if (selection > 0) {
-						String text2 = text.substring(selection - 1);
-						if ("]".equals(text2)) {
-							int start = text.lastIndexOf("[");
-							int end = selection;
-							mChatEditText.getText().delete(start, end);
-							return;
-						}
-						mChatEditText.getText().delete(selection - 1, selection);
-					}
-				} else {
-					int count = mCurrentPage * XmppApplication.NUM + arg2;
-					// 注释的部分，在EditText中显示字符串
-					// String ori = msgEt.getText().toString();
-					// int index = msgEt.getSelectionStart();
-					// StringBuilder stringBuilder = new StringBuilder(ori);
-					// stringBuilder.insert(index, keys.get(count));
-					// msgEt.setText(stringBuilder.toString());
-					// msgEt.setSelection(index + keys.get(count).length());
-
-					// 下面这部分，在EditText中显示表情
-					Bitmap bitmap = BitmapFactory.decodeResource(getResources(), (Integer) XmppApplication.getInstance().getFaceMap().values().toArray()[count]);
-					if (bitmap != null) {
-						int rawHeigh = bitmap.getHeight();
-						int rawWidth = bitmap.getHeight();
-						int newHeight = 40;
-						int newWidth = 40;
-						// 计算缩放因子
-						float heightScale = ((float) newHeight) / rawHeigh;
-						float widthScale = ((float) newWidth) / rawWidth;
-						// 新建立矩阵
-						Matrix matrix = new Matrix();
-						matrix.postScale(heightScale, widthScale);
-						// 设置图片的旋转角度
-						// matrix.postRotate(-30);
-						// 设置图片的倾斜
-						// matrix.postSkew(0.1f, 0.1f);
-						// 将图片大小压缩
-						// 压缩后图片的宽和高以及kB大小均会变化
-						Bitmap newBitmap = Bitmap.createBitmap(bitmap, 0, 0, rawWidth, rawHeigh, matrix, true);
-						ImageSpan imageSpan = new ImageSpan(ChatActivity.this, newBitmap);
-						String emojiStr = mFaceMapKeys.get(count);
-						SpannableString spannableString = new SpannableString(emojiStr);
-						spannableString.setSpan(imageSpan, emojiStr.indexOf('['), emojiStr.indexOf(']') + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-						mChatEditText.append(spannableString);
-					} else {
-						String ori = mChatEditText.getText().toString();
-						int index = mChatEditText.getSelectionStart();
-						StringBuilder stringBuilder = new StringBuilder(ori);
-						stringBuilder.insert(index, mFaceMapKeys.get(count));
-						mChatEditText.setText(stringBuilder.toString());
-						mChatEditText.setSelection(index + mFaceMapKeys.get(count).length());
-					}
-				}
-			}
-		});
-		return gv;
-	}
-
-	// 防止乱pageview乱滚动
-	private OnTouchListener forbidenScroll() {
-		return new OnTouchListener() {
-			public boolean onTouch(View v, MotionEvent event) {
-				if (event.getAction() == MotionEvent.ACTION_MOVE) {
-					return true;
-				}
-				return false;
-			}
-		};
 	}
 
 	@Override
