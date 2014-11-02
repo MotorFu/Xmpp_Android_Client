@@ -34,17 +34,17 @@ public class GroupChatListAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return 0;
+        return arrayList.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return null;
+        return arrayList.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return position;
     }
 
     @Override
@@ -102,7 +102,10 @@ public class GroupChatListAdapter extends BaseAdapter {
 		TextView time;
 		ImageView avatar;
         TextView sendName;
-
 	}
 
+    public void updateDataSource(List<GroupChat> arrayList){
+        this.arrayList = arrayList;
+        this.notifyDataSetChanged();
+    }
 }

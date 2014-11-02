@@ -41,14 +41,10 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
-import org.jivesoftware.smackx.muc.DiscussionHistory;
-import org.jivesoftware.smackx.muc.MultiUserChat;
-import org.jivesoftware.smackx.muc.RoomInfo;
+import org.jivesoftware.smackx.muc.*;
+import org.jivesoftware.smackx.packet.VCard;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class GroupChatActivity extends SwipeBackActivity implements OnTouchListener, OnClickListener, IXListViewListener, IConnectionStatusCallback {
 	public static final String INTENT_EXTRA_USERNAME = GroupChatActivity.class.getName() + ".username";// 昵称对应的key
@@ -67,21 +63,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
     private MultiUserChat multiUserChat;
     private  List<GroupChat> arrayList = new ArrayList<GroupChat>();
     private GroupChatListAdapter groupChatListAdapter;
-
-//    //加入聊天室(使用昵称喝醉的毛毛虫 ,使用密码ddd)并且获取聊天室里最后5条信息，
-//    //注：addMessageListener监听器必须在此join方法之前，否则无法监听到需要的5条消息
-//    muc = new MultiUserChat(connection, "ddd@conference.pc2010102716");
-//    DiscussionHistory history = new DiscussionHistory();
-//    history.setMaxStanzas(5);
-//    muc.join("喝醉的毛毛虫", "ddd", history, SmackConfiguration.getPacketReplyTimeout());
-//
-//    //监听拒绝加入聊天室的用户
-//    muc.addInvitationRejectionListener(new InvitationRejectionListener() {
-//        @Override
-//        public void invitationDeclined(String invitee, String reason) {
-//            System.out.println(invitee + " reject invitation, reason is " + reason);
-//        }
-//    });
+    private String userName;
 
     private static final String[] PROJECTION_FROM = new String[] {GroupChatConstants._ID, GroupChatConstants.DATE, GroupChatConstants.DIRECTION, GroupChatConstants.JID, GroupChatConstants.RoomJID, GroupChatConstants.MESSAGE};// 查询字段
 
@@ -167,12 +149,10 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 	}
 
 	private void initData() {
-        //TODO:通过intent获取聊天室名称还有JID
         String jid = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_JID);
         RoomInfo roomInfo = mXmppService.queryGroupChatRoomInfoByJID(jid);
         mRoomName = roomInfo.getSubject();
         multiUserChat = mXmppService.getMultiUserChatByRoomJID(jid);
-       // ToastUtil.showShort(this,getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_JID));
         mTitleNameView.setText(mRoomName);
         multiUserChat.addMessageListener(new PacketListener() {
             @Override
@@ -182,32 +162,38 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
                 GroupChatActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        //TODO:更新聊天LIST
                         GroupChat groupChat = new GroupChat();
-                        groupChat.jid = message.getTo();
-                        groupChat.come = groupChat.jid.equals("")?1:0;
+                        groupChat.jid = message.getFrom().substring(message.getFrom().indexOf("/") + 1);
+                        groupChat.come = groupChat.jid.equals(userName) ? 1 : 0;
                         groupChat.date = new Date().toLocaleString();
                         groupChat.dateMilliseconds = new Date().getTime();
-                        groupChat.message =message.getBody();
-                        groupChat.roomJid = message.getFrom();
+                        groupChat.message = message.getBody();
+                        groupChat.roomJid = message.getTo();
                         arrayList.add(groupChat);
                         groupChatListAdapter.notifyDataSetChanged();
-                        //groupChat.jid
-                        //ToastUtil.showShort(GroupChatActivity.this,message.getBody());
-                        //arrayList.add();
-                        ToastUtil.showShort(GroupChatActivity.this,message.toXML());
-                        LogUtil.e("===============================",message.toXML());
-                        //TODO:这里利用Adapter进行更新，适当要做些缓存。考虑存入数据库
+                        mMsgListView.setSelection(groupChatListAdapter.getCount() - 1);
+                        LogUtil.e("===============================", message.toXML());
                     }
                 });
             }
         });
+        multiUserChat.addSubjectUpdatedListener(new SubjectUpdatedListener() {
+            @Override
+            public void subjectUpdated(String subject, String from) {
+                mTitleNameView.setText(subject);
+            }
+        });
+        //TODO:======待考虑实现验证是否为管理员======
+       // ToastUtil.showShort(this, "" + isAdmin(multiUserChat));
         DiscussionHistory history = new DiscussionHistory();
-        history.setMaxStanzas(0);
+
+
+        //:TODO:=============================
+        history.setMaxStanzas(8);
         try {
             String name = mXmppService.getXmppUserName();
-            name = name.substring(0,name.indexOf("@"));
-            multiUserChat.join(name,"",history,3000);
+            userName = name.substring(0,name.indexOf("@"));
+            multiUserChat.join(userName,"",history,3000);
 
         } catch (XMPPException e) {
             e.printStackTrace();
@@ -216,28 +202,47 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 		Set<String> keySet = XmppApplication.getInstance().getFaceMap().keySet();
 		mFaceMapKeys = new ArrayList<String>();
 		mFaceMapKeys.addAll(keySet);
-
-      //  ToastUtil.showShort(this,multiUserChat.get()+"zzzzz");
-
-//        try {
-//            multiUserChat.join("逗比们");
-//            //这是一种发送方法，使用Message，不过还是用字符串方便
-////            Message msg = new Message();
-////            msg.getSubject("zzzzzz");
-////            msg.setTo(multiUserChat.getRoom());
-////            msg.setType(Message.Type.groupchat);
-////            msg.setBody("hahahahahahahazzzzz");
-////            multiUserChat.sendMessage(msg);
-//            multiUserChat.sendMessage("aaaaaaaaaaaaa");
-//            ToastUtil.showShort(this,"multiUserChat成功发送");
-//        } catch (XMPPException e) {
-//            e.printStackTrace();
-//            ToastUtil.showShort(this,"multiUserChat："+e.getMessage());
-//        }
-
     }
 
-	/**
+    private boolean isAdmin(MultiUserChat muc) {
+        //TODO:待考虑实现验证是否为管理员
+        boolean isAdmin = false;
+        LogUtil.e("======isAdmin======", mXmppService.getXmppUserName());
+        //muc.a
+//        try {
+//            Collection<Affiliate> admins = muc.getAdmins();
+//            Iterator<Affiliate> iterator = admins.iterator();
+//            while (iterator.hasNext()){
+//                Affiliate next = iterator.next();
+//                String adminJid = next.getJid();
+//                LogUtil.e("======isAdmin======|||",adminJid);
+//               if(userName.equals(adminJid)){
+//                   isAdmin = true;
+//               }
+//            }
+//        } catch (XMPPException e) {
+//            e.printStackTrace();
+//        }
+
+        try {
+            Collection<Affiliate> owners =  muc.getOwners();
+            Iterator<Affiliate> iterator = owners.iterator();
+            while (iterator.hasNext()){
+                Affiliate next = iterator.next();
+                String adminJid = next.getJid();
+                LogUtil.e("======isAdmin======|||",adminJid);
+                if(userName.equals(adminJid)){
+                    isAdmin = true;
+                }
+            }
+        } catch (XMPPException e) {
+            e.printStackTrace();
+        }
+
+        return isAdmin;
+    }
+
+    /**
 	 * 设置聊天的Adapter
 	 */
 	private void setChatWindowAdapter() {
@@ -292,7 +297,6 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 					if (mWindowNanagerParams.softInputMode == WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE || mIsFaceShow) {
 						mFaceRoot.setVisibility(View.GONE);
 						mIsFaceShow = false;
-						// imm.showSoftInput(msgEt, 0);
 						return true;
 					}
 				}
