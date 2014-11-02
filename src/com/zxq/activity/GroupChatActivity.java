@@ -4,53 +4,39 @@ import android.content.AsyncQueryHandler;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.database.ContentObserver;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.Editable;
-import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.TextWatcher;
-import android.text.style.ImageSpan;
-import android.view.*;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
-import android.widget.AdapterView.OnItemClickListener;
-import com.zxq.adapter.ChatAdapter;
-import com.zxq.adapter.FaceAdapter;
-import com.zxq.adapter.FacePageAdeapter;
 import com.zxq.adapter.GroupChatAdapter;
+import com.zxq.adapter.GroupChatListAdapter;
 import com.zxq.app.XmppApplication;
-import com.zxq.db.GroupChatProvider.GroupChatConstants;
 import com.zxq.db.GroupChatProvider;
-import com.zxq.db.RosterProvider;
+import com.zxq.db.GroupChatProvider.GroupChatConstants;
 import com.zxq.fragment.GroupChatFragment;
 import com.zxq.service.IConnectionStatusCallback;
 import com.zxq.service.XmppService;
 import com.zxq.ui.emoji.EmojiKeyboard;
 import com.zxq.ui.emoji.EmojiKeyboard.EventListener;
 import com.zxq.ui.swipeback.SwipeBackActivity;
-import com.zxq.ui.view.CirclePageIndicator;
 import com.zxq.ui.xlistview.MsgListView;
 import com.zxq.ui.xlistview.MsgListView.IXListViewListener;
-import com.zxq.util.*;
+import com.zxq.util.LogUtil;
+import com.zxq.util.PreferenceConstants;
+import com.zxq.util.PreferenceUtils;
+import com.zxq.util.ToastUtil;
+import com.zxq.vo.GroupChat;
 import com.zxq.xmpp.R;
-import org.jivesoftware.smack.Chat;
-import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
@@ -60,6 +46,7 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.RoomInfo;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -78,7 +65,8 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 	private String mRoomName = null;
     private String mRoomJID = null;// 当前聊天用户的ID
     private MultiUserChat multiUserChat;
-
+    private  List<GroupChat> arrayList = new ArrayList<GroupChat>();
+    private GroupChatListAdapter groupChatListAdapter;
 
 //    //加入聊天室(使用昵称喝醉的毛毛虫 ,使用密码ddd)并且获取聊天室里最后5条信息，
 //    //注：addMessageListener监听器必须在此join方法之前，否则无法监听到需要的5条消息
@@ -195,7 +183,20 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
                     @Override
                     public void run() {
                         //TODO:更新聊天LIST
-                        ToastUtil.showShort(GroupChatActivity.this,message.getBody());
+                        GroupChat groupChat = new GroupChat();
+                        groupChat.jid = message.getTo();
+                        groupChat.come = groupChat.jid.equals("")?1:0;
+                        groupChat.date = new Date().toLocaleString();
+                        groupChat.dateMilliseconds = new Date().getTime();
+                        groupChat.message =message.getBody();
+                        groupChat.roomJid = message.getFrom();
+                        arrayList.add(groupChat);
+                        groupChatListAdapter.notifyDataSetChanged();
+                        //groupChat.jid
+                        //ToastUtil.showShort(GroupChatActivity.this,message.getBody());
+                        //arrayList.add();
+                        ToastUtil.showShort(GroupChatActivity.this,message.toXML());
+                        LogUtil.e("===============================",message.toXML());
                         //TODO:这里利用Adapter进行更新，适当要做些缓存。考虑存入数据库
                     }
                 });
@@ -267,6 +268,8 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 		mFaceSwitchBtn = (ImageButton) findViewById(R.id.face_switch_btn);
 		mChatEditText = (EditText) findViewById(R.id.group_input);
 		mFaceRoot = (EmojiKeyboard) findViewById(R.id.face_ll);
+        groupChatListAdapter = new GroupChatListAdapter(this,arrayList);
+        mMsgListView.setAdapter(groupChatListAdapter);
 		mFaceRoot.setEventListener(new EventListener() {
 
 			@Override
