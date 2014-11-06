@@ -8,13 +8,34 @@ public class GroupEntry {
     private String iconUrl;
     private String title;
 
+    public boolean isLock() {
+        return isLock;
+    }
+
+    public void setLock(boolean isLock) {
+        this.isLock = isLock;
+    }
+
+    private boolean isLock;
+
+    public int getOccupantsNumber() {
+        return occupantsNumber;
+    }
+
+    public void setOccupantsNumber(int occupantsNumber) {
+        this.occupantsNumber = occupantsNumber;
+    }
+
+    private int occupantsNumber;
     public GroupEntry() {
     }
 
-    public GroupEntry(String jid, String iconUrl, String title) {
+    public GroupEntry(String jid, String iconUrl, String title,boolean isLock,int occupantsNumber) {
         this.jid = jid;
         this.iconUrl = iconUrl;
         this.title = title;
+        this.isLock  = isLock;
+        this.occupantsNumber =occupantsNumber;
     }
 
     public GroupEntry(String iconUrl, String title) {

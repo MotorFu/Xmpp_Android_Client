@@ -134,8 +134,10 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+
 		if (hasWindowFocus())
 			unbindXMPPService();// 解绑服务
+
 	}
 
 	@Override
@@ -185,23 +187,18 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
         });
         //TODO:======待考虑实现验证是否为管理员======
        // ToastUtil.showShort(this, "" + isAdmin(multiUserChat));
-        DiscussionHistory history = new DiscussionHistory();
-
-
-        //:TODO:=============================
-        history.setMaxStanzas(8);
-        try {
             String name = mXmppService.getXmppUserName();
             userName = name.substring(0,name.indexOf("@"));
-            multiUserChat.join(userName,"",history,3000);
-
-        } catch (XMPPException e) {
-            e.printStackTrace();
-        }
         // 将表情map的key保存在数组中
 		Set<String> keySet = XmppApplication.getInstance().getFaceMap().keySet();
 		mFaceMapKeys = new ArrayList<String>();
 		mFaceMapKeys.addAll(keySet);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
     }
 
     private boolean isAdmin(MultiUserChat muc) {

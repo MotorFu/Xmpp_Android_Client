@@ -1116,7 +1116,7 @@ public class SmackImpl {
                 if (roomInfo != null) {
                     // roomInfo.get
                     LogUtil.e(roomInfo.getSubject() + " : " + roomInfo.getRoom() + " : " + roomInfo.getDescription() + " : " + roomInfo.getOccupantsCount());
-                    GroupEntry groupEntry = new GroupEntry(room.getJid(),"",roomInfo.getSubject());
+                    GroupEntry groupEntry = new GroupEntry(room.getJid(),"",roomInfo.getSubject(),roomInfo.isPasswordProtected(),roomInfo.getOccupantsCount());
                     list.add(groupEntry);
                     }
                 }

@@ -68,4 +68,16 @@ public class DialogUtil {
 		context.getWindowManager().getDefaultDisplay().getMetrics(dm);
 		return dm.heightPixels;
 	}
+
+    public static Dialog getGroupPasswordInputDialog(Activity context) {
+        final Dialog dialog = new Dialog(context, R.style.DialogStyle);
+        dialog.setContentView(R.layout.group_password_input_dialog);
+        return dialog;
+    }
+
+    public static Dialog getGroupChatMenuDialog(Activity context) {
+        final Dialog dialog = new Dialog(context, R.style.DialogStyle);
+        dialog.setContentView(R.layout.group_chat_menu_dialog);
+        return dialog;
+    }
 }

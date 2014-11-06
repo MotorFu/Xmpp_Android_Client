@@ -1,6 +1,7 @@
 package com.zxq.fragment;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,9 +14,14 @@ import com.zxq.activity.FragmentCallBack;
 import com.zxq.activity.GroupChatActivity;
 import com.zxq.adapter.RosterAdapter;
 import com.zxq.service.XmppService;
+import com.zxq.util.DialogUtil;
 import com.zxq.util.LogUtil;
+import com.zxq.util.ToastUtil;
 import com.zxq.vo.GroupEntry;
 import com.zxq.xmpp.R;
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smackx.muc.DiscussionHistory;
+import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import java.awt.font.TextAttribute;
 import java.lang.reflect.Array;
@@ -69,6 +75,7 @@ public class GroupChatFragment extends Fragment {
 
     private void setupData() {
         XmppService xmppService = mFragmentCallBack.getService();
+        mXmppService = xmppService;
         String username = xmppService.getXmppUserName();
         groupEntryList = xmppService.getGroupEntryList();
         groupChatAdapter = new GroupChatAdapter(groupEntryList, this.getActivity());
@@ -76,11 +83,61 @@ public class GroupChatFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                GroupEntry groupEntry = groupEntryList.get(position);
-                Intent intent = new Intent();
-                intent.putExtra(GROUP_CHAT_ROOM_JID,groupEntry.getJid());
-                intent.setClass( GroupChatFragment.this.getActivity(),GroupChatActivity.class);
-                GroupChatFragment.this.startActivity(intent);
+                final GroupEntry groupEntry = groupEntryList.get(position);
+                if(groupEntry.isLock()){
+                    final Dialog groupPasswordInputDialog = DialogUtil.getGroupPasswordInputDialog(GroupChatFragment.this.getActivity());
+                    final EditText passwordField  = (EditText) groupPasswordInputDialog.findViewById(R.id.dialog_field_group_chat_password);
+                    Button okBtn = (Button) groupPasswordInputDialog.findViewById(R.id.dialog_btn_group_chat_ok);
+                    Button cancelBtn = (Button) groupPasswordInputDialog.findViewById(R.id.dialog_btn_group_chat_cancel);
+                    okBtn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                                //Todo:发送服务器一个验证，是否成功，成功则继续
+
+                            String name = mXmppService.getXmppUserName();
+                            name = name.substring(0,name.indexOf("@"));
+                            try {
+                                MultiUserChat multiUserChat = mXmppService.getMultiUserChatByRoomJID(groupEntry.getJid());
+                                String password = passwordField.getText().toString().trim();
+                                DiscussionHistory history = new DiscussionHistory();
+                                history.setMaxStanzas(8);
+                                multiUserChat.join(name,password,history,3000);
+                                groupPasswordInputDialog.dismiss();
+                                Intent intent = new Intent();
+                                intent.putExtra(GROUP_CHAT_ROOM_JID, groupEntry.getJid());
+                                intent.setClass(GroupChatFragment.this.getActivity(), GroupChatActivity.class);
+                                GroupChatFragment.this.startActivity(intent);
+                            } catch (XMPPException e) {
+                                e.printStackTrace();
+                                LogUtil.e("=========多人聊天======", e.getMessage());
+                                ToastUtil.showShort(GroupChatFragment.this.getActivity(), "密码错误");
+                                groupPasswordInputDialog.dismiss();
+                            }
+                        }
+                    });
+                    cancelBtn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            groupPasswordInputDialog.dismiss();
+                        }
+                    });
+                    groupPasswordInputDialog.show();
+                }else {
+                    String name = mXmppService.getXmppUserName();
+                    name = name.substring(0,name.indexOf("@"));
+                    MultiUserChat multiUserChat = mXmppService.getMultiUserChatByRoomJID(groupEntry.getJid());
+                    DiscussionHistory history = new DiscussionHistory();
+                    history.setMaxStanzas(8);
+                    try {
+                        multiUserChat.join(name,"",history,3000);
+                    } catch (XMPPException e) {
+                        e.printStackTrace();
+                    }
+                    Intent intent = new Intent();
+                    intent.putExtra(GROUP_CHAT_ROOM_JID, groupEntry.getJid());
+                    intent.setClass(GroupChatFragment.this.getActivity(), GroupChatActivity.class);
+                    GroupChatFragment.this.startActivity(intent);
+                }
                 //GroupChatActivity
             }
         });
