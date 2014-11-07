@@ -84,9 +84,10 @@
         <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/setting_add_account_white"
-                android:id="@+id/config_group_setting"
-                android:layout_alignParentTop="true" android:layout_toLeftOf="@+id/include"/>
+                android:src="@drawable/showright_selector"
+                android:id="@+id/btn_group_setting"
+                android:layout_alignParentRight="true"
+                />
 
     </RelativeLayout>
 

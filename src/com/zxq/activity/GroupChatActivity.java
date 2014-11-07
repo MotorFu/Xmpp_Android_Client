@@ -1,5 +1,6 @@
 package com.zxq.activity;
 
+import android.app.Dialog;
 import android.content.AsyncQueryHandler;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -31,10 +32,7 @@ import com.zxq.ui.emoji.EmojiKeyboard.EventListener;
 import com.zxq.ui.swipeback.SwipeBackActivity;
 import com.zxq.ui.xlistview.MsgListView;
 import com.zxq.ui.xlistview.MsgListView.IXListViewListener;
-import com.zxq.util.LogUtil;
-import com.zxq.util.PreferenceConstants;
-import com.zxq.util.PreferenceUtils;
-import com.zxq.util.ToastUtil;
+import com.zxq.util.*;
 import com.zxq.vo.GroupChat;
 import com.zxq.xmpp.R;
 import org.jivesoftware.smack.PacketListener;
@@ -47,7 +45,6 @@ import org.jivesoftware.smackx.packet.VCard;
 import java.util.*;
 
 public class GroupChatActivity extends SwipeBackActivity implements OnTouchListener, OnClickListener, IXListViewListener, IConnectionStatusCallback {
-	public static final String INTENT_EXTRA_USERNAME = GroupChatActivity.class.getName() + ".username";// 昵称对应的key
 	private MsgListView mMsgListView;// 对话ListView
 	private boolean mIsFaceShow = false;// 是否显示表情
 	private Button mSendMsgBtn;// 发送消息button
@@ -64,6 +61,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
     private  List<GroupChat> arrayList = new ArrayList<GroupChat>();
     private GroupChatListAdapter groupChatListAdapter;
     private String userName;
+    private String passWord;
 
     private static final String[] PROJECTION_FROM = new String[] {GroupChatConstants._ID, GroupChatConstants.DATE, GroupChatConstants.DIRECTION, GroupChatConstants.JID, GroupChatConstants.RoomJID, GroupChatConstants.MESSAGE};// 查询字段
 
@@ -90,6 +88,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 		}
 
 	};
+    private ImageButton mGroupSettingBtn;
 
     /**
 	 * 解绑服务
@@ -152,10 +151,20 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 
 	private void initData() {
         String jid = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_JID);
+        String name = mXmppService.getXmppUserName();
+        userName = name.substring(0,name.indexOf("@"));
+        passWord = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_PASD);
         RoomInfo roomInfo = mXmppService.queryGroupChatRoomInfoByJID(jid);
         mRoomName = roomInfo.getSubject();
         multiUserChat = mXmppService.getMultiUserChatByRoomJID(jid);
         mTitleNameView.setText(mRoomName);
+        DiscussionHistory history = new DiscussionHistory();
+        history.setMaxStanzas(8);
+        try {
+            multiUserChat.join(userName,passWord,history,3000);
+        } catch (XMPPException e) {
+            e.printStackTrace();
+        }
         multiUserChat.addMessageListener(new PacketListener() {
             @Override
             public void processPacket(Packet packet) {
@@ -187,18 +196,47 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
         });
         //TODO:======待考虑实现验证是否为管理员======
        // ToastUtil.showShort(this, "" + isAdmin(multiUserChat));
-            String name = mXmppService.getXmppUserName();
-            userName = name.substring(0,name.indexOf("@"));
         // 将表情map的key保存在数组中
 		Set<String> keySet = XmppApplication.getInstance().getFaceMap().keySet();
 		mFaceMapKeys = new ArrayList<String>();
 		mFaceMapKeys.addAll(keySet);
+
+        mGroupSettingBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Dialog groupChatMenuDialog = DialogUtil.getGroupChatMenuDialog(GroupChatActivity.this);
+                Button btnInvite = (Button) groupChatMenuDialog.findViewById(R.id.dialog_menu_btn_group_chat_invite);
+                Button btnInfoChange = (Button) groupChatMenuDialog.findViewById(R.id.dialog_menu_btn_group_chat_info_change);
+                Button btnKillMenber = (Button) groupChatMenuDialog.findViewById(R.id.dialog_menu_btn_group_chat_kill_menber);
+                btnInvite.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        groupChatMenuDialog.dismiss();
+                    }
+                });
+
+                btnInfoChange.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        groupChatMenuDialog.dismiss();
+                    }
+                });
+
+                btnKillMenber.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        groupChatMenuDialog.dismiss();
+                    }
+                });
+                groupChatMenuDialog.show();
+            }
+        });
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-
+        multiUserChat.leave();
     }
 
     private boolean isAdmin(MultiUserChat muc) {
@@ -268,6 +306,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 		mMsgListView.setXListViewListener(this);
 		mSendMsgBtn = (Button) findViewById(R.id.send);
 		mFaceSwitchBtn = (ImageButton) findViewById(R.id.face_switch_btn);
+        mGroupSettingBtn = (ImageButton) findViewById(R.id.btn_group_setting);
 		mChatEditText = (EditText) findViewById(R.id.group_input);
 		mFaceRoot = (EmojiKeyboard) findViewById(R.id.face_ll);
         groupChatListAdapter = new GroupChatListAdapter(this,arrayList);
@@ -391,6 +430,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 	@Override
 	public void connectionStatusChanged(int connectedState, String reason) {
 	}
+
 
 
 }

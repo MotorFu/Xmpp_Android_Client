@@ -90,16 +90,16 @@ public class SmackImpl {
         pm.addIQProvider("query", "http://jabber.org/protocol/disco#info", new DiscoverInfoProvider());
 
         //Offline Message Requests
-        pm.addIQProvider("offline","http://jabber.org/protocol/offline", new OfflineMessageRequest.Provider());
+        pm.addIQProvider("offline", "http://jabber.org/protocol/offline", new OfflineMessageRequest.Provider());
         //Offline Message Indicator
-        pm.addExtensionProvider("offline","http://jabber.org/protocol/offline", new OfflineMessageInfo.Provider());
+        pm.addExtensionProvider("offline", "http://jabber.org/protocol/offline", new OfflineMessageInfo.Provider());
 
         //vCard
-        pm.addIQProvider("vCard","vcard-temp", new VCardProvider());
+        pm.addIQProvider("vCard", "vcard-temp", new VCardProvider());
 
         //FileTransfer
-        pm.addIQProvider("si","http://jabber.org/protocol/si", new StreamInitiationProvider());
-        pm.addIQProvider("query","http://jabber.org/protocol/bytestreams", new BytestreamsProvider());
+        pm.addIQProvider("si", "http://jabber.org/protocol/si", new StreamInitiationProvider());
+        pm.addIQProvider("query", "http://jabber.org/protocol/bytestreams", new BytestreamsProvider());
 
         //Data Forms
         pm.addExtensionProvider("x", "jabber:x:data", new DataFormProvider());
@@ -119,7 +119,7 @@ public class SmackImpl {
         pm.addExtensionProvider("x", "http://jabber.org/protocol/muc#user", new MUCUserProvider());
         pm.addIQProvider("query", "http://jabber.org/protocol/muc#admin", new MUCAdminProvider());
         pm.addIQProvider("query", "http://jabber.org/protocol/muc#owner", new MUCOwnerProvider());
-        pm.addIQProvider("vCard", "vcard-temp",new org.jivesoftware.smackx.provider.VCardProvider());
+        pm.addIQProvider("vCard", "vcard-temp", new org.jivesoftware.smackx.provider.VCardProvider());
         ServiceDiscoveryManager.setIdentityName(XMPP_IDENTITY_NAME);
         ServiceDiscoveryManager.setIdentityType(XMPP_IDENTITY_TYPE);
     }
@@ -227,7 +227,6 @@ public class SmackImpl {
     }
 
 
-
     /**
      * 注册所有的监听
      */
@@ -264,49 +263,52 @@ public class SmackImpl {
                 try {
                     if (packet instanceof Message) {// 如果是消息类型
                         Message msg = (Message) packet;
-                        String chatMessage = msg.getBody();
 
-                        // try to extract a carbon
-                        Carbon cc = CarbonManager.getCarbon(msg);
-                        if (cc != null && cc.getDirection() == Carbon.Direction.received) {// 收到的消息
-                            LogUtil.d("carbon: " + cc.toXML());
-                            msg = (Message) cc.getForwarded().getForwardedPacket();
-                            chatMessage = msg.getBody();
-                            // fall through
-                        } else if (cc != null && cc.getDirection() == Carbon.Direction.sent) {// 如果是自己发送的消息，则添加到数据库后直接返回
-                            LogUtil.d("carbon: " + cc.toXML());
-                            msg = (Message) cc.getForwarded().getForwardedPacket();
-                            chatMessage = msg.getBody();
-                            if (chatMessage == null)
-                                return;
-                            String fromJID = getJabberID(msg.getTo());
+                        if (msg.getType() != Message.Type.groupchat) {
+                            String chatMessage = msg.getBody();
 
-                            addChatMessageToDB(ChatConstants.OUTGOING, fromJID, chatMessage, ChatConstants.DS_SENT_OR_READ, System.currentTimeMillis(), msg.getPacketID());
-                            // always return after adding
-                            return;// 记得要返回
+                            // try to extract a carbon
+                            Carbon cc = CarbonManager.getCarbon(msg);
+                            if (cc != null && cc.getDirection() == Carbon.Direction.received) {// 收到的消息
+                                LogUtil.d("carbon: " + cc.toXML());
+                                msg = (Message) cc.getForwarded().getForwardedPacket();
+                                chatMessage = msg.getBody();
+                                // fall through
+                            } else if (cc != null && cc.getDirection() == Carbon.Direction.sent) {// 如果是自己发送的消息，则添加到数据库后直接返回
+                                LogUtil.d("carbon: " + cc.toXML());
+                                msg = (Message) cc.getForwarded().getForwardedPacket();
+                                chatMessage = msg.getBody();
+                                if (chatMessage == null)
+                                    return;
+                                String fromJID = getJabberID(msg.getTo());
+
+                                addChatMessageToDB(ChatConstants.OUTGOING, fromJID, chatMessage, ChatConstants.DS_SENT_OR_READ, System.currentTimeMillis(), msg.getPacketID());
+                                // always return after adding
+                                return;// 记得要返回
+                            }
+
+                            if (chatMessage == null) {
+                                return;// 如果消息为空，直接返回了
+                            }
+
+                            if (msg.getType() == Message.Type.error) {
+                                chatMessage = "<Error> " + chatMessage;// 错误的消息类型
+                            }
+
+                            long ts;// 消息时间戳
+                            DelayInfo timestamp = (DelayInfo) msg.getExtension("delay", "urn:xmpp:delay");
+                            if (timestamp == null)
+                                timestamp = (DelayInfo) msg.getExtension("x", "jabber:x:delay");
+                            if (timestamp != null)
+                                ts = timestamp.getStamp().getTime();
+                            else
+                                ts = System.currentTimeMillis();
+
+                            String fromJID = getJabberID(msg.getFrom());// 消息来自对象
+
+                            addChatMessageToDB(ChatConstants.INCOMING, fromJID, chatMessage, ChatConstants.DS_NEW, ts, msg.getPacketID());// 存入数据库，并标记为新消息DS_NEW
+                            mService.newMessage(fromJID, chatMessage);// 通知service，处理是否需要显示通知栏，
                         }
-
-                        if (chatMessage == null) {
-                            return;// 如果消息为空，直接返回了
-                        }
-
-                        if (msg.getType() == Message.Type.error) {
-                            chatMessage = "<Error> " + chatMessage;// 错误的消息类型
-                        }
-
-                        long ts;// 消息时间戳
-                        DelayInfo timestamp = (DelayInfo) msg.getExtension("delay", "urn:xmpp:delay");
-                        if (timestamp == null)
-                            timestamp = (DelayInfo) msg.getExtension("x", "jabber:x:delay");
-                        if (timestamp != null)
-                            ts = timestamp.getStamp().getTime();
-                        else
-                            ts = System.currentTimeMillis();
-
-                        String fromJID = getJabberID(msg.getFrom());// 消息来自对象
-
-                        addChatMessageToDB(ChatConstants.INCOMING, fromJID, chatMessage, ChatConstants.DS_NEW, ts, msg.getPacketID());// 存入数据库，并标记为新消息DS_NEW
-                        mService.newMessage(fromJID, chatMessage);// 通知service，处理是否需要显示通知栏，
                     }
 
                     if (packet instanceof Message) {// 如果是消息类型
@@ -1104,20 +1106,20 @@ public class SmackImpl {
 
     public List<GroupEntry> getUserJoinGroupChatRoom() {//获取所有用户加入的聊天室
         List<GroupEntry> list = new ArrayList<GroupEntry>();
-       List<String> col = null;
+        List<String> col = null;
         try {
             col = getConferenceServices(mXMPPConnection.getServiceName(), mXMPPConnection);
-        for (String aCol : col) {
-            String service = aCol;
-            Collection<HostedRoom> rooms = MultiUserChat.getHostedRooms(mXMPPConnection, service);
-            for (HostedRoom room : rooms) {
-                //查看Room消息
-                RoomInfo roomInfo = MultiUserChat.getRoomInfo(mXMPPConnection, room.getJid());
-                if (roomInfo != null) {
-                    // roomInfo.get
-                    LogUtil.e(roomInfo.getSubject() + " : " + roomInfo.getRoom() + " : " + roomInfo.getDescription() + " : " + roomInfo.getOccupantsCount());
-                    GroupEntry groupEntry = new GroupEntry(room.getJid(),"",roomInfo.getSubject(),roomInfo.isPasswordProtected(),roomInfo.getOccupantsCount());
-                    list.add(groupEntry);
+            for (String aCol : col) {
+                String service = aCol;
+                Collection<HostedRoom> rooms = MultiUserChat.getHostedRooms(mXMPPConnection, service);
+                for (HostedRoom room : rooms) {
+                    //查看Room消息
+                    RoomInfo roomInfo = MultiUserChat.getRoomInfo(mXMPPConnection, room.getJid());
+                    if (roomInfo != null) {
+                        // roomInfo.get
+                        LogUtil.e(roomInfo.getSubject() + " : " + roomInfo.getRoom() + " : " + roomInfo.getDescription() + " : " + roomInfo.getOccupantsCount());
+                        GroupEntry groupEntry = new GroupEntry(room.getJid(), "", roomInfo.getSubject(), roomInfo.isPasswordProtected(), roomInfo.getOccupantsCount());
+                        list.add(groupEntry);
                     }
                 }
             }
@@ -1127,41 +1129,39 @@ public class SmackImpl {
         return list;
     }
 
-       public RoomInfo queryGroupChatRoomInfoByJID(String JID){
-           //查看Room消息
-           RoomInfo roomInfo = null;
-           try {
-               roomInfo = MultiUserChat.getRoomInfo(mXMPPConnection, JID);
-           if (roomInfo != null) {
-               LogUtil.e(roomInfo.getSubject() + " : " + roomInfo.getRoom() + " : " + roomInfo.getDescription() + " : " + roomInfo.getOccupantsCount());
-               return roomInfo;
-           }
-           } catch (XMPPException e) {
-               e.printStackTrace();
-               return null;
-           }
-           return roomInfo;
-       }
+    public RoomInfo queryGroupChatRoomInfoByJID(String JID) {
+        //查看Room消息
+        RoomInfo roomInfo = null;
+        try {
+            roomInfo = MultiUserChat.getRoomInfo(mXMPPConnection, JID);
+            if (roomInfo != null) {
+                LogUtil.e(roomInfo.getSubject() + " : " + roomInfo.getRoom() + " : " + roomInfo.getDescription() + " : " + roomInfo.getOccupantsCount());
+                return roomInfo;
+            }
+        } catch (XMPPException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return roomInfo;
+    }
 
 
-
-    public   MultiUserChat getMultiUserChatByRoomJID(String jid){
+    public MultiUserChat getMultiUserChatByRoomJID(String jid) {
         MultiUserChat muc = new MultiUserChat(mXMPPConnection, jid);
         return muc;
     }
 
     public void sendMultiUserChatMessage(MultiUserChat nowRoom, String message) {// 根据聊天室发送群聊消息
         try {
-        Message msg = new Message();
-        msg.setType(Message.Type.groupchat);
-        msg.setBody(message);
+            Message msg = new Message();
+            msg.setType(Message.Type.groupchat);
+            msg.setBody(message);
             nowRoom.sendMessage(message);
         } catch (XMPPException e) {
             e.printStackTrace();
         }
 
     }
-
 
 
     public void deleteUserCreatedGroupChatRoom() {//删除用户所创建的聊天室
@@ -1191,19 +1191,17 @@ public class SmackImpl {
         List<String> answer = new ArrayList<String>();
         ServiceDiscoveryManager discoManager = ServiceDiscoveryManager.getInstanceFor(connection);
         DiscoverItems items = discoManager.discoverItems(server);
-        for (Iterator<DiscoverItems.Item> it = items.getItems(); it.hasNext();) {
-            DiscoverItems.Item item = (DiscoverItems.Item)it.next();
+        for (Iterator<DiscoverItems.Item> it = items.getItems(); it.hasNext(); ) {
+            DiscoverItems.Item item = (DiscoverItems.Item) it.next();
             if (item.getEntityID().startsWith("conference") || item.getEntityID().startsWith("private")) {
                 answer.add(item.getEntityID());
-            }
-            else {
+            } else {
                 try {
                     DiscoverInfo info = discoManager.discoverInfo(item.getEntityID());
                     if (info.containsFeature("http://jabber.org/protocol/muc")) {
                         answer.add(item.getEntityID());
                     }
-                }
-                catch (XMPPException e) {
+                } catch (XMPPException e) {
                 }
             }
         }

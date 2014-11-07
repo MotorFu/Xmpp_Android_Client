@@ -41,6 +41,7 @@ public class GroupChatFragment extends Fragment {
     private FragmentCallBack mFragmentCallBack;
 
     public static String GROUP_CHAT_ROOM_JID = "GCRJ";
+    public static String GROUP_CHAT_ROOM_PASD = "PASD";
 
     public static GroupChatFragment getInstance() {
         if (groupChatFragment == null)
@@ -99,12 +100,13 @@ public class GroupChatFragment extends Fragment {
                             try {
                                 MultiUserChat multiUserChat = mXmppService.getMultiUserChatByRoomJID(groupEntry.getJid());
                                 String password = passwordField.getText().toString().trim();
-                                DiscussionHistory history = new DiscussionHistory();
-                                history.setMaxStanzas(8);
-                                multiUserChat.join(name,password,history,3000);
+                                multiUserChat.join(name,password);
+                                multiUserChat.leave();
                                 groupPasswordInputDialog.dismiss();
                                 Intent intent = new Intent();
                                 intent.putExtra(GROUP_CHAT_ROOM_JID, groupEntry.getJid());
+                                intent.putExtra(GROUP_CHAT_ROOM_PASD, password);
+
                                 intent.setClass(GroupChatFragment.this.getActivity(), GroupChatActivity.class);
                                 GroupChatFragment.this.startActivity(intent);
                             } catch (XMPPException e) {
@@ -126,15 +128,15 @@ public class GroupChatFragment extends Fragment {
                     String name = mXmppService.getXmppUserName();
                     name = name.substring(0,name.indexOf("@"));
                     MultiUserChat multiUserChat = mXmppService.getMultiUserChatByRoomJID(groupEntry.getJid());
-                    DiscussionHistory history = new DiscussionHistory();
-                    history.setMaxStanzas(8);
                     try {
-                        multiUserChat.join(name,"",history,3000);
+                        multiUserChat.join(name,"");
+                        multiUserChat.leave();
                     } catch (XMPPException e) {
                         e.printStackTrace();
                     }
                     Intent intent = new Intent();
                     intent.putExtra(GROUP_CHAT_ROOM_JID, groupEntry.getJid());
+                    intent.putExtra(GROUP_CHAT_ROOM_PASD, "");
                     intent.setClass(GroupChatFragment.this.getActivity(), GroupChatActivity.class);
                     GroupChatFragment.this.startActivity(intent);
                 }
