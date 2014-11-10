@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.zxq.db.RosterProvider;
@@ -109,8 +110,6 @@ public class RosterChooseAdapter extends BaseExpandableListAdapter {
         Group group = getGroup(groupPosition);
 
         groupName.setText(TextUtils.isEmpty(group.getGroupName()) ? mContext.getString(R.string.default_group) : group.getGroupName());
-        TextView onlineNum = (TextView) convertView.findViewById(R.id.online_count);
-        onlineNum.setText(group.getMembers());
         ImageView indicator = (ImageView) convertView.findViewById(R.id.group_indicator);
         if (isExpanded)
             indicator.setImageResource(R.drawable.indicator_expanded);
@@ -131,12 +130,10 @@ public class RosterChooseAdapter extends BaseExpandableListAdapter {
         if (convertView == null || convertView.getTag(R.drawable.ic_launcher + presenceMode) == null) {
             LogUtil.i("liweiping", "new  child ");
             holder = new ViewHolder();
-            convertView = mInflater.inflate(R.layout.contact_list_item_for_buddy, parent, false);
-            holder.headView = (ImageView) convertView.findViewById(R.id.icon);
-            holder.statusView = (ImageView) convertView.findViewById(R.id.stateicon);
-            holder.nickView = (TextView) convertView.findViewById(R.id.contact_list_item_name);
-            holder.onlineModeView = (ImageView) convertView.findViewById(R.id.online_mode);
-            holder.statusMsgView = (TextView) convertView.findViewById(R.id.contact_list_item_state);
+            convertView = mInflater.inflate(R.layout.contact_list_item_for_choose, parent, false);
+            holder.headView = (ImageView) convertView.findViewById(R.id.contact_icon);
+            holder.nickView = (TextView) convertView.findViewById(R.id.contact_name);
+            holder.checkBox = (CheckBox) convertView.findViewById(R.id.contact_checkbox);
             convertView.setTag(R.drawable.ic_launcher + presenceMode, holder);
             convertView.setTag(R.string.app_name, R.drawable.ic_launcher + presenceMode);
         } else {
@@ -150,9 +147,6 @@ public class RosterChooseAdapter extends BaseExpandableListAdapter {
             holder.nickView.setText(Html.fromHtml("<font color='red'>"+roster.getAlias()+"</font>"));
         }
 
-
-        holder.statusMsgView.setText(TextUtils.isEmpty(roster.getStatusMessage()) ? mContext.getString(R.string.status_offline) : roster.getStatusMessage());
-        setViewImage(holder.onlineModeView, holder.headView, holder.statusView, roster.getStatusMode());
 
         convertView.setTag(R.id.xxx01, groupPosition);
         convertView.setTag(R.id.xxx02, childPosition);
@@ -171,10 +165,7 @@ public class RosterChooseAdapter extends BaseExpandableListAdapter {
     static class ViewHolder {
         ImageView headView;
         TextView nickView;
-        ImageView statusView;
-        ImageView onlineModeView;
-        TextView statusMsgView;
-
+        CheckBox checkBox;
     }
 
     protected void setViewImage(ImageView online, ImageView head, ImageView v, String value) {
@@ -203,7 +194,6 @@ public class RosterChooseAdapter extends BaseExpandableListAdapter {
 
     public class Group {
         private String groupName;
-        private String members;
 
         public String getGroupName() {
             return groupName;
@@ -213,13 +203,6 @@ public class RosterChooseAdapter extends BaseExpandableListAdapter {
             this.groupName = groupName;
         }
 
-        public String getMembers() {
-            return members;
-        }
-
-        public void setMembers(String members) {
-            this.members = members;
-        }
 
     }
 
