@@ -272,7 +272,6 @@ public class RosterChooseAdapter extends BaseExpandableListAdapter {
         while (!groupCursor.isAfterLast()) {
             Group group = new Group();
             group.setGroupName(groupCursor.getString(groupCursor.getColumnIndex(RosterConstants.GROUP)));
-            group.setMembers(groupCursor.getString(groupCursor.getColumnIndex("members")));
             mGroupList.add(group);
             groupCursor.moveToNext();
         }
