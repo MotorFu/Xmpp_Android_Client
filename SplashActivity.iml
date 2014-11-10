@@ -24,6 +24,6 @@
     <orderEntry type="jdk" jdkName="Android API 19 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="qqEmoji-lib" exported="" />
-    <orderEntry type="library" exported="" name="asmack-android-61" level="project" />
+    <orderEntry type="library" exported="" name="AppBase" level="project" />
   </component>
 </module>

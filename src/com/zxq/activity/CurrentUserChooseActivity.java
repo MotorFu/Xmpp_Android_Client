@@ -93,6 +93,7 @@ public class CurrentUserChooseActivity extends Activity {
                 return false;
             }
         });
+
         mRosterAdapter.requery();
     }
 
