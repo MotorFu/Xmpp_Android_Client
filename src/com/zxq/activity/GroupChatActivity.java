@@ -21,6 +21,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.zxq.adapter.GroupChatAdapter;
 import com.zxq.adapter.GroupChatListAdapter;
+import com.zxq.adapter.RosterChooseAdapter;
 import com.zxq.app.XmppApplication;
 import com.zxq.db.GroupChatProvider;
 import com.zxq.db.GroupChatProvider.GroupChatConstants;
@@ -89,6 +90,9 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 
 	};
     private ImageButton mGroupSettingBtn;
+    private int REQUEST_CODE_INVITE = 0X1;
+    private int REQUEST_CODE_INFO_CHANGE = 0X2;
+    private int REQUEST_CODE_KILL_MENBER = 0X3;
 
     /**
 	 * 解绑服务
@@ -211,6 +215,9 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
                 btnInvite.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        Intent intent = new Intent();
+                        intent.setClass(GroupChatActivity.this, CurrentUserChooseActivity.class);
+                        GroupChatActivity.this.startActivityForResult(intent,REQUEST_CODE_INVITE);
                         groupChatMenuDialog.dismiss();
                     }
                 });
@@ -218,6 +225,9 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
                 btnInfoChange.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        Intent intent = new Intent();
+                        intent.setClass(GroupChatActivity.this, CurrentUserChooseActivity.class);
+                        GroupChatActivity.this.startActivityForResult(intent,REQUEST_CODE_INFO_CHANGE);
                         groupChatMenuDialog.dismiss();
                     }
                 });
@@ -225,6 +235,9 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
                 btnKillMenber.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        Intent intent = new Intent();
+                        intent.setClass(GroupChatActivity.this, CurrentUserChooseActivity.class);
+                        GroupChatActivity.this.startActivityForResult(intent,REQUEST_CODE_KILL_MENBER);
                         groupChatMenuDialog.dismiss();
                     }
                 });
