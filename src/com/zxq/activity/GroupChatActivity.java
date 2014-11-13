@@ -226,7 +226,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent();
-                        intent.setClass(GroupChatActivity.this, CurrentUserChooseActivity.class);
+                        intent.setClass(GroupChatActivity.this, EditGroupInfoActivity.class);
                         GroupChatActivity.this.startActivityForResult(intent,REQUEST_CODE_INFO_CHANGE);
                         groupChatMenuDialog.dismiss();
                     }
@@ -236,7 +236,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent();
-                        intent.setClass(GroupChatActivity.this, CurrentUserChooseActivity.class);
+                        intent.setClass(GroupChatActivity.this, GroupOccupantsActivity.class);
                         GroupChatActivity.this.startActivityForResult(intent,REQUEST_CODE_KILL_MENBER);
                         groupChatMenuDialog.dismiss();
                     }
