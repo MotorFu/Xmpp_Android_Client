@@ -13,12 +13,14 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.zxq.exception.XmppAdressMalformedException;
+import com.zxq.util.PreferenceConstants;
+import com.zxq.util.PreferenceUtils;
 import com.zxq.xmpp.R;
 import com.zxq.activity.MainActivity;
 import com.zxq.service.XmppService;
 import com.zxq.util.XMPPHelper;
 
-public class AddRosterItemDialog extends AlertDialog implements DialogInterface.OnClickListener, TextWatcher {
+public class AddRosterItemDialog extends AlertDialog implements DialogInterface.OnClickListener {
 
 	private MainActivity mMainActivity;
 	private XmppService mXmppService;
@@ -59,32 +61,13 @@ public class AddRosterItemDialog extends AlertDialog implements DialogInterface.
 		super.onCreate(icicle);
 
 		okButton = getButton(BUTTON_POSITIVE);
-		afterTextChanged(userInputField.getText());
-
-		userInputField.addTextChangedListener(this);
 	}
 
 	public void onClick(DialogInterface dialog, int which) {
-		mXmppService.addRosterItem(userInputField.getText().toString(), aliasInputField.getText().toString(), mGroupNameView.getGroupName());
+		String userJinName = userInputField.getText().toString() +"@"+ PreferenceUtils.getPrefString(this.mMainActivity, PreferenceConstants.Server,PreferenceConstants.DEFAULT_SERVER);
+		mXmppService.addRosterItem(userJinName, aliasInputField.getText().toString(), mGroupNameView.getGroupName());
 	}
 
-	public void afterTextChanged(Editable s) {
-		try {
-			XMPPHelper.verifyJabberID(s);
-			okButton.setEnabled(true);
-			userInputField.setTextColor(XMPPHelper.getEditTextColor(mMainActivity));
-		} catch (XmppAdressMalformedException e) {
-			okButton.setEnabled(false);
-			userInputField.setTextColor(Color.RED);
-		}
-	}
 
-	public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-	}
-
-	public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-	}
 
 }

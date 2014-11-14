@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.zxq.app.XmppApplication;
 import com.zxq.util.LogUtil;
 import com.zxq.util.ToastUtil;
 import com.zxq.xmpp.R;
@@ -40,6 +41,7 @@ public class RecentChatFragment extends Fragment implements OnClickListener {
 	private TextView mTitleView;
 	private ImageView mTitleAddView;
 	private FragmentCallBack mFragmentCallBack;
+	private static RecentChatFragment recentChatFragment;
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -51,11 +53,51 @@ public class RecentChatFragment extends Fragment implements OnClickListener {
 		}
 	}
 
+	public static RecentChatFragment getRecentChatFragment(){
+		return recentChatFragment;
+	}
+
+	public void callbackWhenAddRoster(String name){
+		final String user = name.substring(0,name.indexOf("@"));
+		LogUtil.i("测试信息3(" + user + ")");
+		RecentChatFragment.this.getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				ToastUtil.showShort(RecentChatFragment.this.getActivity(), "用户 " + user + " 已加入");
+			}
+		});
+
+
+	}
+	public void callbackWhenUpdateRoster(String name){
+		final String user = name.substring(0,name.indexOf("@"));
+		LogUtil.i("测试信息3(" + user + ")");
+		RecentChatFragment.this.getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				ToastUtil.showShort(RecentChatFragment.this.getActivity(), "用户 " + user + " 信息更新");
+			}
+		});
+
+	}
+	public void callbackWhenDeleteRoster(String name){
+		final String user = name.substring(0,name.indexOf("@"));
+		LogUtil.i("测试信息3(" + user + ")");
+		RecentChatFragment.this.getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				ToastUtil.showShort(RecentChatFragment.this.getActivity(), "用户 " + user + " 已删除");
+			}
+		});
+
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		mContentResolver = getActivity().getContentResolver();
 		mRecentChatAdapter = new RecentChatAdapter(getActivity());
+		recentChatFragment = this;
 	}
 
 	@Override

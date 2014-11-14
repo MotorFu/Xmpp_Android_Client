@@ -540,6 +540,7 @@ public class SmackImpl {
                 for (String entry : entries) {
                     RosterEntry rosterEntry = mRoster.getEntry(entry);
                     updateRosterEntryInDB(rosterEntry);
+                    mService.callbackWhenUpdateRoster(entry);
                 }
                 mService.rosterChanged();// 回调通知服务，主要是用来判断一下是否掉线
             }
@@ -549,6 +550,7 @@ public class SmackImpl {
                 LogUtil.i("entriesDeleted(" + entries + ")");
                 for (String entry : entries) {
                     deleteRosterEntryFromDB(entry);
+                    mService.callbackWhenDeleteRoster(entry);
                 }
                 mService.rosterChanged();// 回调通知服务，主要是用来判断一下是否掉线
             }
@@ -556,11 +558,19 @@ public class SmackImpl {
             @Override
             public void entriesAdded(Collection<String> entries) {// 有人添加好友时，我这里没有弹出对话框确认，直接添加到数据库
                 LogUtil.i("entriesAdded(" + entries + ")");
+                boolean isNewUserAdd = true;
                 ContentValues[] cvs = new ContentValues[entries.size()];
+                if(entries.size() > 1){
+                    isNewUserAdd = false;
+                }
                 int i = 0;
                 for (String entry : entries) {
                     RosterEntry rosterEntry = mRoster.getEntry(entry);
-                    cvs[i++] = getContentValuesForRosterEntry(rosterEntry);
+                    cvs[i] = getContentValuesForRosterEntry(rosterEntry);
+                    if(isNewUserAdd) {
+                        mService.callbackWhenAddRoster(entry);
+                    }
+                    i++;
                 }
                 mContentResolver.bulkInsert(RosterProvider.CONTENT_URI, cvs);
                 if (isFristRoter) {

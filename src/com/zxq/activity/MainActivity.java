@@ -1,5 +1,6 @@
 package com.zxq.activity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.*;
 import android.database.Cursor;
@@ -45,7 +46,6 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
     private static final int ID_DND = 4;
 
     public static HashMap<String, Integer> mStatusMap;
-
     private FriendChatFragment friendChatFragment;
     private GroupChatFragment groupChatFragment;
     private FragmentManager supportFragmentManager;

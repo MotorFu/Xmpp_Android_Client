@@ -80,4 +80,12 @@ public class DialogUtil {
         dialog.setContentView(R.layout.group_chat_menu_dialog);
         return dialog;
     }
+
+	public static Dialog getGroupDeleteDialog(Activity context) {
+		final Dialog dialog = new Dialog(context, R.style.DialogStyle);
+		dialog.setContentView(R.layout.group_delete_dialog);
+		return dialog;
+	}
+
+
 }

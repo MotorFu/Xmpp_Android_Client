@@ -17,7 +17,8 @@
             android:id="@+id/Addcontact_Title"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="20dp"
+            android:paddingBottom="8dp"
+            android:textSize="18sp"
             android:text="@string/addFriend_Summ" />
 
         <EditText
@@ -26,7 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:gravity="left"
-            android:hint="user@example.com"
+            android:hint="用户名"
             android:inputType="textEmailAddress"
             android:maxWidth="200sp"
             android:singleLine="true"

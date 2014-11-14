@@ -12,11 +12,7 @@ import android.widget.*;
 import com.zxq.service.XmppService;
 import com.zxq.ui.switcher.Switch;
 import com.zxq.util.LogUtil;
-import com.zxq.util.ToastUtil;
-import com.zxq.util.VCardConstants;
-import com.zxq.vo.PersonEntityInfo;
 import com.zxq.xmpp.R;
-import org.jivesoftware.smackx.packet.VCard;
 
 /**
  * Created by zxq on 2014/9/16.
@@ -31,6 +27,7 @@ public class EditGroupInfoActivity extends Activity {
     private Spinner groupNumber;
     private Switch passwordProtect;
     private Button btnAlterPassword;
+    private Button btnDeleteGroup;
     private Button btnSaveInfo;
 
     private XmppService mXmppService;
@@ -72,6 +69,7 @@ public class EditGroupInfoActivity extends Activity {
         groupNumber = (Spinner) findViewById(R.id.edit_group_info_spinner_room_person_number);
         passwordProtect = (Switch) findViewById(R.id.edit_group_info_switch_password_protect);
         btnAlterPassword = (Button) findViewById(R.id.edit_group_info_btn_set_room_password);
+        btnDeleteGroup = (Button) findViewById(R.id.edit_group_info_btn_delete_group);
         btnSaveInfo = (Button) findViewById(R.id.edit_group_info_btn_save_info);
         String[] mNumberItems = getResources().getStringArray(R.array.group_info_number_array);
         ArrayAdapter<String> mNumberItemsAdapter=new ArrayAdapter<String>(this,R.layout.group_info_number_item, mNumberItems);

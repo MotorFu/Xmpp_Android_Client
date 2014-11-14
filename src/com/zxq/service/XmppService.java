@@ -19,8 +19,10 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.text.TextUtils;
 
+import com.zxq.app.XmppApplication;
 import com.zxq.app.XmppBroadcastReceiver;
 import com.zxq.exception.XmppException;
+import com.zxq.fragment.RecentChatFragment;
 import com.zxq.util.*;
 import com.zxq.vo.GroupEntry;
 import com.zxq.xmpp.R;
@@ -122,6 +124,20 @@ public class XmppService extends BaseService implements EventHandler, BackPressH
         }
         return true;
     }
+
+    public void callbackWhenAddRoster(String name) {
+        RecentChatFragment.getRecentChatFragment().callbackWhenAddRoster(name);
+    }
+
+    public void callbackWhenUpdateRoster(String name) {
+        RecentChatFragment.getRecentChatFragment().callbackWhenUpdateRoster(name);
+    }
+
+    public void callbackWhenDeleteRoster(String name) {
+        RecentChatFragment.getRecentChatFragment().callbackWhenDeleteRoster(name);
+    }
+
+
 
     public class XXBinder extends Binder {
         public XmppService getService() {
