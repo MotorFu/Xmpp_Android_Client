@@ -1,6 +1,7 @@
 package com.zxq.fragment;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.ContentObserver;
@@ -13,10 +14,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.zxq.activity.CreateGroupChatActivity;
 import com.zxq.app.XmppApplication;
+import com.zxq.util.DialogUtil;
 import com.zxq.util.LogUtil;
 import com.zxq.util.ToastUtil;
 import com.zxq.xmpp.R;
@@ -177,11 +181,32 @@ public class RecentChatFragment extends Fragment implements OnClickListener {
 	public void onClick(View v) {
 		int id = v.getId();
 		if (id == R.id.ivTitleBtnRightImage) {
-			XmppService xmppService = mFragmentCallBack.getService();
-			if (xmppService == null || !xmppService.isAuthenticated()) {
-				return;
-			}
-			new AddRosterItemDialog(mFragmentCallBack.getMainActivity(), xmppService).show();// 添加联系人
+			final Dialog groupOrFriendChooseDialog = DialogUtil.getGroupOrFriendChooseDialog(RecentChatFragment.this.getActivity());
+			Button btnCreateGroup = (Button) groupOrFriendChooseDialog.findViewById(R.id.dialog_group_list_btn_create_group);
+			Button btnSearchFriend = (Button) groupOrFriendChooseDialog.findViewById(R.id.dialog_friend_list_btn_search_friend);
+			btnCreateGroup.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Intent intent = new Intent();
+					intent.setClass(RecentChatFragment.this.getActivity(), CreateGroupChatActivity.class);
+					RecentChatFragment.this.getActivity().startActivity(intent);
+					groupOrFriendChooseDialog.dismiss();
+				}
+			});
+			btnSearchFriend.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					XmppService xmppService = mFragmentCallBack.getService();
+					if (xmppService == null || !xmppService.isAuthenticated()) {
+						return;
+					}
+					new AddRosterItemDialog(mFragmentCallBack.getMainActivity(), xmppService).show();// 添加联系人
+					groupOrFriendChooseDialog.dismiss();
+				}
+			});
+			groupOrFriendChooseDialog.show();
+
+
 		}
 	}
 

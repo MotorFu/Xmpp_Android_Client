@@ -1,13 +1,6 @@
 package com.zxq.util;
 
-import android.content.DialogInterface;
-import android.widget.Button;
-import android.widget.EditText;
 import com.zxq.xmpp.R;
-import com.zxq.xmpp.R.id;
-import com.zxq.xmpp.R.layout;
-import com.zxq.xmpp.R.string;
-import com.zxq.xmpp.R.style;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -84,6 +77,12 @@ public class DialogUtil {
 	public static Dialog getGroupDeleteDialog(Activity context) {
 		final Dialog dialog = new Dialog(context, R.style.DialogStyle);
 		dialog.setContentView(R.layout.group_delete_dialog);
+		return dialog;
+	}
+
+	public static Dialog getGroupOrFriendChooseDialog(Activity context) {
+		final Dialog dialog = new Dialog(context, R.style.DialogStyle);
+		dialog.setContentView(R.layout.choose_create_group_add_friend_dialog);
 		return dialog;
 	}
 

@@ -1,7 +1,6 @@
 package com.zxq.activity;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -12,14 +11,13 @@ import android.view.View;
 import android.widget.*;
 import com.zxq.service.XmppService;
 import com.zxq.ui.switcher.Switch;
-import com.zxq.util.DialogUtil;
 import com.zxq.util.LogUtil;
 import com.zxq.xmpp.R;
 
 /**
  * Created by zxq on 2014/9/16.
  */
-public class EditGroupInfoActivity extends Activity {
+public class CreateGroupChatActivity extends Activity {
     private ImageView actionBarBack;
     private TextView acitonBarTitle;
 
@@ -29,7 +27,6 @@ public class EditGroupInfoActivity extends Activity {
     private Spinner groupNumber;
     private Switch passwordProtect;
     private Button btnAlterPassword;
-    private Button btnDeleteGroup;
     private Button btnSaveInfo;
 
     private XmppService mXmppService;
@@ -54,7 +51,7 @@ public class EditGroupInfoActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_group_info);
+        setContentView(R.layout.activity_create_group_info);
         initView();
     }
 
@@ -65,44 +62,21 @@ public class EditGroupInfoActivity extends Activity {
     private void initView() {
         actionBarBack = (ImageView) findViewById(R.id.actionbar_back);
         acitonBarTitle = (TextView) findViewById(R.id.actionbar_title);
-        groupName = (EditText) findViewById(R.id.edit_group_info_text_descript_room_name);
-        groupDescript = (EditText) findViewById(R.id.edit_group_info_text_descript);
-        groupTitle = (EditText) findViewById(R.id.edit_group_info_text_title);
-        groupNumber = (Spinner) findViewById(R.id.edit_group_info_spinner_room_person_number);
-        passwordProtect = (Switch) findViewById(R.id.edit_group_info_switch_password_protect);
-        btnAlterPassword = (Button) findViewById(R.id.edit_group_info_btn_set_room_password);
-        btnDeleteGroup = (Button) findViewById(R.id.edit_group_info_btn_delete_group);
-        btnSaveInfo = (Button) findViewById(R.id.edit_group_info_btn_save_info);
+        groupName = (EditText) findViewById(R.id.create_group_info_text_descript_room_name);
+        groupDescript = (EditText) findViewById(R.id.create_group_info_text_descript);
+        groupTitle = (EditText) findViewById(R.id.create_group_info_text_title);
+        groupNumber = (Spinner) findViewById(R.id.create_group_info_spinner_room_person_number);
+        passwordProtect = (Switch) findViewById(R.id.create_group_info_switch_password_protect);
+        btnAlterPassword = (Button) findViewById(R.id.create_group_info_btn_set_room_password);
+        btnSaveInfo = (Button) findViewById(R.id.create_group_info_btn_save_info);
         String[] mNumberItems = getResources().getStringArray(R.array.group_info_number_array);
         ArrayAdapter<String> mNumberItemsAdapter=new ArrayAdapter<String>(this,R.layout.group_info_number_item, mNumberItems);
         groupNumber.setAdapter(mNumberItemsAdapter);
-        acitonBarTitle.setText("修改聊天室信息");
+        acitonBarTitle.setText("创建聊天室");
         actionBarBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditGroupInfoActivity.this.finish();
-            }
-        });
-        btnDeleteGroup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Dialog groupDeleteDialog = DialogUtil.getGroupDeleteDialog(EditGroupInfoActivity.this);
-                Button ok = (Button) groupDeleteDialog.findViewById(R.id.dialog_group_list_btn_delete_group_ok);
-                Button cancel = (Button) groupDeleteDialog.findViewById(R.id.dialog_group_list_btn_delete_group_cancel);
-                ok.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        groupDeleteDialog.dismiss();
-                    }
-                });
-                cancel.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        groupDeleteDialog.dismiss();
-                    }
-                });
-                groupDeleteDialog.show();
-
+                CreateGroupChatActivity.this.finish();
             }
         });
     }
