@@ -46,6 +46,9 @@ import org.jivesoftware.smackx.packet.VCard;
 import java.util.*;
 
 public class GroupChatActivity extends SwipeBackActivity implements OnTouchListener, OnClickListener, IXListViewListener, IConnectionStatusCallback {
+	public static final String MULTI_USER_CHAT_ROOM_JID = "MULTI_USER_CHAT_JID";
+
+
 	private MsgListView mMsgListView;// 对话ListView
 	private boolean mIsFaceShow = false;// 是否显示表情
 	private Button mSendMsgBtn;// 发送消息button
@@ -154,13 +157,13 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 	}
 
 	private void initData() {
-        String jid = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_JID);
-        String name = mXmppService.getXmppUserName();
+		mRoomJID = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_JID);
+		String name = mXmppService.getXmppUserName();
         userName = name.substring(0,name.indexOf("@"));
         passWord = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_PASD);
-        RoomInfo roomInfo = mXmppService.queryGroupChatRoomInfoByJID(jid);
+        RoomInfo roomInfo = mXmppService.queryGroupChatRoomInfoByJID(mRoomJID);
         mRoomName = roomInfo.getSubject();
-        multiUserChat = mXmppService.getMultiUserChatByRoomJID(jid);
+        multiUserChat = mXmppService.getMultiUserChatByRoomJID(mRoomJID);
         mTitleNameView.setText(mRoomName);
         DiscussionHistory history = new DiscussionHistory();
         history.setMaxStanzas(8);
@@ -227,6 +230,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
                     public void onClick(View v) {
                         Intent intent = new Intent();
                         intent.setClass(GroupChatActivity.this, EditGroupInfoActivity.class);
+						intent.putExtra(MULTI_USER_CHAT_ROOM_JID,mRoomJID);
                         GroupChatActivity.this.startActivityForResult(intent,REQUEST_CODE_INFO_CHANGE);
                         groupChatMenuDialog.dismiss();
                     }
@@ -293,20 +297,6 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
     /**
 	 * 设置聊天的Adapter
 	 */
-	private void setChatWindowAdapter() {
-		String selection = GroupChatConstants.RoomJID + "='" + mRoomJID + "'";
-		// 异步查询数据库
-		new AsyncQueryHandler(getContentResolver()) {
-
-			@Override
-			protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
-				ListAdapter adapter = new GroupChatAdapter(GroupChatActivity.this, cursor, PROJECTION_FROM);
-				mMsgListView.setAdapter(adapter);
-				mMsgListView.setSelection(adapter.getCount() - 1);
-			}
-
-		}.startQuery(0, null, GroupChatProvider.CONTENT_URI, PROJECTION_FROM, selection, null, null);
-	}
 
 	private void initView() {
 		mInputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
