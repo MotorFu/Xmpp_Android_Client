@@ -23,6 +23,7 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.Form;
 import org.jivesoftware.smackx.FormField;
 import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.muc.RoomInfo;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,17 +33,27 @@ import java.util.List;
  * Created by zxq on 2014/9/16.
  */
 public class EditGroupInfoActivity extends Activity {
+    public static final int EDIT_GROUP_CODE_KEY = 0X788;
+    public static final int EDIT_GROUP_CODE_OK = 0X787;
+    public static final int EDIT_GROUP_CODE_ERROR = 0X786;
+    public static final String EDIT_GROUP_CODE_INTENT_VALUE = "EDIT_GROUP_CODE_INTENT_VALUE";
+    public static final String EDIT_GROUP_CODE_INTENT_TITLE = "EDIT_GROUP_CODE_INTENT_TITLE";
+
+
     private ImageView actionBarBack;
     private TextView acitonBarTitle;
 
+    private EditText groupTitle;
     private EditText groupName;
     private EditText groupDescript;
+
+    private EditText groupPassword;
     private Spinner groupNumber;
     private Switch passwordProtect;
-    private Button btnAlterPassword;
     private Button btnDeleteGroup;
     private Button btnSaveInfo;
     private Form form;
+    private RelativeLayout layoutPassword;
 
     private XmppService mXmppService;
     private String mRoomJID;
@@ -54,6 +65,7 @@ public class EditGroupInfoActivity extends Activity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mXmppService = ((XmppService.XXBinder) service).getService();
+
             setupData();
         }
 
@@ -76,6 +88,9 @@ public class EditGroupInfoActivity extends Activity {
         mRoomJID = getIntent().getStringExtra(GroupChatActivity.MULTI_USER_CHAT_ROOM_JID);
         ToastUtil.showShort(this,mRoomJID);
         multiUserChat = mXmppService.getMultiUserChatByRoomJID(mRoomJID);
+        RoomInfo roomInfo = mXmppService.queryGroupChatRoomInfoByJID(mRoomJID);
+        //获取群信息
+        groupTitle.setText(roomInfo.getSubject());
         //获取聊天室的配置表单
 
         Iterator<String> values;
@@ -95,11 +110,6 @@ public class EditGroupInfoActivity extends Activity {
             String tempStr = values.next();
             groupName.setText(tempStr);
         }
-//        private EditText groupName;
-//        private EditText groupDescript;
-//        private Spinner groupNumber;
-//        private Switch passwordProtect;
-//        private Button btnAlterPassword;
 
         FormField fieldRoomDesc = form.getField("muc#roomconfig_roomdesc");
         values = fieldRoomDesc.getValues();
@@ -107,6 +117,7 @@ public class EditGroupInfoActivity extends Activity {
             String tempStr = values.next();
             groupDescript.setText(tempStr);
         }
+
         FormField fieldMaxUsers = form.getField("muc#roomconfig_maxusers");
         values = fieldMaxUsers.getValues();
         while (values.hasNext()){
@@ -123,20 +134,20 @@ public class EditGroupInfoActivity extends Activity {
             LogUtil.e("fieldPasswordProtectRoom："+tempNum);
             if(tempNum == 1){
                 passwordProtect.setChecked(true);
-                btnAlterPassword.setEnabled(true);
-                btnAlterPassword.setBackgroundResource(R.drawable.chat_send_button_bg);
+                layoutPassword.setVisibility(View.VISIBLE);
             }else{
                 passwordProtect.setChecked(false);
-                btnAlterPassword.setEnabled(false);
-                btnAlterPassword.setBackgroundResource(R.drawable.common_btn_gray_actionsheet);
+                layoutPassword.setVisibility(View.GONE);
             }
         }
+
 
         btnSaveInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //根据原始表单创建一个要提交的新表单
                 Form submitForm = form.createAnswerForm();
+                Intent intent = new Intent();
                 //向提交的表单添加默认答复
                 for(Iterator<FormField> fields = form.getFields(); fields.hasNext();) {
                     FormField field = (FormField) fields.next();
@@ -161,18 +172,28 @@ public class EditGroupInfoActivity extends Activity {
 
                 //设置聊天室是持久聊天室，即将要被保存下来（是否持久此聊天室）该设置为默认设置
                 submitForm.setAnswer("muc#roomconfig_persistentroom", true);
+
                 //发送已完成的表单到服务器配置聊天室 （发送至服务器）
                 try {
+                    //修改主题
+                    multiUserChat.changeSubject(groupTitle.getText().toString());
                     multiUserChat.sendConfigurationForm(submitForm);
-                    ToastUtil.showShort(EditGroupInfoActivity.this, "" + groupNumber.getSelectedItemPosition());
+                    ToastUtil.showShort(EditGroupInfoActivity.this, "修改成功。");
+                    intent.putExtra(EDIT_GROUP_CODE_INTENT_VALUE,EDIT_GROUP_CODE_OK);
+                    intent.putExtra(EDIT_GROUP_CODE_INTENT_TITLE,groupTitle.getText().toString());
                 } catch (XMPPException e) {
                     e.printStackTrace();
+                    ToastUtil.showShort(EditGroupInfoActivity.this, "修改错误，网络异常。");
+                    intent.putExtra(EDIT_GROUP_CODE_INTENT_VALUE,EDIT_GROUP_CODE_ERROR);
                 }
+
+                EditGroupInfoActivity.this.setResult(EDIT_GROUP_CODE_KEY,intent);
+                EditGroupInfoActivity.this.finish();
             }
         });
 
-//
-//
+
+
 //        if(form != null) {
 //
 //            Iterator<FormField> fields = form.getFields();
@@ -242,9 +263,12 @@ public class EditGroupInfoActivity extends Activity {
         groupDescript = (EditText) findViewById(R.id.edit_group_info_text_descript);
         groupNumber = (Spinner) findViewById(R.id.edit_group_info_spinner_room_person_number);
         passwordProtect = (Switch) findViewById(R.id.edit_group_info_switch_password_protect);
-        btnAlterPassword = (Button) findViewById(R.id.edit_group_info_btn_set_room_password);
+        groupTitle = (EditText) findViewById(R.id.edit_group_info_text_descript_room_title);
+
+        groupPassword = (EditText) findViewById(R.id.edit_group_info_text_password);
         btnDeleteGroup = (Button) findViewById(R.id.edit_group_info_btn_delete_group);
         btnSaveInfo = (Button) findViewById(R.id.edit_group_info_btn_save_info);
+        layoutPassword = (RelativeLayout) findViewById(R.id.edit_group_info_layout);
         String[] mNumberItems = getResources().getStringArray(R.array.group_info_number_array);
         ArrayAdapter<String> mNumberItemsAdapter=new ArrayAdapter<String>(this,R.layout.group_info_number_item, mNumberItems);
         groupNumber.setAdapter(mNumberItemsAdapter);
@@ -281,11 +305,9 @@ public class EditGroupInfoActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if(passwordProtect.isChecked()){
-                    btnAlterPassword.setEnabled(true);
-                    btnAlterPassword.setBackgroundResource(R.drawable.chat_send_button_bg);
+                    layoutPassword.setVisibility(View.VISIBLE);
                 }else{
-                    btnAlterPassword.setEnabled(false);
-                    btnAlterPassword.setBackgroundResource(R.drawable.common_btn_gray_actionsheet);
+                    layoutPassword.setVisibility(View.GONE);
                 }
             }
         });

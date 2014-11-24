@@ -28,7 +28,7 @@
                     android:layout_height="wrap_content" >
 
                 <EditText
-                        android:id="@+id/edit_group_info_text_descript_room_name"
+                        android:id="@+id/edit_group_info_text_descript_room_title"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:background="@null"
@@ -43,10 +43,10 @@
                 <TextView
                         android:layout_width="90dp"
                         android:layout_height="wrap_content"
-                        android:layout_alignBaseline="@id/edit_group_info_text_descript_room_name"
+                        android:layout_alignBaseline="@id/edit_group_info_text_descript_room_title"
                         android:layout_centerVertical="true"
                         android:gravity="center"
-                        android:text="房间名称:"
+                        android:text="房间主题:"
                         android:textColor="#ff333333"
                         android:textSize="20sp" />
             </RelativeLayout>
@@ -55,6 +55,37 @@
                     android:layout_width="fill_parent"
                     android:layout_height="1.0px"
                     android:background="#ffcfd4da" />
+                <RelativeLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content" >
+
+                        <EditText
+                                android:id="@+id/edit_group_info_text_descript_room_name"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:background="@null"
+                                android:maxLength="50"
+                                android:paddingBottom="6.0dip"
+                                android:paddingLeft="90dip"
+                                android:paddingTop="6.0dip"
+                                android:singleLine="true"
+                                android:textColor="#ff333333"
+                                android:textSize="20sp" />
+
+                        <TextView
+                                android:layout_width="90dp"
+                                android:layout_height="wrap_content"
+                                android:layout_alignBaseline="@id/edit_group_info_text_descript_room_name"
+                                android:layout_centerVertical="true"
+                                android:gravity="center"
+                                android:text="房间名称:"
+                                android:textColor="#ff333333"
+                                android:textSize="20sp" />
+                </RelativeLayout>
+                <View
+                        android:layout_width="fill_parent"
+                        android:layout_height="1.0px"
+                        android:background="#ffcfd4da" />
             <RelativeLayout
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content" >
@@ -84,10 +115,8 @@
             </RelativeLayout>
 
 
-            <View
-                    android:layout_width="fill_parent"
-                    android:layout_height="1.0px"
-                    android:background="#ffcfd4da" />
+
+
             <View
                     android:layout_width="fill_parent"
                     android:layout_height="1.0px"
@@ -139,11 +168,44 @@
                         android:textColor="#ff333333"
                         android:textSize="20sp" />
             </RelativeLayout>
+                <View
+                        android:layout_width="fill_parent"
+                        android:layout_height="1.0px"
+                        android:background="#ffcfd4da" />
+                <RelativeLayout
+                        android:id="@+id/edit_group_info_layout"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content" >
+
+                        <EditText
+                                android:id="@+id/edit_group_info_text_password"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:background="@null"
+                                android:maxLength="50"
+                                android:inputType="textPassword"
+                                android:paddingBottom="6.0dip"
+                                android:paddingLeft="90dip"
+                                android:paddingTop="6.0dip"
+                                android:singleLine="true"
+                                android:textColor="#ff333333"
+                                android:textSize="20sp" />
+
+                        <TextView
+                                android:layout_width="90dp"
+                                android:layout_height="wrap_content"
+                                android:layout_alignBaseline="@id/edit_group_info_text_password"
+                                android:layout_centerVertical="true"
+                                android:gravity="center"
+                                android:text="房间密码:"
+                                android:textColor="#ff333333"
+                                android:textSize="20sp" />
+                </RelativeLayout>
         </LinearLayout>
 
         <LinearLayout
                 android:layout_width="fill_parent"
-                android:layout_height="180.0dip"
+                android:layout_height="130.0dip"
                 android:layout_alignLeft="@id/group_input"
                 android:layout_alignRight="@id/group_input"
                 android:orientation="vertical"
@@ -161,18 +223,7 @@
                     android:textColor="#ffffffff"
                     android:textSize="17.0sp" />
             <View android:layout_width="fill_parent" android:layout_height="5dp"></View>
-            <Button
-                    android:id="@+id/edit_group_info_btn_set_room_password"
-                    style="@style/login_Font"
-                    android:layout_width="fill_parent"
-                    android:layout_height="50dp"
-                    android:background="@drawable/chat_send_button_bg"
-                    android:gravity="center"
-                    android:text="设定聊天室密码"
-                    android:textColor="#ffffffff"
-                    android:textSize="17.0sp" />
 
-                <View android:layout_width="fill_parent" android:layout_height="5dp"></View>
                 <Button
                         android:id="@+id/edit_group_info_btn_save_info"
                         style="@style/login_Font"

@@ -367,6 +367,12 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 	}
 
 	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		//TODO:处理群信息返回的修改信息，更变主题更新群列表游标等。
+	}
+
+	@Override
 	public void onRefresh() {
 		mMsgListView.stopRefresh();
 	}
