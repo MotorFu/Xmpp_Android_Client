@@ -120,9 +120,18 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_group_chat);
-
 		initView();// 初始化view
   	}
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		// 窗口获取到焦点时绑定服务，失去焦点将解绑
+		if (hasFocus)
+			bindXMPPService();
+		else
+			unbindXMPPService();
+	}
 
 	@Override
 	protected void onResume() {
@@ -146,15 +155,6 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 
 	}
 
-	@Override
-	public void onWindowFocusChanged(boolean hasFocus) {
-		super.onWindowFocusChanged(hasFocus);
-		// 窗口获取到焦点时绑定服务，失去焦点将解绑
-		if (hasFocus)
-			bindXMPPService();
-		else
-			unbindXMPPService();
-	}
 
 	private void initData() {
 		mRoomJID = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_JID);
@@ -162,7 +162,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
         userName = name.substring(0,name.indexOf("@"));
         passWord = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_PASD);
         RoomInfo roomInfo = mXmppService.queryGroupChatRoomInfoByJID(mRoomJID);
-        mRoomName = roomInfo.getSubject();
+        mRoomName = mRoomName == null?roomInfo.getSubject():mRoomName;
         multiUserChat = mXmppService.getMultiUserChatByRoomJID(mRoomJID);
         mTitleNameView.setText(mRoomName);
         DiscussionHistory history = new DiscussionHistory();
@@ -190,17 +190,19 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
                         arrayList.add(groupChat);
                         groupChatListAdapter.notifyDataSetChanged();
                         mMsgListView.setSelection(groupChatListAdapter.getCount() - 1);
-                        LogUtil.e("===============================", message.toXML());
                     }
                 });
             }
         });
-        multiUserChat.addSubjectUpdatedListener(new SubjectUpdatedListener() {
-            @Override
-            public void subjectUpdated(String subject, String from) {
-                mTitleNameView.setText(subject);
-            }
-        });
+		multiUserChat.addSubjectUpdatedListener(new SubjectUpdatedListener() {
+			@Override
+			public void subjectUpdated(String s, String s1) {
+
+				LogUtil.e("执行了主题更变回调方法:"+s+"--"+s1);
+				mTitleNameView.setText(s);
+			}
+		});
+
         //TODO:======待考虑实现验证是否为管理员======
        // ToastUtil.showShort(this, "" + isAdmin(multiUserChat));
         // 将表情map的key保存在数组中
@@ -369,7 +371,27 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		//TODO:处理群信息返回的修改信息，更变主题更新群列表游标等。
+
+		if(requestCode == REQUEST_CODE_INFO_CHANGE){
+			if(resultCode == EditGroupInfoActivity.EDIT_GROUP_CODE_KEY){
+//
+//			}	int i = data.getIntExtra(EditGroupInfoActivity.EDIT_GROUP_CODE_INTENT_VALUE,EditGroupInfoActivity.EDIT_GROUP_CODE_ERROR);
+//				if(i == EditGroupInfoActivity.EDIT_GROUP_CODE_OK){
+//					String change = data.getStringExtra(EditGroupInfoActivity.EDIT_GROUP_CODE_INTENT_TITLE);
+//					//mTitleNameView.setText(change);
+//					LogUtil.e("aaaaaaaaaa"+mRoomName);
+//				}else if(i == EditGroupInfoActivity.EDIT_GROUP_CODE_ERROR){
+//					LogUtil.e("aaaaaaaaaaEDIT_GROUP_CODE_ERROR");
+//				}else{
+//
+				}
+		}else if(requestCode == REQUEST_CODE_INVITE){
+
+		}else if(requestCode == REQUEST_CODE_KILL_MENBER){
+
+		}else{
+
+		}
 	}
 
 	@Override
