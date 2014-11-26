@@ -23,33 +23,6 @@
                 android:background="@drawable/as_input_frame"
                 android:orientation="vertical" >
 
-            <RelativeLayout
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content" >
-
-                <EditText
-                        android:id="@+id/edit_group_info_text_descript_room_title"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@null"
-                        android:maxLength="50"
-                        android:paddingBottom="6.0dip"
-                        android:paddingLeft="90dip"
-                        android:paddingTop="6.0dip"
-                        android:singleLine="true"
-                        android:textColor="#ff333333"
-                        android:textSize="20sp" />
-
-                <TextView
-                        android:layout_width="90dp"
-                        android:layout_height="wrap_content"
-                        android:layout_alignBaseline="@id/edit_group_info_text_descript_room_title"
-                        android:layout_centerVertical="true"
-                        android:gravity="center"
-                        android:text="房间主题:"
-                        android:textColor="#ff333333"
-                        android:textSize="20sp" />
-            </RelativeLayout>
 
             <View
                     android:layout_width="fill_parent"

@@ -42,6 +42,7 @@ public class GroupChatFragment extends Fragment {
 
     public static String GROUP_CHAT_ROOM_JID = "GCRJ";
     public static String GROUP_CHAT_ROOM_PASD = "PASD";
+    public static String GROUP_CHAT_ROOM_NAME = "NAME";
 
     public static GroupChatFragment getInstance() {
         if (groupChatFragment == null)
@@ -65,7 +66,6 @@ public class GroupChatFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
         View inflate = inflater.inflate(R.layout.fragment_group_chat_tree, container, false);
         initView(inflate);
-        setupData();
         return inflate;
     }
 
@@ -77,7 +77,6 @@ public class GroupChatFragment extends Fragment {
     private void setupData() {
         XmppService xmppService = mFragmentCallBack.getService();
         mXmppService = xmppService;
-        String username = xmppService.getXmppUserName();
         groupEntryList = xmppService.getGroupEntryList();
         groupChatAdapter = new GroupChatAdapter(groupEntryList, this.getActivity());
         listView.setAdapter(groupChatAdapter);
@@ -94,7 +93,6 @@ public class GroupChatFragment extends Fragment {
                         @Override
                         public void onClick(View v) {
                                 //Todo:发送服务器一个验证，是否成功，成功则继续
-
                             String name = mXmppService.getXmppUserName();
                             name = name.substring(0,name.indexOf("@"));
                             try {
@@ -105,6 +103,7 @@ public class GroupChatFragment extends Fragment {
                                 groupPasswordInputDialog.dismiss();
                                 Intent intent = new Intent();
                                 intent.putExtra(GROUP_CHAT_ROOM_JID, groupEntry.getJid());
+                                intent.putExtra(GROUP_CHAT_ROOM_NAME, groupEntry.getTitle());
                                 intent.putExtra(GROUP_CHAT_ROOM_PASD, password);
 
                                 intent.setClass(GroupChatFragment.this.getActivity(), GroupChatActivity.class);
@@ -136,6 +135,7 @@ public class GroupChatFragment extends Fragment {
                     }
                     Intent intent = new Intent();
                     intent.putExtra(GROUP_CHAT_ROOM_JID, groupEntry.getJid());
+                    intent.putExtra(GROUP_CHAT_ROOM_NAME, groupEntry.getTitle());
                     intent.putExtra(GROUP_CHAT_ROOM_PASD, "");
                     intent.setClass(GroupChatFragment.this.getActivity(), GroupChatActivity.class);
                     GroupChatFragment.this.startActivity(intent);
@@ -153,6 +153,7 @@ public class GroupChatFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        setupData();
     }
 
     @Override

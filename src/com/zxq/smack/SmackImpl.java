@@ -26,6 +26,8 @@ import org.jivesoftware.smack.packet.IQ.Type;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smackx.Form;
+import org.jivesoftware.smackx.FormField;
 import org.jivesoftware.smackx.ServiceDiscoveryManager;
 import org.jivesoftware.smackx.bytestreams.socks5.provider.BytestreamsProvider;
 import org.jivesoftware.smackx.carbons.Carbon;
@@ -1128,7 +1130,7 @@ public class SmackImpl {
                     if (roomInfo != null) {
                         // roomInfo.get
                         LogUtil.e(roomInfo.getSubject() + " : " + roomInfo.getRoom() + " : " + roomInfo.getDescription() + " : " + roomInfo.getOccupantsCount());
-                        GroupEntry groupEntry = new GroupEntry(room.getJid(), "", roomInfo.getSubject(), roomInfo.isPasswordProtected(), roomInfo.getOccupantsCount());
+                        GroupEntry groupEntry = new GroupEntry(room.getJid(), "",room.getName(), roomInfo.isPasswordProtected(), roomInfo.getOccupantsCount());
                         list.add(groupEntry);
                     }
                 }

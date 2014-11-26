@@ -43,7 +43,6 @@ public class EditGroupInfoActivity extends Activity {
     private ImageView actionBarBack;
     private TextView acitonBarTitle;
 
-    private EditText groupTitle;
     private EditText groupName;
     private EditText groupDescript;
 
@@ -86,11 +85,8 @@ public class EditGroupInfoActivity extends Activity {
 
     private void setupData() {
         mRoomJID = getIntent().getStringExtra(GroupChatActivity.MULTI_USER_CHAT_ROOM_JID);
-        ToastUtil.showShort(this,mRoomJID);
+        //ToastUtil.showShort(this,mRoomJID);
         multiUserChat = mXmppService.getMultiUserChatByRoomJID(mRoomJID);
-        RoomInfo roomInfo = mXmppService.queryGroupChatRoomInfoByJID(mRoomJID);
-        //获取群信息
-        groupTitle.setText(roomInfo.getSubject());
         //获取聊天室的配置表单
 
         Iterator<String> values;
@@ -175,12 +171,11 @@ public class EditGroupInfoActivity extends Activity {
 
                 //发送已完成的表单到服务器配置聊天室 （发送至服务器）
                 try {
-                    //修改主题
-                    multiUserChat.changeSubject(groupTitle.getText().toString());
+
                     multiUserChat.sendConfigurationForm(submitForm);
-                    ToastUtil.showShort(EditGroupInfoActivity.this, "修改成功。");
+                    ToastUtil.showShort(EditGroupInfoActivity.this, "修改成功。"+groupName.getText().toString());
                     intent.putExtra(EDIT_GROUP_CODE_INTENT_VALUE,EDIT_GROUP_CODE_OK);
-                    intent.putExtra(EDIT_GROUP_CODE_INTENT_TITLE,groupTitle.getText().toString());
+                    intent.putExtra(EDIT_GROUP_CODE_INTENT_TITLE,groupName.getText().toString());
                 } catch (XMPPException e) {
                     e.printStackTrace();
                     ToastUtil.showShort(EditGroupInfoActivity.this, "修改错误，网络异常。");
@@ -263,7 +258,6 @@ public class EditGroupInfoActivity extends Activity {
         groupDescript = (EditText) findViewById(R.id.edit_group_info_text_descript);
         groupNumber = (Spinner) findViewById(R.id.edit_group_info_spinner_room_person_number);
         passwordProtect = (Switch) findViewById(R.id.edit_group_info_switch_password_protect);
-        groupTitle = (EditText) findViewById(R.id.edit_group_info_text_descript_room_title);
 
         groupPassword = (EditText) findViewById(R.id.edit_group_info_text_password);
         btnDeleteGroup = (Button) findViewById(R.id.edit_group_info_btn_delete_group);

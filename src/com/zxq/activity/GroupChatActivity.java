@@ -46,129 +46,118 @@ import org.jivesoftware.smackx.packet.VCard;
 import java.util.*;
 
 public class GroupChatActivity extends SwipeBackActivity implements OnTouchListener, OnClickListener, IXListViewListener, IConnectionStatusCallback {
-	public static final String MULTI_USER_CHAT_ROOM_JID = "MULTI_USER_CHAT_JID";
+    public static final String MULTI_USER_CHAT_ROOM_JID = "MULTI_USER_CHAT_JID";
 
 
-	private MsgListView mMsgListView;// 对话ListView
-	private boolean mIsFaceShow = false;// 是否显示表情
-	private Button mSendMsgBtn;// 发送消息button
-	private ImageButton mFaceSwitchBtn;// 切换键盘和表情的button
-	private TextView mTitleNameView;// 标题栏
-	private EditText mChatEditText;// 消息输入框
-	private EmojiKeyboard mFaceRoot;// 表情父容器
-	private WindowManager.LayoutParams mWindowNanagerParams;
-	private InputMethodManager mInputMethodManager;
-	private List<String> mFaceMapKeys;// 表情对应的字符串数组
-	private String mRoomName = null;
+    private MsgListView mMsgListView;// 对话ListView
+    private boolean mIsFaceShow = false;// 是否显示表情
+    private Button mSendMsgBtn;// 发送消息button
+    private ImageButton mFaceSwitchBtn;// 切换键盘和表情的button
+    private TextView mTitleNameView;// 标题栏
+    private EditText mChatEditText;// 消息输入框
+    private EmojiKeyboard mFaceRoot;// 表情父容器
+    private WindowManager.LayoutParams mWindowNanagerParams;
+    private InputMethodManager mInputMethodManager;
+    private List<String> mFaceMapKeys;// 表情对应的字符串数组
+    private String mRoomName = null;
     private String mRoomJID = null;// 当前聊天用户的ID
     private MultiUserChat multiUserChat;
-    private  List<GroupChat> arrayList = new ArrayList<GroupChat>();
+    private List<GroupChat> arrayList = new ArrayList<GroupChat>();
     private GroupChatListAdapter groupChatListAdapter;
     private String userName;
     private String passWord;
 
-    private static final String[] PROJECTION_FROM = new String[] {GroupChatConstants._ID, GroupChatConstants.DATE, GroupChatConstants.DIRECTION, GroupChatConstants.JID, GroupChatConstants.RoomJID, GroupChatConstants.MESSAGE};// 查询字段
+    private static final String[] PROJECTION_FROM = new String[]{GroupChatConstants._ID, GroupChatConstants.DATE, GroupChatConstants.DIRECTION, GroupChatConstants.JID, GroupChatConstants.RoomJID, GroupChatConstants.MESSAGE};// 查询字段
 
-	private XmppService mXmppService;// Main服务
-	ServiceConnection mServiceConnection = new ServiceConnection() {
 
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			mXmppService = ((XmppService.XXBinder) service).getService();
-			mXmppService.registerConnectionStatusCallback(GroupChatActivity.this);
-			// 如果没有连接上，则重新连接xmpp服务器
-			if (!mXmppService.isAuthenticated()) {
-				String usr = PreferenceUtils.getPrefString(GroupChatActivity.this, PreferenceConstants.ACCOUNT, "");
-				String password = PreferenceUtils.getPrefString(GroupChatActivity.this, PreferenceConstants.PASSWORD, "");
-				mXmppService.login(usr, password);
-			}
+    private XmppService mXmppService;// Main服务
+    ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mXmppService = ((XmppService.XXBinder) service).getService();
+            mXmppService.registerConnectionStatusCallback(GroupChatActivity.this);
+            // 如果没有连接上，则重新连接xmpp服务器
+            if (!mXmppService.isAuthenticated()) {
+                String usr = PreferenceUtils.getPrefString(GroupChatActivity.this, PreferenceConstants.ACCOUNT, "");
+                String password = PreferenceUtils.getPrefString(GroupChatActivity.this, PreferenceConstants.PASSWORD, "");
+                mXmppService.login(usr, password);
+            }
             initData();// 初始化数据
-		}
+        }
 
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			mXmppService.unRegisterConnectionStatusCallback();
-			mXmppService = null;
-		}
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mXmppService.unRegisterConnectionStatusCallback();
+            mXmppService = null;
+        }
 
-	};
+    };
     private ImageButton mGroupSettingBtn;
     private int REQUEST_CODE_INVITE = 0X1;
     private int REQUEST_CODE_INFO_CHANGE = 0X2;
     private int REQUEST_CODE_KILL_MENBER = 0X3;
 
     /**
-	 * 解绑服务
-	 */
-	private void unbindXMPPService() {
-		try {
-			unbindService(mServiceConnection);
-		} catch (IllegalArgumentException e) {
-			LogUtil.e("Service wasn't bound!");
-		}
-	}
+     * 解绑服务
+     */
+    private void unbindXMPPService() {
+        try {
+            unbindService(mServiceConnection);
+        } catch (IllegalArgumentException e) {
+            LogUtil.e("Service wasn't bound!");
+        }
+    }
 
-	/**
-	 * 绑定服务
-	 */
-	private void bindXMPPService() {
-		Intent mServiceIntent = new Intent(this, XmppService.class);
-		bindService(mServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
-	}
+    /**
+     * 绑定服务
+     */
+    private void bindXMPPService() {
+        Intent mServiceIntent = new Intent(this, XmppService.class);
+        bindService(mServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+    }
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_group_chat);
-		initView();// 初始化view
-  	}
-
-	@Override
-	public void onWindowFocusChanged(boolean hasFocus) {
-		super.onWindowFocusChanged(hasFocus);
-		// 窗口获取到焦点时绑定服务，失去焦点将解绑
-		if (hasFocus)
-			bindXMPPService();
-		else
-			unbindXMPPService();
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-	}
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_group_chat);
+        initView();// 初始化view
+        bindXMPPService();
+    }
 
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
 
 
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-
-		if (hasWindowFocus())
-			unbindXMPPService();// 解绑服务
-
-	}
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindXMPPService();// 解绑服务
 
 
-	private void initData() {
-		mRoomJID = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_JID);
-		String name = mXmppService.getXmppUserName();
-        userName = name.substring(0,name.indexOf("@"));
+    }
+
+
+    private void initData() {
+        mRoomJID = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_JID);
+        mRoomName = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_NAME);
+        String name = mXmppService.getXmppUserName();
+        userName = name.substring(0, name.indexOf("@"));
         passWord = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_PASD);
-        RoomInfo roomInfo = mXmppService.queryGroupChatRoomInfoByJID(mRoomJID);
-        mRoomName = mRoomName == null?roomInfo.getSubject():mRoomName;
         multiUserChat = mXmppService.getMultiUserChatByRoomJID(mRoomJID);
         mTitleNameView.setText(mRoomName);
         DiscussionHistory history = new DiscussionHistory();
         history.setMaxStanzas(8);
         try {
-            multiUserChat.join(userName,passWord,history,3000);
+            multiUserChat.join(userName, passWord, history, 3000);
         } catch (XMPPException e) {
             e.printStackTrace();
         }
@@ -194,21 +183,14 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
                 });
             }
         });
-		multiUserChat.addSubjectUpdatedListener(new SubjectUpdatedListener() {
-			@Override
-			public void subjectUpdated(String s, String s1) {
 
-				LogUtil.e("执行了主题更变回调方法:"+s+"--"+s1);
-				mTitleNameView.setText(s);
-			}
-		});
 
         //TODO:======待考虑实现验证是否为管理员======
-       // ToastUtil.showShort(this, "" + isAdmin(multiUserChat));
+        // ToastUtil.showShort(this, "" + isAdmin(multiUserChat));
         // 将表情map的key保存在数组中
-		Set<String> keySet = XmppApplication.getInstance().getFaceMap().keySet();
-		mFaceMapKeys = new ArrayList<String>();
-		mFaceMapKeys.addAll(keySet);
+        Set<String> keySet = XmppApplication.getInstance().getFaceMap().keySet();
+        mFaceMapKeys = new ArrayList<String>();
+        mFaceMapKeys.addAll(keySet);
 
         mGroupSettingBtn.setOnClickListener(new OnClickListener() {
             @Override
@@ -222,7 +204,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
                     public void onClick(View v) {
                         Intent intent = new Intent();
                         intent.setClass(GroupChatActivity.this, CurrentUserChooseActivity.class);
-                        GroupChatActivity.this.startActivityForResult(intent,REQUEST_CODE_INVITE);
+                        GroupChatActivity.this.startActivityForResult(intent, REQUEST_CODE_INVITE);
                         groupChatMenuDialog.dismiss();
                     }
                 });
@@ -232,8 +214,8 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
                     public void onClick(View v) {
                         Intent intent = new Intent();
                         intent.setClass(GroupChatActivity.this, EditGroupInfoActivity.class);
-						intent.putExtra(MULTI_USER_CHAT_ROOM_JID,mRoomJID);
-                        GroupChatActivity.this.startActivityForResult(intent,REQUEST_CODE_INFO_CHANGE);
+                        intent.putExtra(MULTI_USER_CHAT_ROOM_JID, mRoomJID);
+                        GroupChatActivity.this.startActivityForResult(intent, REQUEST_CODE_INFO_CHANGE);
                         groupChatMenuDialog.dismiss();
                     }
                 });
@@ -243,7 +225,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
                     public void onClick(View v) {
                         Intent intent = new Intent();
                         intent.setClass(GroupChatActivity.this, GroupOccupantsActivity.class);
-                        GroupChatActivity.this.startActivityForResult(intent,REQUEST_CODE_KILL_MENBER);
+                        GroupChatActivity.this.startActivityForResult(intent, REQUEST_CODE_KILL_MENBER);
                         groupChatMenuDialog.dismiss();
                     }
                 });
@@ -279,13 +261,13 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 //        }
 
         try {
-            Collection<Affiliate> owners =  muc.getOwners();
+            Collection<Affiliate> owners = muc.getOwners();
             Iterator<Affiliate> iterator = owners.iterator();
-            while (iterator.hasNext()){
+            while (iterator.hasNext()) {
                 Affiliate next = iterator.next();
                 String adminJid = next.getJid();
-                LogUtil.e("======isAdmin======|||",adminJid);
-                if(userName.equals(adminJid)){
+                LogUtil.e("======isAdmin======|||", adminJid);
+                if (userName.equals(adminJid)) {
                     isAdmin = true;
                 }
             }
@@ -297,142 +279,153 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
     }
 
     /**
-	 * 设置聊天的Adapter
-	 */
+     * 设置聊天的Adapter
+     */
 
-	private void initView() {
-		mInputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-		mWindowNanagerParams = getWindow().getAttributes();
+    private void initView() {
+        mInputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        mWindowNanagerParams = getWindow().getAttributes();
 
-		mMsgListView = (MsgListView) findViewById(R.id.msg_listView);
-		// 触摸ListView隐藏表情和输入法
-		mMsgListView.setOnTouchListener(this);
-		mMsgListView.setPullLoadEnable(false);
-		mMsgListView.setXListViewListener(this);
-		mSendMsgBtn = (Button) findViewById(R.id.send);
-		mFaceSwitchBtn = (ImageButton) findViewById(R.id.face_switch_btn);
+        mMsgListView = (MsgListView) findViewById(R.id.msg_listView);
+        // 触摸ListView隐藏表情和输入法
+        mMsgListView.setOnTouchListener(this);
+        mMsgListView.setPullLoadEnable(false);
+        mMsgListView.setXListViewListener(this);
+        mSendMsgBtn = (Button) findViewById(R.id.send);
+        mFaceSwitchBtn = (ImageButton) findViewById(R.id.face_switch_btn);
         mGroupSettingBtn = (ImageButton) findViewById(R.id.btn_group_setting);
-		mChatEditText = (EditText) findViewById(R.id.group_input);
-		mFaceRoot = (EmojiKeyboard) findViewById(R.id.face_ll);
-        groupChatListAdapter = new GroupChatListAdapter(this,arrayList);
+        mChatEditText = (EditText) findViewById(R.id.group_input);
+        mFaceRoot = (EmojiKeyboard) findViewById(R.id.face_ll);
+        groupChatListAdapter = new GroupChatListAdapter(this, arrayList);
         mMsgListView.setAdapter(groupChatListAdapter);
-		mFaceRoot.setEventListener(new EventListener() {
+        mFaceRoot.setEventListener(new EventListener() {
 
-			@Override
-			public void onEmojiSelected(String res) {
-				EmojiKeyboard.input(mChatEditText, res);
-			}
+            @Override
+            public void onEmojiSelected(String res) {
+                EmojiKeyboard.input(mChatEditText, res);
+            }
 
-			@Override
-			public void onBackspace() {
-				EmojiKeyboard.backspace(mChatEditText);
-			}
-		});
-		mChatEditText.setOnTouchListener(this);
-		mTitleNameView = (TextView) findViewById(R.id.ivTitleName);
-		mChatEditText.setOnKeyListener(new OnKeyListener() {
+            @Override
+            public void onBackspace() {
+                EmojiKeyboard.backspace(mChatEditText);
+            }
+        });
+        mChatEditText.setOnTouchListener(this);
+        mTitleNameView = (TextView) findViewById(R.id.ivTitleName);
+        mChatEditText.setOnKeyListener(new OnKeyListener() {
 
-			@Override
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				if (keyCode == KeyEvent.KEYCODE_BACK) {
-					if (mWindowNanagerParams.softInputMode == WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE || mIsFaceShow) {
-						mFaceRoot.setVisibility(View.GONE);
-						mIsFaceShow = false;
-						return true;
-					}
-				}
-				return false;
-			}
-		});
-		mChatEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    if (mWindowNanagerParams.softInputMode == WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE || mIsFaceShow) {
+                        mFaceRoot.setVisibility(View.GONE);
+                        mIsFaceShow = false;
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+        mChatEditText.addTextChangedListener(new TextWatcher() {
 
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-			}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-			}
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
-			@Override
-			public void afterTextChanged(Editable s) {
-				if (s.length() > 0) {
-					mSendMsgBtn.setEnabled(true);
-				} else {
-					mSendMsgBtn.setEnabled(false);
-				}
-			}
-		});
-		mFaceSwitchBtn.setOnClickListener(this);
-		mSendMsgBtn.setOnClickListener(this);
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.length() > 0) {
+                    mSendMsgBtn.setEnabled(true);
+                } else {
+                    mSendMsgBtn.setEnabled(false);
+                }
+            }
+        });
+        mFaceSwitchBtn.setOnClickListener(this);
+        mSendMsgBtn.setOnClickListener(this);
 
-	}
+    }
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-		if(requestCode == REQUEST_CODE_INFO_CHANGE){
-			if(resultCode == EditGroupInfoActivity.EDIT_GROUP_CODE_KEY){
-//
-//			}	int i = data.getIntExtra(EditGroupInfoActivity.EDIT_GROUP_CODE_INTENT_VALUE,EditGroupInfoActivity.EDIT_GROUP_CODE_ERROR);
-//				if(i == EditGroupInfoActivity.EDIT_GROUP_CODE_OK){
-//					String change = data.getStringExtra(EditGroupInfoActivity.EDIT_GROUP_CODE_INTENT_TITLE);
-//					//mTitleNameView.setText(change);
-//					LogUtil.e("aaaaaaaaaa"+mRoomName);
-//				}else if(i == EditGroupInfoActivity.EDIT_GROUP_CODE_ERROR){
-//					LogUtil.e("aaaaaaaaaaEDIT_GROUP_CODE_ERROR");
-//				}else{
-//
-				}
-		}else if(requestCode == REQUEST_CODE_INVITE){
+        if (requestCode == REQUEST_CODE_INFO_CHANGE) {
+            if (resultCode == EditGroupInfoActivity.EDIT_GROUP_CODE_KEY) {
+                int i = data.getIntExtra(EditGroupInfoActivity.EDIT_GROUP_CODE_INTENT_VALUE, EditGroupInfoActivity.EDIT_GROUP_CODE_ERROR);
+                if (i == EditGroupInfoActivity.EDIT_GROUP_CODE_OK) {
+                    String change = data.getStringExtra(EditGroupInfoActivity.EDIT_GROUP_CODE_INTENT_TITLE);
+                    LogUtil.e("aaaaaaaaaaaaa"+change);
+                    mTitleNameView.setText(change);
 
-		}else if(requestCode == REQUEST_CODE_KILL_MENBER){
+                } else if (i == EditGroupInfoActivity.EDIT_GROUP_CODE_ERROR) {
 
-		}else{
+                } else {
 
-		}
-	}
+                }
+            }
+        } else if (requestCode == REQUEST_CODE_INVITE) {
 
-	@Override
-	public void onRefresh() {
-		mMsgListView.stopRefresh();
-	}
+        } else if (requestCode == REQUEST_CODE_KILL_MENBER) {
 
-	@Override
-	public void onLoadMore() {
-		// do nothing
-	}
+        } else {
 
-	@Override
-	public void onClick(View v) {
-		int id = v.getId();
-		if (id == R.id.face_switch_btn) {
-			if (!mIsFaceShow) {
-				mInputMethodManager.hideSoftInputFromWindow(mChatEditText.getWindowToken(), 0);
-				try {
-					Thread.sleep(80);// 解决此时会黑一下屏幕的问题
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				mFaceRoot.setVisibility(View.VISIBLE);
-				mFaceSwitchBtn.setImageResource(R.drawable.aio_keyboard);
-				mIsFaceShow = true;
-			} else {
-				mFaceRoot.setVisibility(View.GONE);
-				mInputMethodManager.showSoftInput(mChatEditText, 0);
-				mFaceSwitchBtn.setImageResource(R.drawable.qzone_edit_face_drawable);
-				mIsFaceShow = false;
-			}
-		} else if (id == R.id.send) {// 发送消息
-			sendMessageIfNotNull();
-		}
-	}
+        }
+    }
+
+    @Override
+    public void onRefresh() {
+        mMsgListView.stopRefresh();
+    }
+
+    @Override
+    public void onLoadMore() {
+        // do nothing
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK
+                && event.getRepeatCount() == 0) {
+            this.finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        if (id == R.id.face_switch_btn) {
+            if (!mIsFaceShow) {
+                mInputMethodManager.hideSoftInputFromWindow(mChatEditText.getWindowToken(), 0);
+                try {
+                    Thread.sleep(80);// 解决此时会黑一下屏幕的问题
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                mFaceRoot.setVisibility(View.VISIBLE);
+                mFaceSwitchBtn.setImageResource(R.drawable.aio_keyboard);
+                mIsFaceShow = true;
+            } else {
+                mFaceRoot.setVisibility(View.GONE);
+                mInputMethodManager.showSoftInput(mChatEditText, 0);
+                mFaceSwitchBtn.setImageResource(R.drawable.qzone_edit_face_drawable);
+                mIsFaceShow = false;
+            }
+        } else if (id == R.id.send) {// 发送消息
+            sendMessageIfNotNull();
+        }
+    }
 
     private void sendMessageIfNotNull() {
         if (mChatEditText.getText().length() >= 1) {
             if (mXmppService != null) {
-                mXmppService.sendGroupChat(multiUserChat,mChatEditText.getText().toString());
+                mXmppService.sendGroupChat(multiUserChat, mChatEditText.getText().toString());
                 if (!mXmppService.isAuthenticated())
                     ToastUtil.showShort(this, "消息已经保存随后发送");
             }
@@ -441,27 +434,26 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
         }
     }
 
-	@Override
-	public boolean onTouch(View v, MotionEvent event) {
-		int id = v.getId();
-		if (id == R.id.msg_listView) {
-			mInputMethodManager.hideSoftInputFromWindow(mChatEditText.getWindowToken(), 0);
-			mFaceSwitchBtn.setImageResource(R.drawable.qzone_edit_face_drawable);
-			mFaceRoot.setVisibility(View.GONE);
-			mIsFaceShow = false;
-		} else if (id == R.id.input) {
-			mInputMethodManager.showSoftInput(mChatEditText, 0);
-			mFaceSwitchBtn.setImageResource(R.drawable.qzone_edit_face_drawable);
-			mFaceRoot.setVisibility(View.GONE);
-			mIsFaceShow = false;
-		}
-		return false;
-	}
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        int id = v.getId();
+        if (id == R.id.msg_listView) {
+            mInputMethodManager.hideSoftInputFromWindow(mChatEditText.getWindowToken(), 0);
+            mFaceSwitchBtn.setImageResource(R.drawable.qzone_edit_face_drawable);
+            mFaceRoot.setVisibility(View.GONE);
+            mIsFaceShow = false;
+        } else if (id == R.id.input) {
+            mInputMethodManager.showSoftInput(mChatEditText, 0);
+            mFaceSwitchBtn.setImageResource(R.drawable.qzone_edit_face_drawable);
+            mFaceRoot.setVisibility(View.GONE);
+            mIsFaceShow = false;
+        }
+        return false;
+    }
 
-	@Override
-	public void connectionStatusChanged(int connectedState, String reason) {
-	}
-
+    @Override
+    public void connectionStatusChanged(int connectedState, String reason) {
+    }
 
 
 }
