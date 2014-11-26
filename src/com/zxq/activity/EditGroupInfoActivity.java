@@ -165,7 +165,14 @@ public class EditGroupInfoActivity extends Activity {
                 list.add((groupNumber.getSelectedItemPosition()+1)*10+"");
                 submitForm.setAnswer("muc#roomconfig_maxusers", list);
                 submitForm.setAnswer("muc#roomconfig_passwordprotectedroom", true);
-
+                if(passwordProtect.isChecked()) {
+                    // 进入是否需要密码
+                    submitForm.setAnswer("muc#roomconfig_passwordprotectedroom", true);
+                    // 设置进入密码
+                    submitForm.setAnswer("muc#roomconfig_roomsecret", groupPassword.getText().toString().trim());
+                }else{
+                    submitForm.setAnswer("muc#roomconfig_passwordprotectedroom", false);
+                }
                 //设置聊天室是持久聊天室，即将要被保存下来（是否持久此聊天室）该设置为默认设置
                 submitForm.setAnswer("muc#roomconfig_persistentroom", true);
 

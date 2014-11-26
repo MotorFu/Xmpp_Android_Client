@@ -4,6 +4,10 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -36,7 +40,7 @@ public class GroupChatFragment extends Fragment {
     private XmppService mXmppService;
     private static GroupChatFragment groupChatFragment;
     private GroupChatAdapter groupChatAdapter;
-    private  List<GroupEntry> groupEntryList;
+    private List<GroupEntry> groupEntryList;
 
     private FragmentCallBack mFragmentCallBack;
 
@@ -61,6 +65,7 @@ public class GroupChatFragment extends Fragment {
         }
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
@@ -77,72 +82,81 @@ public class GroupChatFragment extends Fragment {
     private void setupData() {
         XmppService xmppService = mFragmentCallBack.getService();
         mXmppService = xmppService;
-        groupEntryList = xmppService.getGroupEntryList();
+        groupEntryList = mXmppService.getGroupEntryList();
         groupChatAdapter = new GroupChatAdapter(groupEntryList, this.getActivity());
         listView.setAdapter(groupChatAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final GroupEntry groupEntry = groupEntryList.get(position);
-                if(groupEntry.isLock()){
-                    final Dialog groupPasswordInputDialog = DialogUtil.getGroupPasswordInputDialog(GroupChatFragment.this.getActivity());
-                    final EditText passwordField  = (EditText) groupPasswordInputDialog.findViewById(R.id.dialog_field_group_chat_password);
-                    Button okBtn = (Button) groupPasswordInputDialog.findViewById(R.id.dialog_btn_group_chat_ok);
-                    Button cancelBtn = (Button) groupPasswordInputDialog.findViewById(R.id.dialog_btn_group_chat_cancel);
-                    okBtn.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                                //Todo:发送服务器一个验证，是否成功，成功则继续
-                            String name = mXmppService.getXmppUserName();
-                            name = name.substring(0,name.indexOf("@"));
-                            try {
-                                MultiUserChat multiUserChat = mXmppService.getMultiUserChatByRoomJID(groupEntry.getJid());
-                                String password = passwordField.getText().toString().trim();
-                                multiUserChat.join(name,password);
-                                multiUserChat.leave();
-                                groupPasswordInputDialog.dismiss();
-                                Intent intent = new Intent();
-                                intent.putExtra(GROUP_CHAT_ROOM_JID, groupEntry.getJid());
-                                intent.putExtra(GROUP_CHAT_ROOM_NAME, groupEntry.getTitle());
-                                intent.putExtra(GROUP_CHAT_ROOM_PASD, password);
-
-                                intent.setClass(GroupChatFragment.this.getActivity(), GroupChatActivity.class);
-                                GroupChatFragment.this.startActivity(intent);
-                            } catch (XMPPException e) {
-                                e.printStackTrace();
-                                LogUtil.e("=========多人聊天======", e.getMessage());
-                                ToastUtil.showShort(GroupChatFragment.this.getActivity(), "密码错误");
-                                groupPasswordInputDialog.dismiss();
-                            }
-                        }
-                    });
-                    cancelBtn.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            groupPasswordInputDialog.dismiss();
-                        }
-                    });
-                    groupPasswordInputDialog.show();
-                }else {
+                if (groupEntry.isLock()) {
+                    displayPasswordDialog(groupEntry);
+                } else {
                     String name = mXmppService.getXmppUserName();
-                    name = name.substring(0,name.indexOf("@"));
+                    name = name.substring(0, name.indexOf("@"));
                     MultiUserChat multiUserChat = mXmppService.getMultiUserChatByRoomJID(groupEntry.getJid());
                     try {
-                        multiUserChat.join(name,"");
+                        multiUserChat.join(name, "");
                         multiUserChat.leave();
+                        Intent intent = new Intent();
+                        intent.putExtra(GROUP_CHAT_ROOM_JID, groupEntry.getJid());
+                        intent.putExtra(GROUP_CHAT_ROOM_NAME, groupEntry.getTitle());
+                        intent.putExtra(GROUP_CHAT_ROOM_PASD, "");
+                        intent.setClass(GroupChatFragment.this.getActivity(), GroupChatActivity.class);
+                        GroupChatFragment.this.startActivity(intent);
                     } catch (XMPPException e) {
                         e.printStackTrace();
+                        //ToastUtil.showShort(GroupChatFragment.this.getActivity(),e.getMessage());
+                        if(e.getMessage().equals("not-authorized(401)")){
+                           displayPasswordDialog(groupEntry);
+                        }
+
                     }
+                }
+            }
+        });
+        groupChatAdapter.notifyDataSetChanged();
+    }
+
+    public void displayPasswordDialog(final GroupEntry groupEntry) {
+        final Dialog groupPasswordInputDialog = DialogUtil.getGroupPasswordInputDialog(this.getActivity());
+        final EditText passwordField = (EditText) groupPasswordInputDialog.findViewById(R.id.dialog_field_group_chat_password);
+        Button okBtn = (Button) groupPasswordInputDialog.findViewById(R.id.dialog_btn_group_chat_ok);
+        Button cancelBtn = (Button) groupPasswordInputDialog.findViewById(R.id.dialog_btn_group_chat_cancel);
+        okBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Todo:发送服务器一个验证，是否成功，成功则继续
+                String name = mXmppService.getXmppUserName();
+                name = name.substring(0, name.indexOf("@"));
+                try {
+                    MultiUserChat multiUserChat = mXmppService.getMultiUserChatByRoomJID(groupEntry.getJid());
+                    String password = passwordField.getText().toString().trim();
+                    multiUserChat.join(name, password);
+                    multiUserChat.leave();
+                    groupPasswordInputDialog.dismiss();
                     Intent intent = new Intent();
                     intent.putExtra(GROUP_CHAT_ROOM_JID, groupEntry.getJid());
                     intent.putExtra(GROUP_CHAT_ROOM_NAME, groupEntry.getTitle());
-                    intent.putExtra(GROUP_CHAT_ROOM_PASD, "");
+                    intent.putExtra(GROUP_CHAT_ROOM_PASD, password);
+
                     intent.setClass(GroupChatFragment.this.getActivity(), GroupChatActivity.class);
                     GroupChatFragment.this.startActivity(intent);
+                } catch (XMPPException e) {
+                    e.printStackTrace();
+                    LogUtil.e("=========多人聊天======", e.getMessage());
+                    ToastUtil.showShort(GroupChatFragment.this.getActivity(), "密码错误");
+                    groupPasswordInputDialog.dismiss();
                 }
-                //GroupChatActivity
             }
         });
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                groupPasswordInputDialog.dismiss();
+            }
+        });
+        groupPasswordInputDialog.show();
     }
 
     @Override
@@ -153,6 +167,7 @@ public class GroupChatFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        LogUtil.e("------------------------------------列表更新数据");
         setupData();
     }
 
@@ -173,8 +188,8 @@ public class GroupChatFragment extends Fragment {
         }
 
         public void setGroupList(List<GroupEntry> groupList) {
-
             this.groupList = groupList;
+            this.notifyDataSetChanged();
         }
 
         private GroupChatAdapter(List<GroupEntry> groupList, Context context) {
@@ -199,16 +214,13 @@ public class GroupChatFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            GroupHolder groupHolder;
+            GroupHolder groupHolder = new GroupHolder();
             GroupEntry groupEntry = groupList.get(position);
-            if (convertView == null) {
-                groupHolder = new GroupHolder();
-                convertView = LayoutInflater.from(context).inflate(R.layout.fragment_group_chat_tree_item, null);
-                groupHolder.groupIcon = (ImageView) convertView.findViewById(R.id.group_chat_item_icon);
-                groupHolder.groupTitle = (TextView) convertView.findViewById(R.id.group_chat_item_title);
-                convertView.setTag(groupHolder);
-            } else {
-                groupHolder = (GroupHolder) convertView.getTag();
+            convertView = LayoutInflater.from(context).inflate(R.layout.fragment_group_chat_tree_item, null);
+            groupHolder.groupIcon = (ImageView) convertView.findViewById(R.id.group_chat_item_icon);
+            groupHolder.groupTitle = (TextView) convertView.findViewById(R.id.group_chat_item_title);
+            if (groupEntry.isLock()) {
+                groupHolder.groupIcon.setBackgroundColor(Color.RED);
             }
             groupHolder.groupTitle.setText(groupEntry.getTitle());
             return convertView;
