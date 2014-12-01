@@ -35,6 +35,7 @@ import com.zxq.ui.xlistview.MsgListView;
 import com.zxq.ui.xlistview.MsgListView.IXListViewListener;
 import com.zxq.util.*;
 import com.zxq.vo.GroupChat;
+import com.zxq.vo.SerializationOccupant;
 import com.zxq.xmpp.R;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPException;
@@ -49,7 +50,7 @@ import java.util.*;
 
 public class GroupChatActivity extends SwipeBackActivity implements OnTouchListener, OnClickListener, IXListViewListener, IConnectionStatusCallback {
     public static final String MULTI_USER_CHAT_ROOM_JID = "MULTI_USER_CHAT_JID";
-
+    public static final String MULTI_USER_CHAT_ROOM_OCCUPANTS = "MULTI_USER_CHAT_ROOM_OCCUPANTS";
 
     private MsgListView mMsgListView;// 对话ListView
     private boolean mIsFaceShow = false;// 是否显示表情
@@ -150,7 +151,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 
     private void initData() {
         mRoomJID = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_JID);
-        String name = mXmppService.getXmppUserName();
+        final String name = mXmppService.getXmppUserName();
         userName = name.substring(0, name.indexOf("@"));
         passWord = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_PASD);
         multiUserChat = mXmppService.getMultiUserChatByRoomJID(mRoomJID);
@@ -158,13 +159,6 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 
 
 
-        multiUserChat.addInvitationRejectionListener(new InvitationRejectionListener() {
-            @Override
-            public void invitationDeclined(String invitee, String reason) {
-                LogUtil.e("==========================拒绝邀请"+invitee);
-                ToastUtil.showShort(GroupChatActivity.this,invitee.substring(0,invitee.indexOf("@"))+"拒绝加入聊天。");
-            }
-        });
 
         DiscussionHistory history = new DiscussionHistory();
         history.setMaxStanzas(8);
@@ -190,6 +184,92 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
         } catch (XMPPException e) {
             e.printStackTrace();
         }
+
+        multiUserChat.addInvitationRejectionListener(new InvitationRejectionListener() {
+            @Override
+            public void invitationDeclined(String invitee, String reason) {
+                LogUtil.e("==========================拒绝邀请"+invitee);
+                ToastUtil.showShort(GroupChatActivity.this,invitee.substring(0,invitee.indexOf("@"))+"拒绝加入聊天。");
+            }
+        });
+
+        multiUserChat.addParticipantStatusListener(new ParticipantStatusListener() {
+            @Override
+            public void joined(String s) {
+
+            }
+
+            @Override
+            public void left(String s) {
+
+            }
+
+            @Override
+            public void kicked(String s, String s1, String s2) {
+                GroupChatActivity.this.finish();
+            }
+
+            @Override
+            public void voiceGranted(String s) {
+
+            }
+
+            @Override
+            public void voiceRevoked(String s) {
+
+            }
+
+            @Override
+            public void banned(String s, String s1, String s2) {
+
+            }
+
+            @Override
+            public void membershipGranted(String s) {
+
+            }
+
+            @Override
+            public void membershipRevoked(String s) {
+
+            }
+
+            @Override
+            public void moderatorGranted(String s) {
+
+            }
+
+            @Override
+            public void moderatorRevoked(String s) {
+
+            }
+
+            @Override
+            public void ownershipGranted(String s) {
+
+            }
+
+            @Override
+            public void ownershipRevoked(String s) {
+
+            }
+
+            @Override
+            public void adminGranted(String s) {
+
+            }
+
+            @Override
+            public void adminRevoked(String s) {
+
+            }
+
+            @Override
+            public void nicknameChanged(String s, String s1) {
+
+            }
+        });
+
         mTitleNameView.setText(mRoomName);
 
         multiUserChat.addMessageListener(new PacketListener() {
@@ -257,6 +337,21 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
                     public void onClick(View v) {
                         Intent intent = new Intent();
                         intent.setClass(GroupChatActivity.this, GroupOccupantsActivity.class);
+                        intent.putExtra(MULTI_USER_CHAT_ROOM_JID, mRoomJID);
+                        StringBuffer sb = new StringBuffer();
+                        ArrayList<SerializationOccupant> arrayList = new ArrayList<SerializationOccupant>();
+                        Iterator<String> iterator = multiUserChat.getOccupants();
+                        while (iterator.hasNext()){
+                            String next = iterator.next();
+                            Occupant occupant = multiUserChat.getOccupant(next);
+                            SerializationOccupant serializationOccupant = new SerializationOccupant();
+                            serializationOccupant.setJid(occupant.getJid());
+                            serializationOccupant.setNick(occupant.getNick());
+                            serializationOccupant.setAffiliation(occupant.getAffiliation());
+                            serializationOccupant.setRole(occupant.getRole());
+                            arrayList.add(serializationOccupant);
+                        }
+                        intent.putExtra(MULTI_USER_CHAT_ROOM_OCCUPANTS,arrayList);
                         GroupChatActivity.this.startActivityForResult(intent, REQUEST_CODE_KILL_MENBER);
                         groupChatMenuDialog.dismiss();
                     }
@@ -403,9 +498,22 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
         } else if (requestCode == REQUEST_CODE_INVITE) {
 
         } else if (requestCode == REQUEST_CODE_KILL_MENBER) {
+            if (resultCode == GroupOccupantsActivity.CHOOSE_OCCUPANTS_RESULT_CODE) {
+                String nikenames = data.getStringExtra(GroupOccupantsActivity.CHOOSE_OCCUPANTS_NIKENAMES);
+                ToastUtil.showShort(this,nikenames);
 
-        } else {
+                String[] split = nikenames.split(",");
+                for(int i = 0 ; i < split.length;i++){
+                    try {
+                        multiUserChat.kickParticipant(split[i],"saad");
+                        ToastUtil.showShort(this,"踢出成功");
+                    } catch (XMPPException e) {
+                        ToastUtil.showShort(this,"踢出失败");
+                        e.printStackTrace();
+                    }
+                }
 
+            }
         }
     }
 

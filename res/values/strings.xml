@@ -1376,6 +1376,7 @@
     <string name="logout">注销</string>
     <string name="edit_person_info">编辑资料</string>
     <string name="choose_person">选中这些联系人</string>
+    <string name="choose_number">选中这些成员</string>
     <string name="edit_person_password">修改密码</string>
 
     <string-array name="group_info_number_array">

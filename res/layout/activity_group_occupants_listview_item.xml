@@ -13,12 +13,18 @@
             android:scaleType="fitCenter"/>
 
     <TextView
-            android:layout_width="fill_parent"
+            android:layout_weight="1"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:textSize="14sp"
             android:text="成员名称"
             android:paddingLeft="10dp"
             android:id="@+id/group_occupants_item_title"
             android:gravity="center_vertical"/>
+    <CheckBox
+            android:id="@+id/group_occupants_item_checked"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+           android:paddingRight="15dp"/>
 
 </LinearLayout>
