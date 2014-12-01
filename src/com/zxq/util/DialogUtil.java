@@ -1,5 +1,6 @@
 package com.zxq.util;
 
+import android.content.Context;
 import com.zxq.xmpp.R;
 
 import android.app.Activity;
@@ -85,6 +86,13 @@ public class DialogUtil {
 		dialog.setContentView(R.layout.choose_create_group_add_friend_dialog);
 		return dialog;
 	}
+
+	public static Dialog getGroupInviterDialog(Activity context) {
+		final Dialog dialog = new Dialog(context, R.style.DialogStyle);
+		dialog.setContentView(R.layout.group_inviter_dialog);
+		return dialog;
+	}
+
 
 
 }

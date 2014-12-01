@@ -29,6 +29,7 @@ public class RosterChooseAdapter extends BaseExpandableListAdapter {
     private static final String COUNT_MEMBERS = "SELECT COUNT() FROM " + RosterProvider.TABLE_ROSTER + " inner_query" + " WHERE inner_query." + RosterConstants.GROUP + " = " + RosterProvider.QUERY_ALIAS + "." + RosterConstants.GROUP;
     private static final String[] GROUPS_QUERY_COUNTED = new String[]{RosterConstants._ID, RosterConstants.GROUP};
     private static final String[] ROSTER_QUERY = new String[]{RosterConstants._ID, RosterConstants.JID, RosterConstants.ALIAS, RosterConstants.STATUS_MODE, RosterConstants.STATUS_MESSAGE,};
+    private HashMap<String,Boolean> checkedArray = new HashMap<String,Boolean>();
     private Context mContext;
     private List<Group> mGroupList;
     private ContentResolver mContentResolver;
@@ -36,7 +37,15 @@ public class RosterChooseAdapter extends BaseExpandableListAdapter {
     private LayoutInflater mInflater;
     private XmppService mXmppService;
     private HashMap<Integer, Integer> groupStatusMap;
+    public RosterChooselistener rosterChooselistener;
 
+    public interface RosterChooselistener{
+        void onCheckedPerson(HashMap<String,Boolean> checkedArray);
+    }
+
+    public void setRosterChooselistener(RosterChooselistener rosterChooselistener){
+        this.rosterChooselistener=rosterChooselistener;
+    }
     public RosterChooseAdapter(Context context, XmppService mXmppService) {
         this.mContext = context;
         this.mXmppService = mXmppService;
@@ -123,10 +132,10 @@ public class RosterChooseAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        Roster roster = getChild(groupPosition, childPosition);
+    public View getChildView(final int groupPosition, final int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
+        final Roster roster = getChild(groupPosition, childPosition);
         int presenceMode = Integer.parseInt(roster.getStatusMode());
-        ViewHolder holder;
+        final ViewHolder holder;
         if (convertView == null || convertView.getTag(R.drawable.ic_launcher + presenceMode) == null) {
             LogUtil.i("liweiping", "new  child ");
             holder = new ViewHolder();
@@ -159,6 +168,26 @@ public class RosterChooseAdapter extends BaseExpandableListAdapter {
             Drawable userAvatar = ImageTools.byteToDrawable(vCard.getAvatar());
             holder.headView.setImageDrawable(userAvatar);
         }
+        Boolean aBoolean = checkedArray.get(roster.getJid());
+        if(aBoolean == null){
+            checkedArray.put(roster.getJid(),false);
+            holder.checkBox.setChecked(false);
+        }else{
+            checkedArray.put(roster.getJid(),aBoolean);
+            holder.checkBox.setChecked(aBoolean);
+        }
+
+        holder.checkBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Boolean aBoolean = checkedArray.get(roster.getJid());
+                checkedArray.put(roster.getJid(),!aBoolean);
+               // ToastUtil.showShort(mContext, checkedArray.toString());
+                if(rosterChooselistener != null){
+                        rosterChooselistener.onCheckedPerson(checkedArray);
+                }
+            }
+        });
         return convertView;
     }
 

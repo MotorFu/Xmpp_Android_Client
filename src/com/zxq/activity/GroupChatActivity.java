@@ -40,6 +40,8 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smackx.Form;
+import org.jivesoftware.smackx.FormField;
 import org.jivesoftware.smackx.muc.*;
 import org.jivesoftware.smackx.packet.VCard;
 
@@ -148,12 +150,22 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 
     private void initData() {
         mRoomJID = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_JID);
-        mRoomName = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_NAME);
         String name = mXmppService.getXmppUserName();
         userName = name.substring(0, name.indexOf("@"));
         passWord = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_PASD);
         multiUserChat = mXmppService.getMultiUserChatByRoomJID(mRoomJID);
-        mTitleNameView.setText(mRoomName);
+
+
+
+
+        multiUserChat.addInvitationRejectionListener(new InvitationRejectionListener() {
+            @Override
+            public void invitationDeclined(String invitee, String reason) {
+                LogUtil.e("==========================拒绝邀请"+invitee);
+                ToastUtil.showShort(GroupChatActivity.this,invitee.substring(0,invitee.indexOf("@"))+"拒绝加入聊天。");
+            }
+        });
+
         DiscussionHistory history = new DiscussionHistory();
         history.setMaxStanzas(8);
         try {
@@ -161,6 +173,25 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
         } catch (XMPPException e) {
             e.printStackTrace();
         }
+        try {
+            Form form = multiUserChat.getConfigurationForm();
+            if (form == null) {
+                ToastUtil.showShort(this, "网络错误，无法显示信息");
+                return;
+            }
+
+            FormField fieldRoomName = form.getField("muc#roomconfig_roomname");
+            Iterator<String> values = fieldRoomName.getValues();
+            while (values.hasNext()) {
+                String tempStr = values.next();
+                mRoomName = tempStr;
+                LogUtil.e("======================"+mRoomName);
+            }
+        } catch (XMPPException e) {
+            e.printStackTrace();
+        }
+        mTitleNameView.setText(mRoomName);
+
         multiUserChat.addMessageListener(new PacketListener() {
             @Override
             public void processPacket(Packet packet) {
@@ -204,6 +235,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
                     public void onClick(View v) {
                         Intent intent = new Intent();
                         intent.setClass(GroupChatActivity.this, CurrentUserChooseActivity.class);
+                        intent.putExtra(MULTI_USER_CHAT_ROOM_JID, mRoomJID);
                         GroupChatActivity.this.startActivityForResult(intent, REQUEST_CODE_INVITE);
                         groupChatMenuDialog.dismiss();
                     }

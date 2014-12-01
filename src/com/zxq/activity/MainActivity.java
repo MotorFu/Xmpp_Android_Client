@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
+import com.zxq.app.XmppApplication;
 import com.zxq.app.XmppBroadcastReceiver;
 import com.zxq.app.XmppBroadcastReceiver.EventHandler;
 import com.zxq.db.ChatProvider;
@@ -33,6 +34,10 @@ import com.zxq.ui.view.ChangeLog;
 import com.zxq.ui.view.GroupNameView;
 import com.zxq.util.*;
 import com.zxq.xmpp.R;
+import org.jivesoftware.smack.Connection;
+import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smackx.muc.InvitationListener;
+import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,6 +60,11 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
     private ImageView mTitleStatusView;
     private ProgressBar mTitleProgressBar;
 
+    public static Activity getMainContext() {
+        return mainContext;
+    }
+
+    private static Activity mainContext;
     private XmppService mXmppService;
     private Handler mainHandler = new Handler();
     private long firstTime;
@@ -91,6 +101,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
                 String usr = PreferenceUtils.getPrefString(MainActivity.this, PreferenceConstants.ACCOUNT, "");
                 String password = PreferenceUtils.getPrefString(MainActivity.this, PreferenceConstants.PASSWORD, "");
                 mXmppService.login(usr, password);
+
                 //夹在服务的数据放在此处初始化，防止服务器没连接的情况
                 if(friendChatFragment == null){
                     setupFragmentData();
@@ -115,6 +126,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         startService(new Intent(MainActivity.this, XmppService.class));
         supportFragmentManager = getSupportFragmentManager();
         setContentView(R.layout.main_center_layout);
+        mainContext = this;
         initSlidingMenu();
         initViews();
     }

@@ -1364,6 +1364,8 @@
     <string name="str_login_menu_input_text">请输入服务器IP或者主机名称：</string>
     <string name="str_login_menu_input_ok">确定</string>
     <string name="str_login_menu_input_cancel">取消</string>
+    <string name="str_login_menu_input_inviter">进入</string>
+    <string name="str_login_menu_input_reject">拒绝</string>
     <string name="str_dialog_menu_group_invite">邀请成员</string>
     <string name="str_dialog_btn_create_group">创建聊天室</string>
     <string name="str_dialog_btn_delete_group">删除聊天室</string>

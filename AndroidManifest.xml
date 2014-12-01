@@ -195,6 +195,11 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
+        <receiver android:name="com.zxq.broadcast.InviterBroadcast">
+            <intent-filter>
+                <action android:name="invitation_action_for_recevier"/>
+            </intent-filter>
+        </receiver>
 
         <provider
             android:name="com.zxq.db.ChatProvider"

@@ -10,10 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ExpandableListView;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.*;
 import com.zxq.adapter.RosterAdapter;
 import com.zxq.adapter.RosterChooseAdapter;
 import com.zxq.db.RosterProvider;
@@ -21,6 +18,12 @@ import com.zxq.service.XmppService;
 import com.zxq.util.LogUtil;
 import com.zxq.util.ToastUtil;
 import com.zxq.xmpp.R;
+import org.jivesoftware.smackx.muc.InvitationRejectionListener;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by zxq on 2014/11/9.
@@ -28,10 +31,15 @@ import com.zxq.xmpp.R;
 public class CurrentUserChooseActivity extends Activity {
     private ImageView actionBarBack;
     private TextView acitonBarTitle;
-    private XmppService mXmppService;
     private RosterChooseAdapter mRosterAdapter;
+    private Button btnChoose;
+    private HashMap<String, Boolean> checkedArray;
 
     private ExpandableListView mFriendChatTreeView;
+
+    private XmppService mXmppService;
+    private String mRoomJID;
+    private MultiUserChat multiUserChat;
 
     private void bindXMPPService() {
         LogUtil.i(RegisterActivity.class, "[SERVICE] Unbind");
@@ -79,26 +87,41 @@ public class CurrentUserChooseActivity extends Activity {
     }
 
     private void setupDate() {
+        mRoomJID = getIntent().getStringExtra(GroupChatActivity.MULTI_USER_CHAT_ROOM_JID);
+        multiUserChat = mXmppService.getMultiUserChatByRoomJID(mRoomJID);
+        btnChoose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Set<Map.Entry<String, Boolean>> entries = checkedArray.entrySet();
+                for(Map.Entry<String, Boolean> temp : entries){
+                    Boolean value = temp.getValue();
+                    if(value == true){
+                        multiUserChat.invite(temp.getKey(), multiUserChat.getRoom()+":大家来聊聊！");
+                    }
+                }
+                CurrentUserChooseActivity.this.finish();
+            }
+        });
         mFriendChatTreeView = (ExpandableListView) findViewById(R.id.friend_chat_tree_view);
         mFriendChatTreeView.setEmptyView(findViewById(R.id.empty));
         mRosterAdapter = new RosterChooseAdapter(this,mXmppService);
-        mFriendChatTreeView.setAdapter(mRosterAdapter);
-        mFriendChatTreeView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+        mRosterAdapter.setRosterChooselistener(new RosterChooseAdapter.RosterChooselistener() {
             @Override
-            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-//                String userJid = mRosterAdapter.getChild(groupPosition, childPosition).getJid();
-//                String userName = mRosterAdapter.getChild(groupPosition, childPosition).getAlias();
-//                ToastUtil.showShort(FriendChatFragment.this.getActivity(), userJid + "=====" + userName);
-//                startChatActivity(userJid, userName);
-                return false;
+            public void onCheckedPerson(HashMap<String, Boolean> checkedArray) {
+                CurrentUserChooseActivity.this.checkedArray = checkedArray;
+                if(checkedArray.containsValue(true)){
+                    btnChoose.setBackgroundDrawable(getResources().getDrawable(R.drawable.common_btn_green));
+                }else{
+                    btnChoose.setBackgroundDrawable(getResources().getDrawable(R.drawable.common_btn_black_actionsheet));
+                }
             }
         });
-
+        mFriendChatTreeView.setAdapter(mRosterAdapter);
         mRosterAdapter.requery();
     }
 
     private void initView() {
-
+        btnChoose = (Button) findViewById(R.id.person_info_btn_edit_info);
 
     }
 

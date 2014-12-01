@@ -7,6 +7,9 @@ import android.database.Cursor;
 import android.media.Image;
 import android.net.Uri;
 import android.util.Log;
+import com.zxq.activity.MainActivity;
+import com.zxq.app.XmppApplication;
+import com.zxq.broadcast.InviterBroadcast;
 import com.zxq.db.ChatProvider;
 import com.zxq.db.ChatProvider.ChatConstants;
 import com.zxq.db.RosterProvider;
@@ -33,10 +36,7 @@ import org.jivesoftware.smackx.bytestreams.socks5.provider.BytestreamsProvider;
 import org.jivesoftware.smackx.carbons.Carbon;
 import org.jivesoftware.smackx.carbons.CarbonManager;
 import org.jivesoftware.smackx.forward.Forwarded;
-import org.jivesoftware.smackx.muc.HostedRoom;
-import org.jivesoftware.smackx.muc.MultiUserChat;
-import org.jivesoftware.smackx.muc.Occupant;
-import org.jivesoftware.smackx.muc.RoomInfo;
+import org.jivesoftware.smackx.muc.*;
 import org.jivesoftware.smackx.packet.*;
 import org.jivesoftware.smackx.ping.PingManager;
 import org.jivesoftware.smackx.ping.packet.Ping;
@@ -323,7 +323,22 @@ public class SmackImpl {
                 }
             }
         };
+        MultiUserChat.addInvitationListener(mXMPPConnection, new InvitationListener() {
 
+            @Override
+            public void invitationReceived(Connection conn, String room, String inviter, String reason, String password, Message message) {
+                Intent intent = new Intent();
+                XmppApplication instance = XmppApplication.getInstance();
+                intent.setAction("invitation_action_for_recevier");
+                intent.putExtra("room",room);
+                intent.putExtra("inviter",inviter);
+                intent.putExtra("password",password);
+                intent.putExtra("reason",reason);
+                intent.putExtra("message",message.getBody());
+                instance.sendBroadcast(intent);
+                //ToastUtil.showShort(, room + "" + inviter + ":" + reason + ":" + password + ":" + message);
+            }
+        });
         mXMPPConnection.addPacketListener(mPacketListener, filter);// 这是最关健的了，少了这句，前面的都是白费功夫
     }
 

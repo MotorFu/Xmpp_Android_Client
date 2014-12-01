@@ -193,7 +193,12 @@ public class EditGroupInfoActivity extends Activity {
                 EditGroupInfoActivity.this.finish();
             }
         });
-
+        btnDeleteGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               // multiUserChat.
+            }
+        });
 
 
 //        if(form != null) {
