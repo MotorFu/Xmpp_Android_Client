@@ -12,6 +12,7 @@ import android.widget.*;
 import com.zxq.service.XmppService;
 import com.zxq.ui.switcher.Switch;
 import com.zxq.util.LogUtil;
+import com.zxq.util.ToastUtil;
 import com.zxq.xmpp.R;
 
 /**
@@ -23,11 +24,12 @@ public class CreateGroupChatActivity extends Activity {
 
     private EditText groupName;
     private EditText groupDescript;
-    private EditText groupTitle;
+    private EditText groupPassword;
     private Spinner groupNumber;
     private Switch passwordProtect;
-    private Button btnAlterPassword;
     private Button btnSaveInfo;
+
+    private RelativeLayout layoutPassword;
 
     private XmppService mXmppService;
 
@@ -56,7 +58,24 @@ public class CreateGroupChatActivity extends Activity {
     }
 
     private void setupData() {
+        btnSaveInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String roomName = groupName.getText().toString();
+                String roomDesc = groupDescript.getText().toString();
+                String roomPassword = groupPassword.getText().toString();
+                String roomNumber = (groupNumber.getSelectedItemPosition()+1)*10+"";
+                boolean checked = passwordProtect.isChecked();
+                boolean isOk = mXmppService.createGroupChatRoom(roomName, roomDesc, checked, roomPassword, roomNumber);
+                if(isOk){
+                    ToastUtil.showShort(CreateGroupChatActivity.this,"创建成功！");
+                    CreateGroupChatActivity.this.finish();
+                }else{
+                    ToastUtil.showShort(CreateGroupChatActivity.this,"创建失败,房间已存在或者网络异常！");
+                }
 
+            }
+        });
     }
 
     private void initView() {
@@ -64,19 +83,30 @@ public class CreateGroupChatActivity extends Activity {
         acitonBarTitle = (TextView) findViewById(R.id.actionbar_title);
         groupName = (EditText) findViewById(R.id.create_group_info_text_descript_room_name);
         groupDescript = (EditText) findViewById(R.id.create_group_info_text_descript);
-        groupTitle = (EditText) findViewById(R.id.create_group_info_text_title);
         groupNumber = (Spinner) findViewById(R.id.create_group_info_spinner_room_person_number);
+        groupPassword = (EditText) findViewById(R.id.create_group_info_text_password);
         passwordProtect = (Switch) findViewById(R.id.create_group_info_switch_password_protect);
-        btnAlterPassword = (Button) findViewById(R.id.create_group_info_btn_set_room_password);
+        layoutPassword = (RelativeLayout) findViewById(R.id.create_group_info_layout);
         btnSaveInfo = (Button) findViewById(R.id.create_group_info_btn_save_info);
         String[] mNumberItems = getResources().getStringArray(R.array.group_info_number_array);
         ArrayAdapter<String> mNumberItemsAdapter=new ArrayAdapter<String>(this,R.layout.group_info_number_item, mNumberItems);
         groupNumber.setAdapter(mNumberItemsAdapter);
+        layoutPassword.setVisibility(View.GONE);
         acitonBarTitle.setText("创建聊天室");
         actionBarBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 CreateGroupChatActivity.this.finish();
+            }
+        });
+        passwordProtect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(passwordProtect.isChecked()){
+                    layoutPassword.setVisibility(View.VISIBLE);
+                }else{
+                    layoutPassword.setVisibility(View.GONE);
+                }
             }
         });
     }

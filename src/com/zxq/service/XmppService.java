@@ -645,6 +645,10 @@ return null;
         return userJoinGroupChatRoom;
     }
 
+    public boolean createGroupChatRoom(String roomName,String roomDesc,boolean isPasswordProtect,String passWord,String roomNumber){
+        return  mSmackable.createGroupChatRoom(roomName,roomDesc,isPasswordProtect,passWord,roomNumber);
+    }
+
     public RoomInfo queryGroupChatRoomInfoByJID(String jid){
         return  mSmackable.queryGroupChatRoomInfoByJID(jid);
     }

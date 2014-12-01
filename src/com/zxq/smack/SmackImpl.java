@@ -1175,6 +1175,74 @@ public class SmackImpl {
 
     }
 
+    public boolean createGroupChatRoom(String roomName,String roomDesc,boolean isPasswordProtect,String passWord,String roomNumber){
+        if (mXMPPConnection == null)
+            return false;
+
+        MultiUserChat muc = null;
+        try {
+            // 创建一个MultiUserChat
+            muc = new MultiUserChat(mXMPPConnection, roomName + "@conference."+ mXMPPConnection.getServiceName());
+            // 创建聊天室
+            muc.create(roomName);
+            // 获得聊天室的配置表单
+            Form form = muc.getConfigurationForm();
+            // 根据原始表单创建一个要提交的新表单。
+            Form submitForm = form.createAnswerForm();
+            // 向要提交的表单添加默认答复
+            for (Iterator<FormField> fields = form.getFields(); fields
+                    .hasNext();) {
+                FormField field = (FormField) fields.next();
+                if (!FormField.TYPE_HIDDEN.equals(field.getType())
+                        && field.getVariable() != null) {
+                    // 设置默认值作为答复
+                    submitForm.setDefaultAnswer(field.getVariable());
+                }
+            }
+            // 设置聊天室的新拥有者
+            List<String> owners = new ArrayList<String>();
+            owners.add(mXMPPConnection.getUser());// 用户JID
+            submitForm.setAnswer("muc#roomconfig_roomowners", owners);
+            List<String> list = new ArrayList<String>();
+            list.add(roomNumber);
+            submitForm.setAnswer("muc#roomconfig_maxusers", list);
+
+            //重新设置聊天室名称（修改名称）
+            submitForm.setAnswer("muc#roomconfig_roomname", roomName);
+            submitForm.setAnswer("muc#roomconfig_roomdesc", roomDesc);
+            // 设置聊天室是持久聊天室，即将要被保存下来
+            submitForm.setAnswer("muc#roomconfig_persistentroom", true);
+            // 房间仅对成员开放
+            submitForm.setAnswer("muc#roomconfig_membersonly", false);
+            // 允许占有者邀请其他人
+            submitForm.setAnswer("muc#roomconfig_allowinvites", true);
+            if (isPasswordProtect) {
+                // 进入是否需要密码
+                submitForm.setAnswer("muc#roomconfig_passwordprotectedroom",isPasswordProtect);
+                // 设置进入密码
+                submitForm.setAnswer("muc#roomconfig_roomsecret", passWord);
+            }else{
+                submitForm.setAnswer("muc#roomconfig_passwordprotectedroom",false);
+            }
+            // 能够发现占有者真实 JID 的角色
+            // submitForm.setAnswer("muc#roomconfig_whois", "anyone");
+            // 登录房间对话
+            submitForm.setAnswer("muc#roomconfig_enablelogging", true);
+            // 仅允许注册的昵称登录
+            submitForm.setAnswer("x-muc#roomconfig_reservednick", true);
+            // 允许使用者修改昵称
+            submitForm.setAnswer("x-muc#roomconfig_canchangenick", false);
+            // 允许用户注册房间
+            submitForm.setAnswer("x-muc#roomconfig_registration", false);
+            // 发送已完成的表单（有默认值）到服务器来配置聊天室
+            muc.sendConfigurationForm(submitForm);
+            return true;
+        } catch (XMPPException e) {
+            e.printStackTrace();
+            return false;
+
+        }
+    }
 
     public void deleteUserCreatedGroupChatRoom() {//删除用户所创建的聊天室
     }
