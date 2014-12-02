@@ -6,7 +6,6 @@ import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -15,14 +14,19 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.*;
-import com.zxq.app.XmppApplication;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import com.zxq.app.XmppBroadcastReceiver;
 import com.zxq.app.XmppBroadcastReceiver.EventHandler;
 import com.zxq.db.ChatProvider;
 import com.zxq.db.RosterProvider;
 import com.zxq.db.RosterProvider.RosterConstants;
-import com.zxq.fragment.*;
+import com.zxq.fragment.FriendChatFragment;
+import com.zxq.fragment.GroupChatFragment;
+import com.zxq.fragment.RecentChatFragment;
+import com.zxq.fragment.SettingsFragment;
 import com.zxq.service.IConnectionStatusCallback;
 import com.zxq.service.XmppService;
 import com.zxq.ui.quickaction.ActionItem;
@@ -33,10 +37,6 @@ import com.zxq.ui.slidingmenu.SlidingMenu;
 import com.zxq.ui.view.GroupNameView;
 import com.zxq.util.*;
 import com.zxq.xmpp.R;
-import org.jivesoftware.smack.Connection;
-import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smackx.muc.InvitationListener;
-import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -170,7 +170,6 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
 
     //所有数据都应该放到服务绑定之后，由于绑定是异步的会有所延迟
     private void setupFragmentData() {
-        LogUtil.e("==========%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%=======================");
         MainActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
