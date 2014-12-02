@@ -30,7 +30,6 @@ import com.zxq.ui.quickaction.QuickAction;
 import com.zxq.ui.quickaction.QuickAction.OnActionItemClickListener;
 import com.zxq.ui.slidingmenu.BaseSlidingFragmentActivity;
 import com.zxq.ui.slidingmenu.SlidingMenu;
-import com.zxq.ui.view.ChangeLog;
 import com.zxq.ui.view.GroupNameView;
 import com.zxq.util.*;
 import com.zxq.xmpp.R;
@@ -51,8 +50,6 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
     private static final int ID_DND = 4;
 
     public static HashMap<String, Integer> mStatusMap;
-    private FriendChatFragment friendChatFragment;
-    private GroupChatFragment groupChatFragment;
     private FragmentManager supportFragmentManager;
     private SlidingMenu mSlidingMenu;
     private View mNetErrorView;
@@ -66,7 +63,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
 
     private static Activity mainContext;
     private XmppService mXmppService;
-    private Handler mainHandler = new Handler();
+
     private long firstTime;
 
     static {
@@ -79,14 +76,16 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         mStatusMap.put(PreferenceConstants.CHAT, R.drawable.status_qme);
     }
 
-    public void onClickTabButtun(View view){
+
+
+    public void onClickTabButtun(View view) {
         int id = view.getId();
         FragmentTransaction mFragementTransaction = supportFragmentManager.beginTransaction();
-        if(id ==R.id.btn_friend_chat){
-            friendChatFragment = FriendChatFragment.getInstance(mXmppService,mainHandler);
+        if (id == R.id.btn_friend_chat) {
+            FriendChatFragment friendChatFragment = FriendChatFragment.getInstance();
             mFragementTransaction.replace(R.id.main_fragment_content, friendChatFragment);
-        }else if(id ==R.id.btn_group_chat){
-            groupChatFragment = GroupChatFragment.getInstance();
+        } else if (id == R.id.btn_group_chat) {
+            GroupChatFragment groupChatFragment = GroupChatFragment.getInstance();
             mFragementTransaction.replace(R.id.main_fragment_content, groupChatFragment);
         }
         mFragementTransaction.commit();
@@ -101,16 +100,13 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
                 String usr = PreferenceUtils.getPrefString(MainActivity.this, PreferenceConstants.ACCOUNT, "");
                 String password = PreferenceUtils.getPrefString(MainActivity.this, PreferenceConstants.PASSWORD, "");
                 mXmppService.login(usr, password);
-
-                //夹在服务的数据放在此处初始化，防止服务器没连接的情况
-                if(friendChatFragment == null){
-                    setupFragmentData();
-                }
             } else {
                 mTitleNameView.setText(XMPPHelper.splitJidAndServer(PreferenceUtils.getPrefString(MainActivity.this, PreferenceConstants.ACCOUNT, "")));
                 setStatusImage(true);
                 mTitleProgressBar.setVisibility(View.GONE);
+                setupFragmentData();
             }
+
         }
 
         @Override
@@ -124,11 +120,13 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         startService(new Intent(MainActivity.this, XmppService.class));
+
         supportFragmentManager = getSupportFragmentManager();
         setContentView(R.layout.main_center_layout);
         mainContext = this;
         initSlidingMenu();
         initViews();
+
     }
 
 
@@ -145,25 +143,20 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
     @Override
     protected void onResume() {
         super.onResume();
-        bindXMPPService();
-
         setStatusImage(isConnected());
         XmppBroadcastReceiver.mListeners.add(this);
+        bindXMPPService();
         if (NetUtil.getNetworkState(this) == NetUtil.NETWORN_NONE)
             mNetErrorView.setVisibility(View.VISIBLE);
         else
             mNetErrorView.setVisibility(View.GONE);
-        ChangeLog changeLog = new ChangeLog(this);
-        if (changeLog != null && changeLog.firstRun()) {
-            changeLog.getFullLogDialog().show();
-        }
+
 
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-
         unbindXMPPService();
         XmppBroadcastReceiver.mListeners.remove(this);
     }
@@ -171,15 +164,25 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
     }
 
 
     //所有数据都应该放到服务绑定之后，由于绑定是异步的会有所延迟
     private void setupFragmentData() {
-        friendChatFragment = FriendChatFragment.getInstance(mXmppService,mainHandler);
-        FragmentTransaction mFragementTransaction = getSupportFragmentManager().beginTransaction();
-        mFragementTransaction.replace(R.id.main_fragment_content, friendChatFragment);
-        mFragementTransaction.commit();
+        LogUtil.e("==========%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%=======================");
+        MainActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                FragmentTransaction mFragementTransaction = supportFragmentManager.beginTransaction();
+                FriendChatFragment friendChatFragment = FriendChatFragment.getInstance();
+                mFragementTransaction.replace(R.id.main_fragment_content, friendChatFragment);
+                mFragementTransaction.commit();
+                mFragementTransaction.show(friendChatFragment);
+            }
+        });
+
+
     }
 
     private void unbindXMPPService() {
@@ -199,7 +202,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
     private void initViews() {
         mNetErrorView = findViewById(R.id.net_status_bar_top);
         mSlidingMenu.setSecondaryMenu(R.layout.main_right_layout);
-        FragmentTransaction mFragementTransaction = getSupportFragmentManager().beginTransaction();
+        FragmentTransaction mFragementTransaction = supportFragmentManager.beginTransaction();
         Fragment mFrag = new SettingsFragment();
         mFragementTransaction.replace(R.id.main_right_fragment, mFrag);
         mFragementTransaction.commit();
@@ -228,7 +231,6 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
     private boolean isConnected() {
         return mXmppService != null && mXmppService.isAuthenticated();
     }
-
 
 
     private void initSlidingMenu() {
@@ -358,7 +360,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
                         break;
                 }
                 mXmppService.setStatusFromConfig();
-                SettingsFragment fragment = (SettingsFragment) getSupportFragmentManager().findFragmentById(R.id.main_right_fragment);
+                SettingsFragment fragment = (SettingsFragment) supportFragmentManager.findFragmentById(R.id.main_right_fragment);
                 fragment.readData();
             }
         });
@@ -377,7 +379,6 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
             }
         }).setNegativeButton(android.R.string.no, null).create().show();
     }
-
 
 
     void moveRosterItemToGroupDialog(final String jabberID) {
@@ -453,9 +454,6 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
     public MainActivity getMainActivity() {
         return this;
     }
-
-
-
 
 
 }

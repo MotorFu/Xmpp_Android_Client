@@ -44,34 +44,31 @@ public class FriendChatFragment extends Fragment {
     private RosterAdapter mRosterAdapter;
     private ExpandableListView mFriendChatTreeView;
     private XmppService mXmppService;
-    private Handler mainHandler;
+    private Handler mainHandler = new Handler();
     private int mLongPressGroupId, mLongPressChildId;
     private ContentObserver mRosterObserver = new RosterObserver();
     private static final String[] GROUPS_QUERY = new String[]{RosterProvider.RosterConstants._ID, RosterProvider.RosterConstants.GROUP,};
     private static final String[] ROSTER_QUERY = new String[]{RosterProvider.RosterConstants._ID, RosterProvider.RosterConstants.JID, RosterProvider.RosterConstants.ALIAS, RosterProvider.RosterConstants.STATUS_MODE, RosterProvider.RosterConstants.STATUS_MESSAGE,};
     private static FriendChatFragment friendChatFragment;
 
-//    private FragmentCallBack mFragmentCallBack;
-//
-//    @Override
-//    public void onAttach(Activity activity) {
-//        super.onAttach(activity);
-//        try {
-//            mFragmentCallBack = (FragmentCallBack) activity;
-//        } catch (ClassCastException e) {
-//            throw new ClassCastException(activity.toString() + " must implement OnHeadlineSelectedListener");
-//        }
-//    }
 
-    private FriendChatFragment(XmppService mXmppService,Handler mainHandler) {
-        this.mXmppService = mXmppService;
-        this.mainHandler =mainHandler;
 
+    private FragmentCallBack mFragmentCallBack;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mFragmentCallBack = (FragmentCallBack) activity;
+            mXmppService = mFragmentCallBack.getService();
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnHeadlineSelectedListener");
+        }
     }
 
-    public static FriendChatFragment getInstance(XmppService mXmppService,Handler mainHandler) {
+    public static FriendChatFragment getInstance() {
         if (friendChatFragment == null)
-            friendChatFragment = new FriendChatFragment(mXmppService, mainHandler);
+            friendChatFragment = new FriendChatFragment();
         return friendChatFragment;
     }
 

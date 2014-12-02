@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="changelog_full_title">更新日志</string>
-    <string name="changelog_title">更新日志</string>
-    <string name="coverview_tip">上滑可关闭此界面</string>
+
     <string name="pull_to_refresh_pull_label">下拉刷新…</string>
     <string name="pull_to_refresh_release_label">放开以刷新…</string>
     <string name="pull_to_refresh_refreshing_label">正在载入…</string>
@@ -12,9 +10,6 @@
     <string name="pull_to_refresh_from_bottom_refreshing_label">@string/pull_to_refresh_refreshing_label</string>
     <string name="app_information">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;\
         本应用是基于Xmpp协议的一款轻量级即时通讯软件</string>
-    <string name="login_help_information">Tips:帐号由ID+@+服务器IP!\n
-        例如：way.ping.li@gmail.com,\n
-   		或者：way@192.168.1.110</string>
     <!-- StatusPopUp -->
     <string name="default_group">我的好友</string>
     <string name="AddContact_SpinnerPrompt">选择分组</string>

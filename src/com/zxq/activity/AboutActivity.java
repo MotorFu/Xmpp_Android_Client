@@ -7,7 +7,6 @@ import android.widget.TextView;
 
 import com.zxq.xmpp.R;
 import com.zxq.ui.swipeback.SwipeBackActivity;
-import com.zxq.ui.view.ChangeLog;
 
 public class AboutActivity extends SwipeBackActivity {
 
@@ -19,7 +18,4 @@ public class AboutActivity extends SwipeBackActivity {
 		Linkify.addLinks(tv, Linkify.ALL);
 	}
 
-	public void showChangeLog(View view) {
-		new ChangeLog(this).getFullLogDialog().show();
-	}
 }
