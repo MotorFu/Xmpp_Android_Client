@@ -46,6 +46,7 @@ public class GroupChatFragment extends Fragment {
 
     public static String GROUP_CHAT_ROOM_JID = "GCRJ";
     public static String GROUP_CHAT_ROOM_PASD = "PASD";
+    public static String GROUP_CHAT_ROOM_NAME = "NAME";
 
     public static GroupChatFragment getInstance() {
         if (groupChatFragment == null)
@@ -99,6 +100,7 @@ public class GroupChatFragment extends Fragment {
                         multiUserChat.leave();
                         Intent intent = new Intent();
                         intent.putExtra(GROUP_CHAT_ROOM_JID, groupEntry.getJid());
+                        intent.putExtra(GROUP_CHAT_ROOM_NAME, groupEntry.getTitle());
                         intent.putExtra(GROUP_CHAT_ROOM_PASD, "");
                         intent.setClass(GroupChatFragment.this.getActivity(), GroupChatActivity.class);
                         GroupChatFragment.this.startActivity(intent);
@@ -135,6 +137,7 @@ public class GroupChatFragment extends Fragment {
                     groupPasswordInputDialog.dismiss();
                     Intent intent = new Intent();
                     intent.putExtra(GROUP_CHAT_ROOM_JID, groupEntry.getJid());
+                    intent.putExtra(GROUP_CHAT_ROOM_NAME, groupEntry.getTitle());
                     intent.putExtra(GROUP_CHAT_ROOM_PASD, password);
 
                     intent.setClass(GroupChatFragment.this.getActivity(), GroupChatActivity.class);

@@ -45,14 +45,14 @@ public class InviterBroadcast extends BroadcastReceiver {
             public void onClick(View v) {
                 Intent toward = new Intent();
                 toward.putExtra(GroupChatFragment.GROUP_CHAT_ROOM_JID, room);
+                toward.putExtra(GroupChatFragment.GROUP_CHAT_ROOM_NAME,room.substring(0,room.indexOf("@")));
                 toward.putExtra(GroupChatFragment.GROUP_CHAT_ROOM_PASD, password);
                 toward.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 toward.setClass(activity, GroupChatActivity.class);
                 LogUtil.e(room+":"+inviter+":"+password+":"+inviter+":"+reason);
                 activity.startActivity(toward);
                 groupInviterDialog.dismiss();
-                //ToastUtil.showShort(context,room+":"+inviter+":"+password+":"+inviter+":"+reason+":"+message);
-            }
+              }
         });
         btnReject.setOnClickListener(new View.OnClickListener() {
             @Override

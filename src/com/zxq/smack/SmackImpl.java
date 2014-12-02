@@ -171,6 +171,7 @@ public class SmackImpl {
 
         this.mXMPPConnection = new XMPPConnection(mXMPPConfig);
         this.mService = service;
+
         mContentResolver = service.getContentResolver();
     }
 
@@ -209,6 +210,7 @@ public class SmackImpl {
                 public void reconnectionSuccessful() {
                 }
             });
+
             initServiceDiscovery();// 与服务器交互消息监听,发送消息需要回执，判断是否发送成功
             // SMACK 自动登录，如果已经验证
             if (!mXMPPConnection.isAuthenticated()) {
@@ -266,7 +268,7 @@ public class SmackImpl {
                     if (packet instanceof Message) {// 如果是消息类型
                         Message msg = (Message) packet;
 
-                        if (msg.getType() != Message.Type.groupchat) {
+                        if (msg.getType() != Message.Type.groupchat && msg.getType() != Message.Type.error) {
                             String chatMessage = msg.getBody();
 
                             // try to extract a carbon
@@ -719,6 +721,21 @@ public class SmackImpl {
             sdm = new ServiceDiscoveryManager(mXMPPConnection);
 
         sdm.addFeature("http://jabber.org/protocol/disco#info");
+        sdm.addFeature("http://jabber.org/protocol/caps");
+        sdm.addFeature("urn:xmpp:avatar:metadata");
+        sdm.addFeature("urn:xmpp:avatar:metadata+notify");
+        sdm.addFeature("urn:xmpp:avatar:data");
+        sdm.addFeature("http://jabber.org/protocol/nick");
+        sdm.addFeature("http://jabber.org/protocol/nick+notify");
+        sdm.addFeature("http://jabber.org/protocol/xhtml-im");
+        sdm.addFeature("http://jabber.org/protocol/muc");
+        sdm.addFeature("http://jabber.org/protocol/commands");
+        sdm.addFeature("http://jabber.org/protocol/si/profile/file-transfer");
+        sdm.addFeature("http://jabber.org/protocol/si");
+        sdm.addFeature("http://jabber.org/protocol/bytestreams");
+        sdm.addFeature("http://jabber.org/protocol/ibb");
+        sdm.addFeature("http://jabber.org/protocol/feature-neg");
+        sdm.addFeature("jabber:iq:privacy");
 
         // reference PingManager, set ping flood protection to 10s
         PingManager.getInstanceFor(mXMPPConnection).setPingMinimumInterval(10 * 1000);
@@ -732,6 +749,8 @@ public class SmackImpl {
                 changeMessageDeliveryStatus(receiptId, ChatConstants.DS_ACKED);// 标记为对方已读，实际上遇到了点问题，所以其实没有用上此状态
             }
         });
+
+
     }
 
 

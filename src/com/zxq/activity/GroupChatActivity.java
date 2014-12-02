@@ -69,6 +69,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
     private GroupChatListAdapter groupChatListAdapter;
     private String userName;
     private String passWord;
+    private boolean isAdmin;
 
     private static final String[] PROJECTION_FROM = new String[]{GroupChatConstants._ID, GroupChatConstants.DATE, GroupChatConstants.DIRECTION, GroupChatConstants.JID, GroupChatConstants.RoomJID, GroupChatConstants.MESSAGE};// 查询字段
 
@@ -151,15 +152,81 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 
     private void initData() {
         mRoomJID = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_JID);
+        mRoomName = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_NAME);
         final String name = mXmppService.getXmppUserName();
         userName = name.substring(0, name.indexOf("@"));
         passWord = getIntent().getStringExtra(GroupChatFragment.GROUP_CHAT_ROOM_PASD);
         multiUserChat = mXmppService.getMultiUserChatByRoomJID(mRoomJID);
+        isAdmin = false;
+        multiUserChat.addUserStatusListener(new UserStatusListener() {
+            @Override
+            public void kicked(final String s, String s1) {
+                LogUtil.e("------------------>kicked");
+                GroupChatActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ToastUtil.showShort(GroupChatActivity.this,"你已被管理员"+s.substring(0,s.indexOf("@"))+"移除聊天室。");
+                    }
+                });
+                GroupChatActivity.this.finish();
 
+            }
 
+            @Override
+            public void voiceGranted() {
+                LogUtil.e("------------------>voiceGranted");
+            }
 
+            @Override
+            public void voiceRevoked() {
+                LogUtil.e("------------------>voiceRevoked");
+            }
 
+            @Override
+            public void banned(String s, String s1) {
+                LogUtil.e("------------------>banned");
+            }
 
+            @Override
+            public void membershipGranted() {
+                LogUtil.e("------------------>membershipGranted");
+            }
+
+            @Override
+            public void membershipRevoked() {
+                LogUtil.e("------------------>membershipRevoked");
+            }
+
+            @Override
+            public void moderatorGranted() {
+                LogUtil.e("------------------>moderatorGranted");
+            }
+
+            @Override
+            public void moderatorRevoked() {
+                LogUtil.e("------------------>moderatorRevoked");
+            }
+
+            @Override
+            public void ownershipGranted() {
+                LogUtil.e("------------------>ownershipGranted");
+            }
+
+            @Override
+            public void ownershipRevoked() {
+                LogUtil.e("------------------>ownershipRevoked");
+            }
+
+            @Override
+            public void adminGranted() {
+                LogUtil.e("------------------>adminGranted");
+            }
+
+            @Override
+            public void adminRevoked() {
+                LogUtil.e("------------------>adminRevoked");
+            }
+        });
         DiscussionHistory history = new DiscussionHistory();
         history.setMaxStanzas(8);
         try {
@@ -168,21 +235,11 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
             e.printStackTrace();
         }
         try {
-            Form form = multiUserChat.getConfigurationForm();
-            if (form == null) {
-                ToastUtil.showShort(this, "网络错误，无法显示信息");
-                return;
-            }
-
-            FormField fieldRoomName = form.getField("muc#roomconfig_roomname");
-            Iterator<String> values = fieldRoomName.getValues();
-            while (values.hasNext()) {
-                String tempStr = values.next();
-                mRoomName = tempStr;
-                LogUtil.e("======================"+mRoomName);
-            }
+            multiUserChat.getConfigurationForm();
+            isAdmin = true;
         } catch (XMPPException e) {
             e.printStackTrace();
+            isAdmin = false;
         }
 
         multiUserChat.addInvitationRejectionListener(new InvitationRejectionListener() {
@@ -193,82 +250,6 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
             }
         });
 
-        multiUserChat.addParticipantStatusListener(new ParticipantStatusListener() {
-            @Override
-            public void joined(String s) {
-
-            }
-
-            @Override
-            public void left(String s) {
-
-            }
-
-            @Override
-            public void kicked(String s, String s1, String s2) {
-                GroupChatActivity.this.finish();
-            }
-
-            @Override
-            public void voiceGranted(String s) {
-
-            }
-
-            @Override
-            public void voiceRevoked(String s) {
-
-            }
-
-            @Override
-            public void banned(String s, String s1, String s2) {
-
-            }
-
-            @Override
-            public void membershipGranted(String s) {
-
-            }
-
-            @Override
-            public void membershipRevoked(String s) {
-
-            }
-
-            @Override
-            public void moderatorGranted(String s) {
-
-            }
-
-            @Override
-            public void moderatorRevoked(String s) {
-
-            }
-
-            @Override
-            public void ownershipGranted(String s) {
-
-            }
-
-            @Override
-            public void ownershipRevoked(String s) {
-
-            }
-
-            @Override
-            public void adminGranted(String s) {
-
-            }
-
-            @Override
-            public void adminRevoked(String s) {
-
-            }
-
-            @Override
-            public void nicknameChanged(String s, String s1) {
-
-            }
-        });
 
         mTitleNameView.setText(mRoomName);
 
@@ -324,6 +305,10 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
                 btnInfoChange.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        if(!isAdmin){
+                            ToastUtil.showShort(GroupChatActivity.this,"你不是管理员，无法进行此操作！");
+                            return;
+                        }
                         Intent intent = new Intent();
                         intent.setClass(GroupChatActivity.this, EditGroupInfoActivity.class);
                         intent.putExtra(MULTI_USER_CHAT_ROOM_JID, mRoomJID);
@@ -335,6 +320,10 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
                 btnKillMenber.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        if(!isAdmin){
+                            ToastUtil.showShort(GroupChatActivity.this,"你不是管理员，无法进行此操作！");
+                            return;
+                        }
                         Intent intent = new Intent();
                         intent.setClass(GroupChatActivity.this, GroupOccupantsActivity.class);
                         intent.putExtra(MULTI_USER_CHAT_ROOM_JID, mRoomJID);
@@ -367,43 +356,6 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
         multiUserChat.leave();
     }
 
-    private boolean isAdmin(MultiUserChat muc) {
-        //TODO:待考虑实现验证是否为管理员
-        boolean isAdmin = false;
-        LogUtil.e("======isAdmin======", mXmppService.getXmppUserName());
-        //muc.a
-//        try {
-//            Collection<Affiliate> admins = muc.getAdmins();
-//            Iterator<Affiliate> iterator = admins.iterator();
-//            while (iterator.hasNext()){
-//                Affiliate next = iterator.next();
-//                String adminJid = next.getJid();
-//                LogUtil.e("======isAdmin======|||",adminJid);
-//               if(userName.equals(adminJid)){
-//                   isAdmin = true;
-//               }
-//            }
-//        } catch (XMPPException e) {
-//            e.printStackTrace();
-//        }
-
-        try {
-            Collection<Affiliate> owners = muc.getOwners();
-            Iterator<Affiliate> iterator = owners.iterator();
-            while (iterator.hasNext()) {
-                Affiliate next = iterator.next();
-                String adminJid = next.getJid();
-                LogUtil.e("======isAdmin======|||", adminJid);
-                if (userName.equals(adminJid)) {
-                    isAdmin = true;
-                }
-            }
-        } catch (XMPPException e) {
-            e.printStackTrace();
-        }
-
-        return isAdmin;
-    }
 
     /**
      * 设置聊天的Adapter
