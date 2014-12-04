@@ -276,10 +276,6 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
             }
         });
 
-
-        //TODO:======待考虑实现验证是否为管理员======
-        // ToastUtil.showShort(this, "" + isAdmin(multiUserChat));
-        // 将表情map的key保存在数组中
         Set<String> keySet = XmppApplication.getInstance().getFaceMap().keySet();
         mFaceMapKeys = new ArrayList<String>();
         mFaceMapKeys.addAll(keySet);
@@ -438,13 +434,16 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
                 int i = data.getIntExtra(EditGroupInfoActivity.EDIT_GROUP_CODE_INTENT_VALUE, EditGroupInfoActivity.EDIT_GROUP_CODE_ERROR);
                 if (i == EditGroupInfoActivity.EDIT_GROUP_CODE_OK) {
                     String change = data.getStringExtra(EditGroupInfoActivity.EDIT_GROUP_CODE_INTENT_TITLE);
-                    LogUtil.e("aaaaaaaaaaaaa"+change);
                     mTitleNameView.setText(change);
-
                 } else if (i == EditGroupInfoActivity.EDIT_GROUP_CODE_ERROR) {
 
-                } else {
-
+                } else if (i == EditGroupInfoActivity.EDIT_GROUP_CODE_REMOVE_ROOM){
+                    try {
+                        multiUserChat.destroy("no why!","");
+                    } catch (XMPPException e) {
+                        e.printStackTrace();
+                    }
+                    GroupChatActivity.this.finish();
                 }
             }
         } else if (requestCode == REQUEST_CODE_INVITE) {

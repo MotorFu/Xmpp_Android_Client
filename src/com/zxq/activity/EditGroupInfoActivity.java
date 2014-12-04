@@ -36,6 +36,7 @@ public class EditGroupInfoActivity extends Activity {
     public static final int EDIT_GROUP_CODE_KEY = 0X788;
     public static final int EDIT_GROUP_CODE_OK = 0X787;
     public static final int EDIT_GROUP_CODE_ERROR = 0X786;
+    public static final int EDIT_GROUP_CODE_REMOVE_ROOM = 0X796;
     public static final String EDIT_GROUP_CODE_INTENT_VALUE = "EDIT_GROUP_CODE_INTENT_VALUE";
     public static final String EDIT_GROUP_CODE_INTENT_TITLE = "EDIT_GROUP_CODE_INTENT_TITLE";
 
@@ -85,7 +86,6 @@ public class EditGroupInfoActivity extends Activity {
 
     private void setupData() {
         mRoomJID = getIntent().getStringExtra(GroupChatActivity.MULTI_USER_CHAT_ROOM_JID);
-        //ToastUtil.showShort(this,mRoomJID);
         multiUserChat = mXmppService.getMultiUserChatByRoomJID(mRoomJID);
         //获取聊天室的配置表单
 
@@ -196,70 +196,31 @@ public class EditGroupInfoActivity extends Activity {
         btnDeleteGroup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               // multiUserChat.
+                final Dialog groupExitDialog = DialogUtil.getGroupExitDialog(EditGroupInfoActivity.this);
+                Button btnOk = (Button) groupExitDialog.findViewById(R.id.group_exit_dialog_btn_ok);
+                Button btnCancel = (Button) groupExitDialog.findViewById(R.id.group_exit_dialog_btn_cancel);
+                btnOk.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent();
+                        intent.putExtra(EDIT_GROUP_CODE_INTENT_VALUE,EDIT_GROUP_CODE_REMOVE_ROOM);
+                        EditGroupInfoActivity.this.setResult(EDIT_GROUP_CODE_KEY, intent);
+                        groupExitDialog.dismiss();
+                        EditGroupInfoActivity.this.finish();
+                    }
+                });
+
+                btnCancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        groupExitDialog.dismiss();
+                    }
+                });
+
+                groupExitDialog.show();
             }
         });
 
-
-//        if(form != null) {
-//
-//            Iterator<FormField> fields = form.getFields();
-//            while (fields.hasNext()) {
-//                FormField next = fields.next();
-//                LogUtil.e("==========" + next.getLabel() + "==========");
-//                Iterator<FormField.Option> options = next.getOptions();
-//                LogUtil.e("----------options-----------");
-//                while (options.hasNext()) {
-//                    FormField.Option option = options.next();
-//                    LogUtil.e("{");
-//                    LogUtil.e("--------" + option.getLabel() + "----------");
-//                    LogUtil.e("---" + option.getValue());
-//                    LogUtil.e("}");
-//                }
-//                LogUtil.e("--------" + next.getDescription());
-//                LogUtil.e("--------" + next.getType());
-//                LogUtil.e("--------" + next.getVariable());
-//                LogUtil.e("----------values-----------");
-//                values = next.getValues();
-//                while (values.hasNext()) {
-//                    String value = values.next();
-//                    LogUtil.e("{");
-//                    LogUtil.e("--------" + value + "----------");
-//                    LogUtil.e("}");
-//                }
-//                LogUtil.e("=======================================");
-//
-//            }
-//        }
-
-//            //根据原始表单创建一个要提交的新表单
-//            Form submitForm = form.createAnswerForm();
-//            //向提交的表单添加默认答复
-//            for (Iterator<FormField> fields = form.getFields(); fields.hasNext(); ) {
-//                FormField field = (FormField) fields.next();
-//                if (!FormField.TYPE_HIDDEN.equals(field.getType()) && field.getVariable() != null) {
-//                    submitForm.setDefaultAnswer(field.getVariable());
-//                }
-//            }
-//            //重新设置聊天室名称（修改名称）
-//            submitForm.setAnswer("muc#roomconfig_roomname", "Reserved4 Room");
-//            //设置聊天室的新拥有者（群主转让）
-//            List<String> owners = new ArrayList<String>();
-//            owners.add("test@pc2010102716");
-//            submitForm.setAnswer("muc#roomconfig_roomowners", owners);
-//            //设置密码 （设置密码保护，进入需要密码）
-//            submitForm.setAnswer("muc#roomconfig_passwordprotectedroom", true);
-//            submitForm.setAnswer("muc#roomconfig_roomsecret", "reserved");
-//            //设置描述  （设置群描述）
-//            submitForm.setAnswer("muc#roomconfig_roomdesc", "新创建的reserved聊天室");
-//            //设置聊天室是持久聊天室，即将要被保存下来（是否持久此聊天室）
-//            //submitForm.setAnswer("muc#roomconfig_persistentroom", true);
-//            //发送已完成的表单到服务器配置聊天室 （发送至服务器）
-//            try {
-//                multiUserChat.sendConfigurationForm(submitForm);
-//            } catch (XMPPException e) {
-//                e.printStackTrace();
-//            }
 
     }
 

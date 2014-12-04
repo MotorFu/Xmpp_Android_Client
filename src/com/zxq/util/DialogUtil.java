@@ -1,6 +1,7 @@
 package com.zxq.util;
 
 import android.content.Context;
+import android.widget.Button;
 import com.zxq.xmpp.R;
 
 import android.app.Activity;
@@ -90,6 +91,12 @@ public class DialogUtil {
 	public static Dialog getGroupInviterDialog(Activity context) {
 		final Dialog dialog = new Dialog(context, R.style.DialogStyle);
 		dialog.setContentView(R.layout.group_inviter_dialog);
+		return dialog;
+	}
+
+	public static Dialog getGroupExitDialog(Activity context) {
+		final Dialog dialog = new Dialog(context, R.style.DialogStyle);
+		dialog.setContentView(R.layout.group_exit_dialog);
 		return dialog;
 	}
 

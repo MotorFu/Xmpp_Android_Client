@@ -96,7 +96,7 @@ public class GroupChatFragment extends Fragment {
                     name = name.substring(0, name.indexOf("@"));
                     MultiUserChat multiUserChat = mXmppService.getMultiUserChatByRoomJID(groupEntry.getJid());
                     try {
-                        multiUserChat.join(name, "");
+                        multiUserChat.join(name);
                         multiUserChat.leave();
                         Intent intent = new Intent();
                         intent.putExtra(GROUP_CHAT_ROOM_JID, groupEntry.getJid());
