@@ -104,9 +104,8 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
                 mTitleNameView.setText(XMPPHelper.splitJidAndServer(PreferenceUtils.getPrefString(MainActivity.this, PreferenceConstants.ACCOUNT, "")));
                 setStatusImage(true);
                 mTitleProgressBar.setVisibility(View.GONE);
-                setupFragmentData();
             }
-
+            setupFragmentData();
         }
 
         @Override
@@ -126,7 +125,7 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         mainContext = this;
         initSlidingMenu();
         initViews();
-
+        bindXMPPService();
     }
 
 
@@ -145,7 +144,6 @@ public class MainActivity extends BaseSlidingFragmentActivity implements OnClick
         super.onResume();
         setStatusImage(isConnected());
         XmppBroadcastReceiver.mListeners.add(this);
-        bindXMPPService();
         if (NetUtil.getNetworkState(this) == NetUtil.NETWORN_NONE)
             mNetErrorView.setVisibility(View.VISIBLE);
         else

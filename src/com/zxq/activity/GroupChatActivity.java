@@ -329,12 +329,17 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
                         while (iterator.hasNext()){
                             String next = iterator.next();
                             Occupant occupant = multiUserChat.getOccupant(next);
-                            SerializationOccupant serializationOccupant = new SerializationOccupant();
-                            serializationOccupant.setJid(occupant.getJid());
-                            serializationOccupant.setNick(occupant.getNick());
-                            serializationOccupant.setAffiliation(occupant.getAffiliation());
-                            serializationOccupant.setRole(occupant.getRole());
-                            arrayList.add(serializationOccupant);
+                            if("owner".equals(occupant.getAffiliation().toLowerCase())){
+                                continue;
+                            }else {
+                                SerializationOccupant serializationOccupant = new SerializationOccupant();
+                                serializationOccupant.setJid(occupant.getJid());
+                                serializationOccupant.setNick(occupant.getNick());
+                                serializationOccupant.setAffiliation(occupant.getAffiliation());
+                                serializationOccupant.setRole(occupant.getRole());
+                                arrayList.add(serializationOccupant);
+                            }
+
                         }
                         intent.putExtra(MULTI_USER_CHAT_ROOM_OCCUPANTS,arrayList);
                         GroupChatActivity.this.startActivityForResult(intent, REQUEST_CODE_KILL_MENBER);

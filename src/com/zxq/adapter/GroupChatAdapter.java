@@ -44,17 +44,17 @@ public class GroupChatAdapter extends SimpleCursorAdapter {
 		String jid = cursor.getString(cursor.getColumnIndex(GroupChatConstants.JID));
         String roomJid = cursor.getString(cursor.getColumnIndex(GroupChatConstants.RoomJID));
 		ViewHolder viewHolder;
-		if (convertView == null || convertView.getTag(R.drawable.ic_launcher + come) == null) {
+		if (convertView == null || convertView.getTag(R.drawable.qq_icon + come) == null) {
 			if (come == GroupChatConstants.OUTGOING) {
 				convertView = mInflater.inflate(R.layout.activity_chat_item_right, parent, false);
 			} else {
 				convertView = mInflater.inflate(R.layout.activity_chat_item_left, null);
 			}
 			viewHolder = buildHolder(convertView);
-			convertView.setTag(R.drawable.ic_launcher + come, viewHolder);
-			convertView.setTag(R.string.app_name, R.drawable.ic_launcher + come);
+			convertView.setTag(R.drawable.qq_icon + come, viewHolder);
+			convertView.setTag(R.string.app_name, R.drawable.qq_icon + come);
 		} else {
-			viewHolder = (ViewHolder) convertView.getTag(R.drawable.ic_launcher + come);
+			viewHolder = (ViewHolder) convertView.getTag(R.drawable.qq_icon + come);
 		}
 
 		bindViewData(viewHolder, date, from_me,jid, message);

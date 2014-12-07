@@ -2,6 +2,7 @@ package com.zxq.adapter;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.zxq.activity.FriendInfoActivity;
 import com.zxq.db.RosterProvider;
 import com.zxq.db.RosterProvider.RosterConstants;
 import com.zxq.service.XmppService;
@@ -158,10 +160,10 @@ public class RosterAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        Roster roster = getChild(groupPosition, childPosition);
+        final Roster roster = getChild(groupPosition, childPosition);
         int presenceMode = Integer.parseInt(roster.getStatusMode());
         ViewHolder holder;
-        if (convertView == null || convertView.getTag(R.drawable.ic_launcher + presenceMode) == null) {
+        if (convertView == null || convertView.getTag(R.drawable.qq_icon + presenceMode) == null) {
             LogUtil.i("liweiping", "new  child ");
             holder = new ViewHolder();
             convertView = mInflater.inflate(R.layout.contact_list_item_for_buddy, parent, false);
@@ -170,11 +172,11 @@ public class RosterAdapter extends BaseExpandableListAdapter {
             holder.nickView = (TextView) convertView.findViewById(R.id.contact_list_item_name);
             holder.onlineModeView = (ImageView) convertView.findViewById(R.id.online_mode);
             holder.statusMsgView = (TextView) convertView.findViewById(R.id.contact_list_item_state);
-            convertView.setTag(R.drawable.ic_launcher + presenceMode, holder);
-            convertView.setTag(R.string.app_name, R.drawable.ic_launcher + presenceMode);
+            convertView.setTag(R.drawable.qq_icon + presenceMode, holder);
+            convertView.setTag(R.string.app_name, R.drawable.qq_icon + presenceMode);
         } else {
             LogUtil.i("liweiping", "get child form case");
-            holder = (ViewHolder) convertView.getTag(R.drawable.ic_launcher + presenceMode);
+            holder = (ViewHolder) convertView.getTag(R.drawable.qq_icon + presenceMode);
         }
 
         if(roster.getAlias() == null || "".equals(roster.getAlias().trim())){
@@ -198,6 +200,16 @@ public class RosterAdapter extends BaseExpandableListAdapter {
             Drawable userAvatar = ImageTools.byteToDrawable(vCard.getAvatar());
             holder.headView.setImageDrawable(userAvatar);
         }
+        holder.headView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setClass(mContext,FriendInfoActivity.class);
+                //intent.putExtra(FriendInfoActivity.FRIEND_JID_KEY,"admin@192.168.56.1");
+                intent.putExtra(FriendInfoActivity.FRIEND_JID_KEY,roster.getJid());
+                mContext.startActivity(intent);
+            }
+        });
         return convertView;
     }
 

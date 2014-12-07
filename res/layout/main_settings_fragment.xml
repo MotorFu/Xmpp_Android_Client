@@ -44,7 +44,7 @@
                         android:layout_height="50.0dip"
                         android:layout_gravity="center"
                         android:contentDescription="@null"
-                        android:src="@drawable/ic_launcher" />
+                        android:src="@drawable/qq_icon" />
 
                     <ImageView
                         android:id="@+id/statusIcon"

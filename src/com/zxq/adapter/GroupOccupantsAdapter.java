@@ -92,7 +92,7 @@ public class GroupOccupantsAdapter extends BaseAdapter {
                 }
             }
         });
-        groupHolder.occupantsName.setText(occupantsEntry.getNick()+":"+occupantsEntry.getAffiliation()+":"+occupantsEntry.getRole());
+        groupHolder.occupantsName.setText(occupantsEntry.getNick());
         return convertView;
     }
 

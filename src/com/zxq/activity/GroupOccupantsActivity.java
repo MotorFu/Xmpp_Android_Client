@@ -25,7 +25,6 @@ import java.util.*;
 public class GroupOccupantsActivity extends Activity {
     private ImageView actionBarBack;
     private TextView acitonBarTitle;
-    private XmppService mXmppService;
     private GroupOccupantsAdapter mAdapter;
     private HashMap<String,Boolean> checked;
     private Button btnCheck;
@@ -39,33 +38,8 @@ public class GroupOccupantsActivity extends Activity {
 
 
 
-    private void bindXMPPService() {
-        LogUtil.i(RegisterActivity.class, "[SERVICE] Unbind");
-        Intent mServiceIntent = new Intent(this, XmppService.class);
-        bindService(mServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE + Context.BIND_DEBUG_UNBIND);
-    }
 
-    private void unbindXMPPService() {
-        try {
-            unbindService(mServiceConnection);
-            LogUtil.i(RegisterActivity.class, "[SERVICE] Unbind");
-        } catch (IllegalArgumentException e) {
-            LogUtil.e(RegisterActivity.class, "Service wasn't bound!");
-        }
-    }
 
-    ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            mXmppService = ((XmppService.XXBinder) service).getService();
-            setupDate();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mXmppService = null;
-        }
-    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -81,7 +55,7 @@ public class GroupOccupantsActivity extends Activity {
             }
         });
         initView();
-        bindXMPPService();
+        setupDate();
     }
 
     private void setupDate() {
@@ -133,7 +107,6 @@ public class GroupOccupantsActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        unbindXMPPService();
     }
 
 

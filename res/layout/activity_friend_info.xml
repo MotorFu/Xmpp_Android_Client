@@ -225,23 +225,6 @@
                             android:layout_centerVertical="true"/>
                 </RelativeLayout>
 
-
-                <Button
-                        android:id="@+id/person_info_btn_edit_info"
-                        style="@style/ButtonRed"
-                        android:layout_width="fill_parent"
-                        android:layout_height="46.0dip"
-                        android:layout_marginTop="15.0dip"
-                        android:background="@drawable/common_btn_green"
-                        android:text="@string/edit_person_info"/>
-                <Button
-                        android:id="@+id/person_info_btn_edit_password"
-                        style="@style/ButtonRed"
-                        android:layout_width="fill_parent"
-                        android:layout_height="46.0dip"
-                        android:layout_marginTop="15.0dip"
-                        android:background="@drawable/common_btn_red"
-                        android:text="@string/edit_person_password"/>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

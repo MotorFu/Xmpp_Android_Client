@@ -138,9 +138,6 @@ public class FriendChatFragment extends Fragment {
     private void setupData() {
         mRosterAdapter = new RosterAdapter(this.getActivity(),mXmppService);
         mFriendChatTreeView.setAdapter(mRosterAdapter);
-//        mRosterAdapter = new RosterAdapter(this.getActivity(), mFriendChatTreeView);
-//        mFriendChatTreeView.setAdapter(mRosterAdapter);
-//        mRosterAdapter.requery();
     }
 
     @Override

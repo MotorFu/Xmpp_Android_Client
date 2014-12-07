@@ -136,18 +136,18 @@ public class RosterChooseAdapter extends BaseExpandableListAdapter {
         final Roster roster = getChild(groupPosition, childPosition);
         int presenceMode = Integer.parseInt(roster.getStatusMode());
         final ViewHolder holder;
-        if (convertView == null || convertView.getTag(R.drawable.ic_launcher + presenceMode) == null) {
+        if (convertView == null || convertView.getTag(R.drawable.qq_icon + presenceMode) == null) {
             LogUtil.i("liweiping", "new  child ");
             holder = new ViewHolder();
             convertView = mInflater.inflate(R.layout.contact_list_item_for_choose, parent, false);
             holder.headView = (ImageView) convertView.findViewById(R.id.contact_icon);
             holder.nickView = (TextView) convertView.findViewById(R.id.contact_name);
             holder.checkBox = (CheckBox) convertView.findViewById(R.id.contact_checkbox);
-            convertView.setTag(R.drawable.ic_launcher + presenceMode, holder);
-            convertView.setTag(R.string.app_name, R.drawable.ic_launcher + presenceMode);
+            convertView.setTag(R.drawable.qq_icon + presenceMode, holder);
+            convertView.setTag(R.string.app_name, R.drawable.qq_icon + presenceMode);
         } else {
             LogUtil.i("liweiping", "get child form case");
-            holder = (ViewHolder) convertView.getTag(R.drawable.ic_launcher + presenceMode);
+            holder = (ViewHolder) convertView.getTag(R.drawable.qq_icon + presenceMode);
         }
 
         if(roster.getAlias() == null || "".equals(roster.getAlias().trim())){
