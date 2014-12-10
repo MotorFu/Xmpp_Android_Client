@@ -3,7 +3,7 @@
                 android:id="@id/dialogRoot"
                 style="@style/common_menu_dialog_layout_style"
                 android:layout_width="300.0dip"
-                android:layout_height="240.0dp"
+                android:layout_height="280.0dp"
                 android:layout_gravity="center_horizontal"
                 android:background="@drawable/dialog_bg">
 

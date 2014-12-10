@@ -96,7 +96,8 @@ public class GroupChatFragment extends Fragment {
                     name = name.substring(0, name.indexOf("@"));
                     MultiUserChat multiUserChat = mXmppService.getMultiUserChatByRoomJID(groupEntry.getJid());
                     try {
-                        multiUserChat.join(name);
+
+                        multiUserChat.join(name,null);
                         multiUserChat.leave();
                         Intent intent = new Intent();
                         intent.putExtra(GROUP_CHAT_ROOM_JID, groupEntry.getJid());
@@ -106,9 +107,11 @@ public class GroupChatFragment extends Fragment {
                         GroupChatFragment.this.startActivity(intent);
                     } catch (XMPPException e) {
                         e.printStackTrace();
-                        //ToastUtil.showShort(GroupChatFragment.this.getActivity(),e.getMessage());
                         if(e.getMessage().equals("not-authorized(401)")){
                            displayPasswordDialog(groupEntry);
+                        }
+                        if(e.getMessage().equals("not-acceptable(406)")){
+                            ToastUtil.showShort(GroupChatFragment.this.getActivity(),"聊天室初始化未完成.");
                         }
 
                     }

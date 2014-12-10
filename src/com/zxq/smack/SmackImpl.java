@@ -1268,6 +1268,7 @@ public class SmackImpl {
             submitForm.setAnswer("x-muc#roomconfig_canchangenick", false);
             // 允许用户注册房间
             submitForm.setAnswer("x-muc#roomconfig_registration", false);
+
             // 发送已完成的表单（有默认值）到服务器来配置聊天室
             muc.sendConfigurationForm(submitForm);
             return true;

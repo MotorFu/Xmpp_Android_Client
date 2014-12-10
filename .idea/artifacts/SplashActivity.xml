@@ -6,7 +6,7 @@
         <option name="keyStoreUrl" value="file://D:/weather.jks" />
         <option name="proGuardCfgFiles">
           <list>
-            <option value="file://%MODULE_SDK_HOME%/tools/proguard/proguard-android.txt" />
+            <option value="file://C:/Program Files (x86)/android/sdk/tools/proguard/proguard-android.txt" />
           </list>
         </option>
         <option name="signingMode" value="DEBUG" />
