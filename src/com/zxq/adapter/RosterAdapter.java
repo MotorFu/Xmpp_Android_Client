@@ -191,6 +191,10 @@ public class RosterAdapter extends BaseExpandableListAdapter {
 
         convertView.setTag(R.id.xxx01, groupPosition);
         convertView.setTag(R.id.xxx02, childPosition);
+        if(!mXmppService.isAuthenticated()){
+            ToastUtil.showShort(mContext,"网络正在连接中...");
+            return convertView;
+        }
         VCard vCard = mXmppService.getUserAvatarByName(roster.getJid());
         vCard.getAvatar();
         byte[] userAvatarByte = vCard.getAvatar();

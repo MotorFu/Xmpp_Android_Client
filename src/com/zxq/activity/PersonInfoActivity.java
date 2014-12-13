@@ -120,6 +120,10 @@ public class PersonInfoActivity extends Activity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mXmppService = ((XmppService.XXBinder) service).getService();
+            if(mXmppService == null || !mXmppService.isAuthenticated()){
+                PersonInfoActivity.this.finish();
+                return;
+            }
             setupData();
         }
 

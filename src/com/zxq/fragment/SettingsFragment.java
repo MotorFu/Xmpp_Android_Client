@@ -140,6 +140,9 @@ public class SettingsFragment extends Fragment implements OnClickListener, OnChe
                 e.printStackTrace();
             }
             XmppService xmppService = mFragmentCallBack.getService();
+            if(xmppService == null || !xmppService.isAuthenticated()){
+                return;
+            }
             VCard vCard = xmppService.getMyInfo();
             if(vCard != null) {
                 byte[] userAvatarByte = vCard.getAvatar();

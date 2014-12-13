@@ -187,6 +187,11 @@ public class RecentChatFragment extends Fragment implements OnClickListener {
 			btnCreateGroup.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
+					XmppService xmppService = mFragmentCallBack.getService();
+					if (xmppService == null || !xmppService.isAuthenticated()) {
+						ToastUtil.showShort(RecentChatFragment.this.getActivity(),"网络未连接,请连接后再执行该操作.");
+						return;
+					}
 					Intent intent = new Intent();
 					intent.setClass(RecentChatFragment.this.getActivity(), CreateGroupChatActivity.class);
 					RecentChatFragment.this.getActivity().startActivity(intent);
@@ -198,6 +203,7 @@ public class RecentChatFragment extends Fragment implements OnClickListener {
 				public void onClick(View v) {
 					XmppService xmppService = mFragmentCallBack.getService();
 					if (xmppService == null || !xmppService.isAuthenticated()) {
+						ToastUtil.showShort(RecentChatFragment.this.getActivity(),"网络未连接,请连接后再执行该操作.");
 						return;
 					}
 					new AddRosterItemDialog(mFragmentCallBack.getMainActivity(), xmppService).show();// 添加联系人

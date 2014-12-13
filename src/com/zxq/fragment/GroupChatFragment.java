@@ -80,8 +80,11 @@ public class GroupChatFragment extends Fragment {
     }
 
     private void setupData() {
-        XmppService xmppService = mFragmentCallBack.getService();
-        mXmppService = xmppService;
+        mXmppService = mFragmentCallBack.getService();
+        if(mXmppService == null || !mXmppService.isAuthenticated()){
+            ToastUtil.showShort(GroupChatFragment.this.getActivity(),"网络未连接,请连接后再执行该操作.");
+            return;
+        }
         groupEntryList = mXmppService.getGroupEntryList();
         groupChatAdapter = new GroupChatAdapter(groupEntryList, this.getActivity());
         listView.setAdapter(groupChatAdapter);
