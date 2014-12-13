@@ -89,17 +89,13 @@
                     android:layout_height="1.0px"
                     android:background="#ffcfd4da" />
 
-            <View
-                    android:layout_width="fill_parent"
-                    android:layout_height="1.0px"
-                    android:background="#ffcfd4da" />
             <RelativeLayout
                     android:layout_width="fill_parent"
-                    android:layout_height="wrap_content" >
+                    android:layout_height="40dp" >
                 <Spinner
                         android:id="@+id/create_group_info_spinner_room_person_number"
                         android:layout_width="80dip"
-                        android:layout_height="28dip"
+                        android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
                         android:layout_centerVertical="true"
                         android:layout_marginRight="8.0dip"/>
@@ -120,11 +116,11 @@
                     android:background="#ffcfd4da" />
             <RelativeLayout
                     android:layout_width="fill_parent"
-                    android:layout_height="wrap_content" >
+                    android:layout_height="40dp" >
                     <com.zxq.ui.switcher.Switch
                             android:id="@+id/create_group_info_switch_password_protect"
                             android:layout_width="80dip"
-                            android:layout_height="28dip"
+                            android:layout_height="wrap_content"
                             android:layout_alignParentRight="true"
                             android:layout_centerVertical="true"
                             android:layout_marginRight="8.0dip" />

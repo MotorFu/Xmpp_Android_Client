@@ -112,7 +112,6 @@ public class FriendChatFragment extends Fragment {
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                 String userJid = mRosterAdapter.getChild(groupPosition, childPosition).getJid();
                 String userName = mRosterAdapter.getChild(groupPosition, childPosition).getAlias();
-                ToastUtil.showShort(FriendChatFragment.this.getActivity(),userJid+"====="+userName);
                 startChatActivity(userJid, userName);
                 return false;
             }
@@ -283,7 +282,7 @@ public class FriendChatFragment extends Fragment {
     }
 
     void removeRosterItemDialog(final String JID, final String userName) {
-        new AlertDialog.Builder(FriendChatFragment.this.getActivity()).setTitle(R.string.deleteRosterItem_title).setMessage(getString(R.string.deleteRosterItem_text, userName, JID)).setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+        new AlertDialog.Builder(FriendChatFragment.this.getActivity()).setTitle(R.string.deleteRosterItem_title).setMessage(getString(R.string.deleteRosterItem_text, userName)).setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 mXmppService.removeRosterItem(JID);
             }

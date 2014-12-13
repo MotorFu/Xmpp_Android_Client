@@ -19,7 +19,7 @@
     <string name="RenameEntry_title">重命名好友</string>
     <string name="MoveRosterEntryToGroupDialog_summ">请选择一个分组</string>
     <string name="MoveRosterEntryToGroupDialog_title">改变分组</string>
-    <string name="deleteRosterItem_text">确定删除%1$s(%2$s)?</string>
+    <string name="deleteRosterItem_text">确定删除%1$s?</string>
     <string name="deleteRosterItem_title">删除好友</string>
     <string name="deleteChatHistory_text">确定清空与%1$s(%2$s)的聊天消息记录?</string>
     <string name="deleteChatHistory_title">删除最近会话</string>
@@ -1346,7 +1346,7 @@
     <string name="app_error">应用程序错误</string>
     <string name="app_error_message">很抱歉，应用程序出现错误，即将退出。\n请选择邮件的方式将此错误报告提交给我，我会尽快修复这个问题，谢谢！</string>
     <string name="submit_report">提交报告</string>
-    <string name="setting_about_description">弹指间 心无间</string>
+    <string name="setting_about_description">IM最懂你</string>
     <string name="press_again_backrun">再按一次返回桌面</string>
     <string name="way_email_address">way.ping.li@gmail.com</string>
     <string name="settings_fragment_title">设  置</string>

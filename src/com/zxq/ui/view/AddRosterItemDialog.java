@@ -15,6 +15,7 @@ import android.widget.EditText;
 import com.zxq.exception.XmppAdressMalformedException;
 import com.zxq.util.PreferenceConstants;
 import com.zxq.util.PreferenceUtils;
+import com.zxq.util.ToastUtil;
 import com.zxq.xmpp.R;
 import com.zxq.activity.MainActivity;
 import com.zxq.service.XmppService;
@@ -64,7 +65,12 @@ public class AddRosterItemDialog extends AlertDialog implements DialogInterface.
 	}
 
 	public void onClick(DialogInterface dialog, int which) {
-		String userJinName = userInputField.getText().toString() +"@"+ PreferenceUtils.getPrefString(this.mMainActivity, PreferenceConstants.Server,PreferenceConstants.DEFAULT_SERVER);
+		String xmppUserName = mXmppService.getXmppUserName();
+		if(xmppUserName.substring(0,xmppUserName.indexOf("@")).equals(userInputField.getText().toString().trim())){
+			ToastUtil.showShort(mMainActivity,"不能将自己添加为好友！");
+			return;
+		}
+		String userJinName = userInputField.getText().toString().trim() +"@"+ PreferenceUtils.getPrefString(this.mMainActivity, PreferenceConstants.Server,PreferenceConstants.DEFAULT_SERVER);
 		mXmppService.addRosterItem(userJinName, aliasInputField.getText().toString(), mGroupNameView.getGroupName());
 	}
 

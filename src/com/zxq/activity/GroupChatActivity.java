@@ -444,7 +444,7 @@ public class GroupChatActivity extends SwipeBackActivity implements OnTouchListe
 
                 } else if (i == EditGroupInfoActivity.EDIT_GROUP_CODE_REMOVE_ROOM){
                     try {
-                        multiUserChat.destroy("no why!","");
+                        multiUserChat.destroy("no why!","NULL");
                     } catch (XMPPException e) {
                         e.printStackTrace();
                     }

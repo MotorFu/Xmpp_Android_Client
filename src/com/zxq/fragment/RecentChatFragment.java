@@ -70,8 +70,6 @@ public class RecentChatFragment extends Fragment implements OnClickListener {
 				ToastUtil.showShort(RecentChatFragment.this.getActivity(), "用户 " + user + " 已加入");
 			}
 		});
-
-
 	}
 	public void callbackWhenUpdateRoster(String name){
 		final String user = name.substring(0,name.indexOf("@"));
@@ -164,7 +162,6 @@ public class RecentChatFragment extends Fragment implements OnClickListener {
 			clickCursor.moveToPosition(position);
 			String jid = clickCursor.getString(clickCursor.getColumnIndex(ChatConstants.JID));
 			Uri userNameUri = Uri.parse(jid);
-            ToastUtil.showShort(RecentChatFragment.this.getActivity(),"jid:"+jid);
 			Intent toChatIntent = new Intent(getActivity(), ChatActivity.class);
 			toChatIntent.setData(userNameUri);
 			toChatIntent.putExtra(ChatActivity.INTENT_EXTRA_USERNAME, XMPPHelper.splitJidAndServer(jid));

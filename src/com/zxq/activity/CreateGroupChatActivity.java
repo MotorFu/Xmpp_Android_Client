@@ -66,6 +66,16 @@ public class CreateGroupChatActivity extends Activity {
                 String roomPassword = groupPassword.getText().toString();
                 String roomNumber = (groupNumber.getSelectedItemPosition()+1)*10+"";
                 boolean checked = passwordProtect.isChecked();
+                if(roomName.trim().length() < 6){
+                    ToastUtil.showShort(CreateGroupChatActivity.this,"房间名不能少于6个字！");
+                    return;
+                }
+                if(checked){
+                    if(roomPassword.trim().length() < 6){
+                        ToastUtil.showShort(CreateGroupChatActivity.this,"房间名不能少于6个字！");
+                        return;
+                    }
+                }
                 boolean isOk = mXmppService.createGroupChatRoom(roomName, roomDesc, checked, roomPassword, roomNumber);
                 if(isOk){
                     ToastUtil.showShort(CreateGroupChatActivity.this,"创建成功！");

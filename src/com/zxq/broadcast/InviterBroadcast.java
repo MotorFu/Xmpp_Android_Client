@@ -39,7 +39,7 @@ public class InviterBroadcast extends BroadcastReceiver {
         Button btnReject = (Button) groupInviterDialog.findViewById(R.id.group_inviter_dialog_btn_reject);
         roomName.setText(roomName.getText() + room.substring(0,room.indexOf("@")));
         roomInviter.setText(roomInviter.getText()+inviter.substring(0,inviter.indexOf("@")));
-        roomReason.setText(roomReason.getText()+reason);
+        roomReason.setText(roomReason.getText()+reason.substring(reason.indexOf(":")+1));
         btnInviter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

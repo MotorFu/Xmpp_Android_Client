@@ -59,7 +59,6 @@ public class GroupChatFragment extends Fragment {
         super.onAttach(activity);
         try {
             mFragmentCallBack = (FragmentCallBack) activity;
-
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement OnHeadlineSelectedListener");
         }
